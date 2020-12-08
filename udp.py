@@ -13,21 +13,6 @@ __date__ = "12/09/2020"
 import socket
 import paho.mqtt.client as mqtt
 import xmltodict
-<<<<<<< HEAD
-import json
-import os
-import sys
-print("Configurando UDP")
-try:
-    with open('config.json') as json_file:
-        data = json.load(json_file)
-        CONFIG = dict(data)
-        print("Datos de configuracion cargados desde fichero...")
-except:
-    if os.path.exists('cfg/stacks.json'):
-        os.remove('cfg/stacks.json')
-        print("Fallo en la carga de fichero de configuracion...")
-=======
 import os
 import json
 
@@ -70,13 +55,7 @@ except:
     with open('cfg/stn2.json', 'w') as fp:
         json.dump(STN2, fp)
     print("Datos de STN2 autogenerados...")
->>>>>>> monobanda
 
-MQTT_HOST = "127.0.0.1"
-MQTT_PORT = 1883
-
-STN1 = CONFIG['netbios-stn1']
-STN2 = CONFIG['netbios-stn2']
 
 def mqtt_connect():
     mqtt_c = mqtt.Client(transport='tcp')
@@ -110,14 +89,6 @@ def publish_radio_info(mqtt_c, radio_i):
                 mqtt_c.publish("stn1/radio1/band", radio_i[2])
                 mqtt_c.publish("stn1/radio1/mode", radio_i[4])
                 mqtt_c.publish("stn1/radio1/op", radio_i[5])
-<<<<<<< HEAD
-            if radio_i[1] == 2:
-                mqtt_c.publish("stn2/radio1/qrg", radio_i[3])
-                mqtt_c.publish("stn2/radio1/band", radio_i[2])
-                mqtt_c.publish("stn2/radio1/mode", radio_i[4])
-                mqtt_c.publish("stn2/radio1/op", radio_i[5])
-=======
->>>>>>> monobanda
         if radio_i[0] == 2:
             if radio_i[1] == 1:
                 mqtt_c.publish("stn2/radio1/qrg", radio_i[3])
@@ -147,25 +118,17 @@ def process_radio_info(xml_data, mqtt_c):
     if radio_i[0] == 0:
         print("STN no se ha encontrado: " + str(radio_i))
     else:
-        print("UDP " + str(radio_i))
+        print(str(radio_i))
 
 
 def process_xml(xml_data, mqtt_c):
     try:
         process_radio_info(xml_data, mqtt_c)
     except:
-        print("Paquete no valido")
+        print("Paquete no válido")
 
 
 def do_udp():
-<<<<<<< HEAD
-    try:
-        print("UDP a la escucha para %s y %s en puerto 12060" % (STN1, STN2))
-        mqtt_c = mqtt_connect()
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.bind(("0.0.0.0", 12060))
-        while True:
-=======
     global STN1
     global STN2
     print("Netbios STN1: " + STN1['netbios'])
@@ -175,32 +138,12 @@ def do_udp():
     sock.bind(("0.0.0.0", 12060))
     while True:
         try:
->>>>>>> monobanda
             data, address = sock.recvfrom(1024)
             data = data.decode('utf-8')
             xml_data = xmltodict.parse(data)
             process_xml(xml_data, mqtt_c)
-<<<<<<< HEAD
-    except KeyboardInterrupt:
-        print('\n** User exited.')
-        mqtt_c.disconnect()
-        sys.exit(0)
-    except EOFError:
-        print('\n** Closing connection due to EOFError: %s' % EOFError)
-        mqtt_c.disconnect()
-        sys.exit(1)
-    except OSError:
-        print('\n** Closing connection due to OSError: %s' % OSError)
-        mqtt_c.disconnect()
-        sys.exit(1)
-    except Exception as e:
-        print('\n** Closing connection due to an exception: %s' % str(e))
-        mqtt_c.disconnect()
-        sys.exit()
-=======
         except:
             pass
->>>>>>> monobanda
 
 
 if __name__ == '__main__':

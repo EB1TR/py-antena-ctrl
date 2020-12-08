@@ -1,99 +1,29 @@
 body {
-  font-family: sans-serif;
-  font-size: 14px;        
-  background-color: #000; 
-  color: #888
-
+    font-family: sans-serif;
+    font-size: 14px;
 }
 #contenor {
-  margin: 0px auto 0px auto;
+    margin: 0px auto 0px auto;
 }
 .tablestn {
-  margin: 0 auto;
-  background-color: #111;
-  border: 5px solid #444;
-  padding: 5px;
-  border-radius: 5px;
+    margin: 0 auto;
+    background-color: #ccc;
+    border: 1px solid black;
+    padding: 5px;
+    border-radius: 3px;
 }
-.spanitem, .shutdown {
-  border: 1px solid rgba(180,0,0,1.0);
-  text-align: center;
-  line-height: 27px;
-  display: inline-block;
-  background-color: rgba(255,0,0,0.1);
-  color: rgba(180,0,0,1.0);
-  width: 50px;
-  height: 25px;
-  border-radius: 3px;
-}
-.mandos {
+.spanitem {
+    border: 1px solid rgba(180,0,0,0.7);
+    text-align: center;
+    line-height: 27px;
     display: inline-block;
-    position: absolute;
-    top: 8px;
-    left: 5px;
-}
-.stnmode {
-  border: 1px solid rgba(180,180,180,1.0);
-  text-align: center;
-  line-height: 27px;
-  display: inline-block;
-  background-color: rgba(180,180,180,0.2);
-  color: rgba(180,180,180,1.0);
-  width: 50px;
-  height: 25px;
-  border-radius: 3px;
-  margin-bottom: 13px;
-}
-.shutdown {
-  border: 1px solid rgba(180,0,0,1.0);
-  background-color: rgba(255,0,0,0.1);
-  color: rgba(180,0,0,1.0);
-}
-.reboot {
-  border: 1px solid rgb(241, 132, 6);
-  background-color: rgba(241, 132, 6, 0.2);
-  color: rgb(255, 136, 0);
+    background-color: rgba(255,0,0,0.2);
+    color: rgba(180,0,0,0.7);
+    width: 50px;
+    height: 25px;
+    border-radius: 3px;
 }
 .spanitemselected {
-<<<<<<< HEAD
-  border: 1px solid rgba(0,110,0,1.0);
-  background-color: rgba(0,255,0,0.1);
-  color: rgba(0,110,0,1.0);
-}
-.blink {
-  animation: blink-animation 1s steps(5, start) infinite;        
-  -webkit-animation: blink-animation 1s steps(5, start) infinite;
-}
-.dbsig4 {
-  font-weight: bold;
-  color: red;
-}
-.dbsig3 {
-  font-weight: bold;
-  color: orange;
-}
-.dbsig2 {
-  font-weight: bold;
-  color: yellow;
-}
-.dbsig1 {
-  font-weight: bold;
-  color: green;
-}
-.dbsig0 {
-  font-weight: bold;
-  color: violet;
-}
-@keyframes blink-animation {
-  to {
-    visibility: hidden;
-  }
-}
-@-webkit-keyframes blink-animation {
-  to {
-    visibility: hidden;
-  }
-=======
     border: 1px solid rgba(0,110,0,0.7);
     background-color: rgba(0,255,0,0.2);
     color: rgba(0,110,0,0.7);
@@ -106,7 +36,6 @@ body {
 }
 .spanitemwselected {
     background-color: #1daa00;
->>>>>>> monobanda
 }
 .fieldsetconfig {
     width: 240px;
