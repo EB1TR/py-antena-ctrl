@@ -55,6 +55,7 @@ body {
   color: rgb(255, 136, 0);
 }
 .spanitemselected {
+<<<<<<< HEAD
   border: 1px solid rgba(0,110,0,1.0);
   background-color: rgba(0,255,0,0.1);
   color: rgba(0,110,0,1.0);
@@ -92,4 +93,32 @@ body {
   to {
     visibility: hidden;
   }
+=======
+    border: 1px solid rgba(0,110,0,0.7);
+    background-color: rgba(0,255,0,0.2);
+    color: rgba(0,110,0,0.7);
 }
+.spanitemnd {
+    border: 1px solid rgba(60,60,60,0.7);
+    background-color: rgba(0,0,0,0.2);
+    color: rgba(60,60,60,0.7);
+    display: none;
+}
+.spanitemwselected {
+    background-color: #1daa00;
+>>>>>>> monobanda
+}
+.fieldsetconfig {
+    width: 240px;
+}
+.labelconfig {
+    width: 50%;
+    display: inline-block;
+    text-align: left
+}
+.inputconfig {
+    width: 40%;
+    display: inline-block;
+    text-align: right
+}
+

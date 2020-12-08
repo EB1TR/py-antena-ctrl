@@ -13,6 +13,7 @@ __date__ = "12/09/2020"
 import socket
 import paho.mqtt.client as mqtt
 import xmltodict
+<<<<<<< HEAD
 import json
 import os
 import sys
@@ -26,6 +27,50 @@ except:
     if os.path.exists('cfg/stacks.json'):
         os.remove('cfg/stacks.json')
         print("Fallo en la carga de fichero de configuracion...")
+=======
+import os
+import json
+
+MQTT_HOST = "127.0.0.1"
+MQTT_PORT = 1883
+
+
+try:
+    with open('cfg/stn1.json') as json_file:
+        data = json.load(json_file)
+        STN1 = dict(data)
+        print("Datos de STN1 cargados desde fichero...")
+except:
+    if os.path.exists('cfg/stn1.json'):
+        os.remove('cfg/stn1.json')
+    STN1 = {
+        'netbios': "STN1",
+        'auto': True,
+        'ant': 0,
+        'band': 0
+    }
+    with open('cfg/stn1.json', 'w') as fp:
+        json.dump(STN1, fp)
+    print("Datos de STN1 autogenerados...")
+
+try:
+    with open('cfg/stn2.json') as json_file:
+        data = json.load(json_file)
+        STN2 = dict(data)
+        print("Datos de STN2 cargados desde fichero...")
+except:
+    if os.path.exists('cfg/stn2.json'):
+        os.remove('cfg/stn2.json')
+    STN2 = {
+        'netbios': "STN2",
+        'auto': True,
+        'ant': 0,
+        'band': 0
+    }
+    with open('cfg/stn2.json', 'w') as fp:
+        json.dump(STN2, fp)
+    print("Datos de STN2 autogenerados...")
+>>>>>>> monobanda
 
 MQTT_HOST = "127.0.0.1"
 MQTT_PORT = 1883
@@ -40,17 +85,17 @@ def mqtt_connect():
 
 
 def define_band(qrg):
-    if qrg in range(180000, 200000):
+    if qrg in range(175000, 205000):
         band = 160
-    elif qrg in range(350000, 400000):
+    elif qrg in range(345000, 400000):
         band = 80
-    elif qrg in range(700000, 720000):
+    elif qrg in range(695000, 735000):
         band = 40
-    elif qrg in range(1400000, 1435000):
+    elif qrg in range(1395000, 1440000):
         band = 20
-    elif qrg in range(2100000, 2145000):
+    elif qrg in range(2095000, 2150000):
         band = 15
-    elif qrg in range(2800000, 2970000):
+    elif qrg in range(2795000, 2970000):
         band = 10
     else:
         band = 0
@@ -65,22 +110,20 @@ def publish_radio_info(mqtt_c, radio_i):
                 mqtt_c.publish("stn1/radio1/band", radio_i[2])
                 mqtt_c.publish("stn1/radio1/mode", radio_i[4])
                 mqtt_c.publish("stn1/radio1/op", radio_i[5])
+<<<<<<< HEAD
             if radio_i[1] == 2:
                 mqtt_c.publish("stn2/radio1/qrg", radio_i[3])
                 mqtt_c.publish("stn2/radio1/band", radio_i[2])
                 mqtt_c.publish("stn2/radio1/mode", radio_i[4])
                 mqtt_c.publish("stn2/radio1/op", radio_i[5])
+=======
+>>>>>>> monobanda
         if radio_i[0] == 2:
             if radio_i[1] == 1:
                 mqtt_c.publish("stn2/radio1/qrg", radio_i[3])
                 mqtt_c.publish("stn2/radio1/band", radio_i[2])
                 mqtt_c.publish("stn2/radio1/mode", radio_i[4])
                 mqtt_c.publish("stn2/radio1/op", radio_i[5])
-            if radio_i[1] == 2:
-                mqtt_c.publish("stn2/radio2/qrg", radio_i[3])
-                mqtt_c.publish("stn2/radio2/band", radio_i[2])
-                mqtt_c.publish("stn2/radio2/mode", radio_i[4])
-                mqtt_c.publish("stn2/radio2/op", radio_i[5])
     except:
         print("MQTT problem")
 
@@ -94,9 +137,9 @@ def process_radio_info(xml_data, mqtt_c):
     op = str(xml_data["RadioInfo"]['OpCall'])
     op = op.upper()
     radio_i = [stn, radio, band, qrg, mode, op]
-    if xml_data["RadioInfo"]['StationName'] == STN1:
+    if xml_data["RadioInfo"]['StationName'] == STN1['netbios']:
         radio_i[0] = 1
-    if xml_data["RadioInfo"]['StationName'] == STN2:
+    if xml_data["RadioInfo"]['StationName'] == STN2['netbios']:
         radio_i[0] = 2
 
     publish_radio_info(mqtt_c, radio_i)
@@ -115,16 +158,29 @@ def process_xml(xml_data, mqtt_c):
 
 
 def do_udp():
+<<<<<<< HEAD
     try:
         print("UDP a la escucha para %s y %s en puerto 12060" % (STN1, STN2))
         mqtt_c = mqtt_connect()
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.bind(("0.0.0.0", 12060))
         while True:
+=======
+    global STN1
+    global STN2
+    print("Netbios STN1: " + STN1['netbios'])
+    print("Netbios STN2: " + STN2['netbios'])
+    mqtt_c = mqtt_connect()
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.bind(("0.0.0.0", 12060))
+    while True:
+        try:
+>>>>>>> monobanda
             data, address = sock.recvfrom(1024)
             data = data.decode('utf-8')
             xml_data = xmltodict.parse(data)
             process_xml(xml_data, mqtt_c)
+<<<<<<< HEAD
     except KeyboardInterrupt:
         print('\n** User exited.')
         mqtt_c.disconnect()
@@ -141,6 +197,10 @@ def do_udp():
         print('\n** Closing connection due to an exception: %s' % str(e))
         mqtt_c.disconnect()
         sys.exit()
+=======
+        except:
+            pass
+>>>>>>> monobanda
 
 
 if __name__ == '__main__':

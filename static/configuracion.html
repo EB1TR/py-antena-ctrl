@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="es">
+	<head>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+		<script src="config.js" type="text/javascript"></script>
+		<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="style.css">
+		<meta charset="utf-8">
+		<title>ED1B - SixPack & BPF Control</title>
+	</head>
+
+	<body style="text-align: center">
+    	<div id="contenor">
+			<form id="configuracion" action="#" method="post" style="width: 818px; margin: 0px auto;">
+                <table>
+                    <tr>
+                        <td>
+                            <fieldset class="fieldsetconfig">
+                                <legend>STN1</legend>
+                                <label class="labelconfig" for="name">Nombre:</label>
+                                <input class="inputconfig" type="text" name="stn1-n" id="name" /><br>
+                            </fieldset>
+                        </td>
+                        <td>
+                            <fieldset class="fieldsetconfig">
+                                <legend>STN2</legend>
+                                <label class="labelconfig" for="name">Nombre:</label>
+                                <input class="inputconfig" type="text" name="stn2-n" id="name" /><br>
+                            </fieldset>
+                        </td>
+                        <td>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <fieldset class="fieldsetconfig">
+                                <legend>160m</legend>
+                                <label class="labelconfig" for="name">Antenas:</label>
+                                <input class="inputconfig" type="number" min="1" max="3" name="a1600" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 1:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a1601" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 2:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a1602" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 3:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a1603" id="name" />
+                            </fieldset>
+                        </td>
+                        <td>
+                            <fieldset class="fieldsetconfig">
+                                <legend>80m</legend>
+                                <label class="labelconfig" for="name">Antenas:</label>
+                                <input class="inputconfig" type="number" min="1" max="3" name="a800" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 1:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a801" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 2:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a802" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 3:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a803" id="name" />
+                            </fieldset>
+                        </td>
+                        <td>
+                            <fieldset class="fieldsetconfig">
+                                <legend>40m</legend>
+                                <label class="labelconfig" for="name">Antenas:</label>
+                                <input class="inputconfig" type="number" min="1" max="3" name="a400" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 1:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a401" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 2:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a402" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 3:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a403" id="name" />
+                            </fieldset>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <fieldset class="fieldsetconfig">
+                                <legend>20m</legend>
+                                <label class="labelconfig" for="name">Antenas:</label>
+                                <input class="inputconfig" type="number" min="1" max="3" name="a200" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 1:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a201" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 2:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a202" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 3:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a203" id="name" />
+                            </fieldset>
+                        </td>
+                        <td>
+                            <fieldset class="fieldsetconfig">
+                                <legend>15m</legend>
+                                <label class="labelconfig" for="name">Antenas:</label>
+                                <input class="inputconfig" type="number" min="1" max="3" name="a150" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 1:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a151" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 2:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a152" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 3:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a153" id="name" />
+                            </fieldset>        
+                        </td>
+                        <td>
+                            <fieldset class="fieldsetconfig">
+                                <legend>10m</legend>
+                                <label class="labelconfig" for="name">Antenas:</label>
+                                <input class="inputconfig" type="number" min="1" max="3" name="a100" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 1:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a101" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 2:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a102" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 3:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="a103" id="name" />
+                            </fieldset>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <fieldset class="fieldsetconfig">
+                                <legend>STN1 RX</legend>
+                                <label class="labelconfig" for="name">Antena 1:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="r101" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 2:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="r102" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 3:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="r103" id="name" />
+                                <label class="labelconfig" for="name">Antena 1:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="r104" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 2:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="r105" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 3:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="r106" id="name" />
+                            </fieldset>
+                        </td>
+                        <td>
+                            <fieldset class="fieldsetconfig">
+                                <legend>STN2 RX</legend>
+                                <label class="labelconfig" for="name">Antena 1:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="r201" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 2:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="r202" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 3:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="r203" id="name" />
+                                <label class="labelconfig" for="name">Antena 1:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="r204" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 2:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="r205" id="name" /><br>
+                                <label class="labelconfig" for="name">Antena 3:</label>
+                                <input class="inputconfig" type="text" maxlength="4" name="r206" id="name" />
+                            </fieldset>        
+                        </td>
+                        <td>
+                        </td>
+                    </tr>
+                </table>
+                <p>
+                    <input type="submit" value="Guardar"/>
+                </p>
+            </form>
+            <pre id="output"></pre>
+
+
+    	</div>
+	</body>
+</html>

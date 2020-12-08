@@ -118,3 +118,6 @@ venv.bak/
 eqslusers.csv
 lowtusers.csv
 clublog.xml
+cfg/stn1.json
+cfg/stn2.json
+cfg/stacks.json
