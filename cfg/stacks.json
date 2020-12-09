@@ -16,7 +16,7 @@
         }
     }, 
     "160": {
-        "salidas": 3, 
+        "salidas": 1, 
         "balun": false, 
         "1": {
             "estado": true, 

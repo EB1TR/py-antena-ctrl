@@ -171,7 +171,6 @@ STN2 = {
         '10': 0,
     }
 }
-
 RX1 = {
     '1': "RX11",
     '2': "RX12",
@@ -180,7 +179,6 @@ RX1 = {
     '5': "RX15",
     '6': "RX16",
 }
-
 RX2 = {
     '1': "RX21",
     '2': "RX22",
@@ -219,7 +217,6 @@ except:
     if os.path.exists('cfg/stn2.json'):
         os.remove('cfg/stn2.json')
         print("Datos de STN1 autogenerados...")
-
 
 try:
     with open('cfg/rx1.json') as json_file:
@@ -298,7 +295,7 @@ def status(topic):
 
 
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
+    print("Conectado a MQTT")
     client.subscribe([
         ("stn1/radio1/band", 0),
         ("stn2/radio1/band", 0),
@@ -426,6 +423,13 @@ def on_message(client, userdata, msg):
         STACKS['10']['1']['nombre'] = dato['a101']
         STACKS['10']['2']['nombre'] = dato['a102']
         STACKS['10']['3']['nombre'] = dato['a103']
+
+        for e in ('160', '80', '40', '20', '15', '10'):
+            if STACKS[e]['salidas'] == 2:
+                STACKS[e]['3']['estado'] = False
+            elif STACKS[e]['salidas'] == 1:
+                STACKS[e]['2']['estado'] = False
+                STACKS[e]['3']['estado'] = False
 
         STN1['netbios'] = str(dato['stn1-n'])
         STN2['netbios'] = str(dato['stn2-n'])
