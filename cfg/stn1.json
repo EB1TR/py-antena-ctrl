@@ -1,8 +1,8 @@
 {
     "netbios": "NETBIOS-STN1", 
     "auto": false, 
-    "ant": 160, 
-    "band": 160, 
+    "ant": 0, 
+    "band": 0, 
     "rx": {
         "0": 0, 
         "160": 0, 

@@ -29,6 +29,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "12060:12060"
+    volumes: 
+      - "${PWD}/cfg:/app/cfg"
     depends_on:
       - mqtt
 
@@ -38,7 +40,7 @@ services:
     build:
       context: ./svc/control
       dockerfile: Dockerfile
+    volumes: 
+      - "${PWD}/cfg:/app/cfg"
     depends_on:
       - mqtt
-
-
