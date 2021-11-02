@@ -16,7 +16,7 @@ import xmltodict
 import os
 import json
 
-MQTT_HOST = "127.0.0.1"
+MQTT_HOST = "mqtt"
 MQTT_PORT = 1883
 
 
@@ -24,37 +24,12 @@ try:
     with open('cfg/stn1.json') as json_file:
         data = json.load(json_file)
         STN1 = dict(data)
-        print("Datos de STN1 cargados desde fichero...")
-except:
-    if os.path.exists('cfg/stn1.json'):
-        os.remove('cfg/stn1.json')
-    STN1 = {
-        'netbios': "STN1",
-        'auto': True,
-        'ant': 0,
-        'band': 0
-    }
-    with open('cfg/stn1.json', 'w') as fp:
-        json.dump(STN1, fp)
-    print("Datos de STN1 autogenerados...")
-
-try:
     with open('cfg/stn2.json') as json_file:
         data = json.load(json_file)
         STN2 = dict(data)
-        print("Datos de STN2 cargados desde fichero...")
-except:
-    if os.path.exists('cfg/stn2.json'):
-        os.remove('cfg/stn2.json')
-    STN2 = {
-        'netbios': "STN2",
-        'auto': True,
-        'ant': 0,
-        'band': 0
-    }
-    with open('cfg/stn2.json', 'w') as fp:
-        json.dump(STN2, fp)
-    print("Datos de STN2 autogenerados...")
+except Exception as e:
+    print("Fallo al cargar configuraciones... %s" % e)
+    exit()
 
 
 def mqtt_connect():

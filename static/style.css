@@ -38,15 +38,15 @@ body {
     background-color: #1daa00;
 }
 .fieldsetconfig {
-    width: 240px;
+    width: 286px;
 }
 .labelconfig {
-    width: 50%;
+    width: 100px;
     display: inline-block;
     text-align: left
 }
 .inputconfig {
-    width: 40%;
+    width: 50px;
     display: inline-block;
     text-align: right
 }

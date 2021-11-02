@@ -1,0 +1,44 @@
+version: "3"
+services:
+  mqtt:
+      container_name: mqtt
+      restart: always
+      build:
+          context: ./svc/mqtt
+          dockerfile: Dockerfile
+      ports:
+          - "1883:1883"
+          - "9001:9001"
+
+  nginx:
+    container_name: nginx
+    restart: always
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes: 
+      - "${PWD}/static:/usr/share/nginx/html:ro"
+    depends_on:
+      - mqtt
+
+  n1mm-udp-mqtt:
+    container_name: n1mm-udp-mqtt
+    restart: always
+    build:
+      context: ./svc/udp
+      dockerfile: Dockerfile
+    ports:
+      - "12060:12060"
+    depends_on:
+      - mqtt
+
+  control:
+    container_name: control
+    restart: always
+    build:
+      context: ./svc/control
+      dockerfile: Dockerfile
+    depends_on:
+      - mqtt
+
+

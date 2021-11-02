@@ -1,6 +1,6 @@
 clientID = "web"
 clientID += new Date().getUTCMilliseconds()
-client = new Paho.MQTT.Client("127.0.0.1", Number(9001), clientID);
+client = new Paho.MQTT.Client("192.168.33.200", Number(9001), clientID);
 
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
@@ -104,19 +104,19 @@ function onMessageArrived(message) {
             $("#rx205").removeClass("spanitemselected");
             $("#rx206").removeClass("spanitemselected");
 
-            $("#rx101").text(json.rx1[1])
-            $("#rx102").text(json.rx1[2])
-            $("#rx103").text(json.rx1[3])
-            $("#rx104").text(json.rx1[4])
-            $("#rx105").text(json.rx1[5])
-            $("#rx106").text(json.rx1[6])
+            $("#rx101").text(json.rx1[1]['nombre'])
+            $("#rx102").text(json.rx1[2]['nombre'])
+            $("#rx103").text(json.rx1[3]['nombre'])
+            $("#rx104").text(json.rx1[4]['nombre'])
+            $("#rx105").text(json.rx1[5]['nombre'])
+            $("#rx106").text(json.rx1[6]['nombre'])
 
-            $("#rx201").text(json.rx2[1])
-            $("#rx202").text(json.rx2[2])
-            $("#rx203").text(json.rx2[3])
-            $("#rx204").text(json.rx2[4])
-            $("#rx205").text(json.rx2[5])
-            $("#rx206").text(json.rx2[6])
+            $("#rx201").text(json.rx2[1]['nombre'])
+            $("#rx202").text(json.rx2[2]['nombre'])
+            $("#rx203").text(json.rx2[3]['nombre'])
+            $("#rx204").text(json.rx2[4]['nombre'])
+            $("#rx205").text(json.rx2[5]['nombre'])
+            $("#rx206").text(json.rx2[6]['nombre'])
 
 
             $("#stn1-as").removeClass("spanitemselected");
