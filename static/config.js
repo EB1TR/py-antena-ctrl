@@ -1,7 +1,7 @@
 // Create a client instance
 clientID = "web"
 clientID += new Date().getUTCMilliseconds()
-client = new Paho.MQTT.Client("192.168.33.200", Number(9001), clientID);
+client = new Paho.MQTT.Client("192.168.33.63", Number(9001), clientID);
 
 // set callback handlers
 client.onConnectionLost = onConnectionLost;

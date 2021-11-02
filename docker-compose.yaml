@@ -1,38 +1,45 @@
 version: "3"
 services:
   mqtt:
-      container_name: mqtt
-      restart: always
-      build:
-          context: ./svc/mqtt
-          dockerfile: Dockerfile
-      ports:
-          - "1883:1883"
-          - "9001:9001"
+    container_name: mqtt
+    restart: always
+    build:
+      context: ./svc/mqtt
+      dockerfile: Dockerfile
+    networks:
+      antena:
+        ipv4_address: "172.0.33.1"
+    ports:
+      - "1883:1883"
+      - "9001:9001"
 
   nginx:
     container_name: nginx
     restart: always
     image: nginx:alpine
+    networks:
+      antena:
+        ipv4_address: "172.0.33.2"
     ports:
       - "80:80"
     volumes: 
-      - "${PWD}/static:/usr/share/nginx/html:ro"
+      - "./static:/usr/share/nginx/html:ro"
     depends_on:
       - mqtt
 
-  n1mm-udp-mqtt:
-    container_name: n1mm-udp-mqtt
+  n1:
+    container_name: n1
     restart: always
     build:
       context: ./svc/udp
       dockerfile: Dockerfile
+    networks:
+      antena:
+        ipv4_address: "172.0.33.3"
     ports:
-      - "12060:12060"
+      - "12060:12060/udp"
     volumes: 
-      - "${PWD}/cfg:/app/cfg"
-    depends_on:
-      - mqtt
+      - "./cfg:/app/cfg"
 
   control:
     container_name: control
@@ -40,7 +47,15 @@ services:
     build:
       context: ./svc/control
       dockerfile: Dockerfile
+    networks:
+      antena:
+        ipv4_address: "172.0.33.4"
     volumes: 
-      - "${PWD}/cfg:/app/cfg"
-    depends_on:
-      - mqtt
+      - "./cfg:/app/cfg"
+
+networks:
+    antena:
+        driver: bridge
+        ipam:
+            config:
+                - subnet: 172.0.33.0/24

@@ -14,7 +14,7 @@ import json
 import paho.mqtt.client as mqtt
 import os
 
-MQTT_HOST = "192.168.33.200"
+MQTT_HOST = "192.168.33.63"
 MQTT_PORT = 1883
 
 
@@ -43,24 +43,58 @@ except Exception as e:
 
 
 def config_stack(band):
-    print("confi stack")
-    print(band)
 
-    pass
+    if STACKS[str(band)]['balun'] == False:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['tta'], STACKS[str(band)]['rele'])
+        mqtt_client.publish(topic, str(0))
+    else:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['tta'], STACKS[str(band)]['rele'])
+        mqtt_client.publish(topic, str(1))  
+
+    if STACKS[str(band)]['1']['estado'] == False:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['1']['tta'], STACKS[str(band)]['1']['rele'])
+        mqtt_client.publish(topic, str(0))
+    else:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['1']['tta'], STACKS[str(band)]['1']['rele'])
+        mqtt_client.publish(topic, str(1))  
+
+    if STACKS[str(band)]['2']['estado'] == False:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['2']['tta'], STACKS[str(band)]['2']['rele'])
+        mqtt_client.publish(topic, str(0))
+    else:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['2']['tta'], STACKS[str(band)]['2']['rele'])
+        mqtt_client.publish(topic, str(1))  
+
+    if STACKS[str(band)]['3']['estado'] == False:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['3']['tta'], STACKS[str(band)]['3']['rele'])
+        mqtt_client.publish(topic, str(0))
+    else:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['3']['tta'], STACKS[str(band)]['3']['rele'])
+        mqtt_client.publish(topic, str(1))  
+
+
+    print(STACKS[str(band)]['tta'])
+    print(STACKS[str(band)]['rele'])
+    print(STACKS[str(band)]['1']['tta'])
+    print(STACKS[str(band)]['1']['rele'])
+    print(STACKS[str(band)]['2']['tta'])
+    print(STACKS[str(band)]['2']['rele'])
+    print(STACKS[str(band)]['3']['tta'])
+    print(STACKS[str(band)]['3']['rele'])
 
 
 def assign_sixpack(stn, band):
-    print("assign sixpack")
-    print(stn)
-    print(band)
     if stn == 1:
-        print(SIXPACK[str(stn)][str(STN1['band'])])
-        print(SIXPACK[str(stn)][str(band)])
-
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SIXPACK[str(stn)][str(STN1['band'])]['tta'], SIXPACK[str(stn)][str(STN1['band'])]['rele'])
+        mqtt_client.publish(topic, str(0))
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SIXPACK[str(stn)][str(band)]['tta'], SIXPACK[str(stn)][str(band)]['rele'])
+        mqtt_client.publish(topic, str(1))
     else:
-        print(SIXPACK[str(stn)][str(STN2['band'])])
-        print(SIXPACK[str(stn)][str(band)])
-
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SIXPACK[str(stn)][str(STN2['band'])]['tta'], SIXPACK[str(stn)][str(STN2['band'])]['rele'])
+        mqtt_client.publish(topic, str(0))
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SIXPACK[str(stn)][str(band)]['tta'], SIXPACK[str(stn)][str(band)]['rele'])
+        mqtt_client.publish(topic, str(1))
+    config_stack(band)
 
 
 def assign_stn(stn, band):
@@ -199,7 +233,7 @@ def on_message(client, userdata, msg):
         else:
             STACKS[str(STN1['band'])]['balun'] = True
         
-        config_stack()
+        config_stack(str(STN1['band']))
 
     if msg.topic == "set/stn2/stack" and int(STN2['band']) != 0:
         cc = 0
@@ -219,6 +253,8 @@ def on_message(client, userdata, msg):
             STACKS[str(STN2['band'])]['balun'] = False
         else:
             STACKS[str(STN2['band'])]['balun'] = True
+
+        config_stack(str(STN2['band']))
 
     # Mensajes recibidos desde CONFIGURACION
     if msg.topic == "configtopy":

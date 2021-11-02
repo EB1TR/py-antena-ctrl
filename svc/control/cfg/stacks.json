@@ -24,27 +24,27 @@
         }
     }, 
     "160": {
-        "salidas": 1, 
+        "salidas": 3, 
         "balun": false, 
-        "tta": "xxx", 
-        "rele": 0, 
+        "tta": "E8EADA0059F8", 
+        "rele": 13, 
         "1": {
             "estado": true, 
             "nombre": "ANT1", 
-            "tta": "ttanro", 
-            "rele": "0"
+            "tta": "E8EADA0059F8", 
+            "rele": "14"
         }, 
         "2": {
             "estado": false, 
             "nombre": "ANT2", 
-            "tta": "ttanro", 
-            "rele": "0"
+            "tta": "E8EADA0059F8", 
+            "rele": "15"
         }, 
         "3": {
             "estado": false, 
             "nombre": "ANT3", 
-            "tta": "ttanro", 
-            "rele": "0"
+            "tta": "E8EADA0059F8", 
+            "rele": "16"
         }
     }, 
     "80": {

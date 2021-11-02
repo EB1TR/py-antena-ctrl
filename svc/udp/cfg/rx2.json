@@ -1,0 +1,32 @@
+{
+    "1": {
+        "nombre": "RX21",
+        "tta": "ttanro",
+        "rele": 5
+    },
+    "2": {
+        "nombre": "RX22",
+        "tta": "ttanro",
+        "rele": 0
+    },
+    "3": {
+        "nombre": "RX23",
+        "tta": "ttanro",
+        "rele": 7
+    },
+    "4": {
+        "nombre": "RX24",
+        "tta": "ttanro",
+        "rele": 0
+    },
+    "5": {
+        "nombre": "RX25",
+        "tta": "ttanro",
+        "rele": 9
+    },
+    "6": {
+        "nombre": "RX26",
+        "tta": "ttanro",
+        "rele": 0
+    }
+}
