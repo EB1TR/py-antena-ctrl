@@ -37,7 +37,7 @@ try:
     with open('cfg/rx2.json') as json_file:
         data = json.load(json_file)
         RX2 = dict(data)
-        print("Datos de STN2 cargados desde fichero...")
+        print("Datos de STNs cargados desde ficheros...")
 except Exception as e:
     print("Error en los ficheros de configuracion: %s" % e)
 
@@ -51,48 +51,26 @@ def config_stack(band):
         topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['tta'], STACKS[str(band)]['rele'])
         mqtt_client.publish(topic, str(1))  
 
-    if STACKS[str(band)]['1']['estado'] == False:
-        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['1']['tta'], STACKS[str(band)]['1']['rele'])
-        mqtt_client.publish(topic, str(0))
-    else:
-        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['1']['tta'], STACKS[str(band)]['1']['rele'])
-        mqtt_client.publish(topic, str(1))  
-
-    if STACKS[str(band)]['2']['estado'] == False:
-        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['2']['tta'], STACKS[str(band)]['2']['rele'])
-        mqtt_client.publish(topic, str(0))
-    else:
-        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['2']['tta'], STACKS[str(band)]['2']['rele'])
-        mqtt_client.publish(topic, str(1))  
-
-    if STACKS[str(band)]['3']['estado'] == False:
-        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['3']['tta'], STACKS[str(band)]['3']['rele'])
-        mqtt_client.publish(topic, str(0))
-    else:
-        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['3']['tta'], STACKS[str(band)]['3']['rele'])
-        mqtt_client.publish(topic, str(1))  
-
-
-    print(STACKS[str(band)]['tta'])
-    print(STACKS[str(band)]['rele'])
-    print(STACKS[str(band)]['1']['tta'])
-    print(STACKS[str(band)]['1']['rele'])
-    print(STACKS[str(band)]['2']['tta'])
-    print(STACKS[str(band)]['2']['rele'])
-    print(STACKS[str(band)]['3']['tta'])
-    print(STACKS[str(band)]['3']['rele'])
+    for e in STACKS[str(band)]:
+        if e['estado'] == False:
+            topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (e['tta'], e['rele'])
+            mqtt_client.publish(topic, str(0))
+        else:
+            topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (e['tta'], e['rele'])
+            mqtt_client.publish(topic, str(1))  
 
 
 def assign_sixpack(stn, band):
+    el = SIXPACK[str(stn)]
     if stn == 1:
-        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SIXPACK[str(stn)][str(STN1['band'])]['tta'], SIXPACK[str(stn)][str(STN1['band'])]['rele'])
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (el[str(STN1['band'])]['tta'], el[str(STN1['band'])]['rele'])
         mqtt_client.publish(topic, str(0))
-        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SIXPACK[str(stn)][str(band)]['tta'], SIXPACK[str(stn)][str(band)]['rele'])
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (el[str(band)]['tta'], el[str(band)]['rele'])
         mqtt_client.publish(topic, str(1))
     else:
-        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SIXPACK[str(stn)][str(STN2['band'])]['tta'], SIXPACK[str(stn)][str(STN2['band'])]['rele'])
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (el[str(STN2['band'])]['tta'], el[str(STN2['band'])]['rele'])
         mqtt_client.publish(topic, str(0))
-        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SIXPACK[str(stn)][str(band)]['tta'], SIXPACK[str(stn)][str(band)]['rele'])
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (el[str(band)]['tta'], el[str(band)]['rele'])
         mqtt_client.publish(topic, str(1))
     config_stack(band)
 
