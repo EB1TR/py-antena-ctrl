@@ -8,15 +8,16 @@
 # pylint: disable=C0301, R0912, R0914, R0915, R1702, W0703
 
 __author__ = 'EB1TR'
-__date__ = "12/09/2020"
 
 import socket
 import paho.mqtt.client as mqtt
 import xmltodict
 import json
 
-MQTT_HOST = "192.168.33.63"
-MQTT_PORT = 1883
+import settings
+
+MQTT_HOST = settings.Config.MQTT_HOST
+MQTT_PORT = int(settings.Config.MQTT_PORT)
 
 try:
     with open('cfg/stn1.json') as json_file:

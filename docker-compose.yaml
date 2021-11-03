@@ -8,7 +8,7 @@ services:
       dockerfile: Dockerfile
     networks:
       antena:
-        ipv4_address: "172.0.33.1"
+        ipv4_address: "172.0.33.2"
     ports:
       - "1883:1883"
       - "9001:9001"
@@ -19,7 +19,7 @@ services:
     image: nginx:alpine
     networks:
       antena:
-        ipv4_address: "172.0.33.2"
+        ipv4_address: "172.0.33.3"
     ports:
       - "80:80"
     volumes: 
@@ -33,9 +33,12 @@ services:
     build:
       context: ./svc/udp
       dockerfile: Dockerfile
+    environment:
+      - MQTT_HOST="172.0.33.2"
+      - MQTT_PORT="1883"
     networks:
       antena:
-        ipv4_address: "172.0.33.3"
+        ipv4_address: "172.0.33.4"
     ports:
       - "12060:12060/udp"
     volumes: 
@@ -47,9 +50,12 @@ services:
     build:
       context: ./svc/control
       dockerfile: Dockerfile
+    environment:
+      - MQTT_HOST="172.0.33.2"
+      - MQTT_PORT="1883"
     networks:
       antena:
-        ipv4_address: "172.0.33.4"
+        ipv4_address: "172.0.33.5"
     volumes: 
       - "./cfg:/app/cfg"
 
