@@ -34,8 +34,8 @@ services:
       context: ./svc/udp
       dockerfile: Dockerfile
     environment:
-      - MQTT_HOST="172.0.33.2"
-      - MQTT_PORT="1883"
+      - MQTT_HOST=172.0.33.2
+      - MQTT_PORT=1883
     networks:
       antena:
         ipv4_address: "172.0.33.4"
@@ -51,8 +51,8 @@ services:
       context: ./svc/control
       dockerfile: Dockerfile
     environment:
-      - MQTT_HOST="172.0.33.2"
-      - MQTT_PORT="1883"
+      - MQTT_HOST=172.0.33.2
+      - MQTT_PORT=1883
     networks:
       antena:
         ipv4_address: "172.0.33.5"
