@@ -1,8 +1,8 @@
 {
     "netbios": "ESTACION", 
-    "auto": true, 
-    "ant": 80, 
-    "band": 80, 
+    "auto": false, 
+    "ant": 0, 
+    "band": 0, 
     "rx": {
         "0": 0, 
         "160": 0, 

@@ -1,10 +1,19 @@
-""" N1MM UDP to MQTT """
+""" Six Pack & Filter Control - UDP to MQTTn"""
+#
+# Six Pack & Filter Control
+#
+
+# pylint: disable=invalid-name;
+# pylint: disable=too-few-public-methods;
+# pylint: disable=C0301, R0912, R0914, R0915, R1702, W0703
 
 __author__ = 'EB1TR'
+__date__ = "12/09/2020"
 
 import socket
 import paho.mqtt.client as mqtt
 import xmltodict
+import os
 import json
 
 import settings
@@ -12,22 +21,23 @@ import settings
 MQTT_HOST = settings.Config.MQTT_HOST
 MQTT_PORT = int(settings.Config.MQTT_PORT)
 
+
 try:
     with open('cfg/stn1.json') as json_file:
-        data_file = json.load(json_file)
-        STN1 = dict(data_file)
+        data = json.load(json_file)
+        STN1 = dict(data)
     with open('cfg/stn2.json') as json_file:
-        data_file = json.load(json_file)
-        STN2 = dict(data_file)
-    print("Datos de STNs cargados desde ficheros...")
+        data = json.load(json_file)
+        STN2 = dict(data)
 except Exception as e:
-    print("Error en los ficheros de configuracion: %s" % e)
+    print("Fallo al cargar configuraciones... %s" % e)
+    exit()
 
 
 def mqtt_connect():
-    mqtt_client = mqtt.Client(transport='tcp')
-    mqtt_client.connect(MQTT_HOST, MQTT_PORT, 600)
-    return mqtt_client
+    mqtt_c = mqtt.Client(transport='tcp')
+    mqtt_c.connect(MQTT_HOST, MQTT_PORT, 600)
+    return mqtt_c
 
 
 def define_band(qrg):
@@ -41,7 +51,7 @@ def define_band(qrg):
         band = 20
     elif qrg in range(2095000, 2150000):
         band = 15
-    elif qrg in range(2795000, 2975000):
+    elif qrg in range(2795000, 2970000):
         band = 10
     else:
         band = 0
@@ -62,39 +72,37 @@ def publish_radio_info(mqtt_c, radio_i):
                 mqtt_c.publish("stn2/radio1/band", radio_i[2])
                 mqtt_c.publish("stn2/radio1/mode", radio_i[4])
                 mqtt_c.publish("stn2/radio1/op", radio_i[5])
-    except Exception as e:
-        print("Problemas al publicar en MQTT: %s" % e)
+    except:
+        print("MQTT problem")
 
 
 def process_radio_info(xml_data, mqtt_c):
     stn = 0
+    radio = int(xml_data["RadioInfo"]['RadioNr'])
+    qrg = int(xml_data["RadioInfo"]['Freq'])
+    band = define_band(qrg)
+    mode = str(xml_data["RadioInfo"]['Mode'])
+    op = str(xml_data["RadioInfo"]['OpCall'])
+    op = op.upper()
+    radio_i = [stn, radio, band, qrg, mode, op]
+    if xml_data["RadioInfo"]['StationName'] == STN1['netbios']:
+        radio_i[0] = 1
+    if xml_data["RadioInfo"]['StationName'] == STN2['netbios']:
+        radio_i[0] = 2
+
+    publish_radio_info(mqtt_c, radio_i)
+
+    if radio_i[0] == 0:
+        print("STN no se ha encontrado: " + str(radio_i))
+    else:
+        print(str(radio_i))
+
+
+def process_xml(xml_data, mqtt_c):
     try:
-        radio = int(xml_data["RadioInfo"]['RadioNr'])
-        qrg = int(xml_data["RadioInfo"]['Freq'])
-        mode = str(xml_data["RadioInfo"]['Mode'])
-        op = str(xml_data["RadioInfo"]['OpCall'])
-
-        band = define_band(qrg)
-        op = op.upper()
-
-        radio_i = [stn, radio, band, qrg, mode, op]
-
-        if xml_data["RadioInfo"]['StationName'] == STN1['netbios']:
-            radio_i[0] = 1
-        if xml_data["RadioInfo"]['StationName'] == STN2['netbios']:
-            radio_i[0] = 2
-
-        publish_radio_info(mqtt_c, radio_i)
-
-        if radio_i[0] == 0:
-            print("STN no se ha encontrado: %s" % str(radio_i))
-        else:
-            print(str(radio_i))
-
-    except Exception as e:
-        print("Paquete XML no válido")
-        print(e)
-        print(xml_data)
+        process_radio_info(xml_data, mqtt_c)
+    except:
+        print("Paquete no válido")
 
 
 def do_udp():
@@ -107,13 +115,12 @@ def do_udp():
     sock.bind(("0.0.0.0", 12060))
     while True:
         try:
-            data = sock.recvfrom(1024)
+            data, address = sock.recvfrom(1024)
             data = data.decode('utf-8')
             xml_data = xmltodict.parse(data)
-            process_radio_info(xml_data, mqtt_c)
-        except Exception as e:
-            print("Error en el socket UDP")
-            print(e)
+            process_xml(xml_data, mqtt_c)
+        except:
+            pass
 
 
 if __name__ == '__main__':
