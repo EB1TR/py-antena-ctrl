@@ -1,11 +1,4 @@
-""" Six Pack & Filter Control """
-#
-# Six Pack & Filter Control
-#
-
-# pylint: disable=invalid-name;
-# pylint: disable=too-few-public-methods;
-# pylint: disable=C0301, R0912, R0914, R0915, R1702, W0703
+""" Six Pack, Stack & RX Control """
 
 __author__ = 'EB1TR'
 
@@ -16,6 +9,7 @@ import settings
 
 MQTT_HOST = settings.Config.MQTT_HOST
 MQTT_PORT = int(settings.Config.MQTT_PORT)
+
 
 
 try:
@@ -37,43 +31,72 @@ try:
     with open('cfg/rx2.json') as json_file:
         data = json.load(json_file)
         RX2 = dict(data)
-        print("Datos de STNs cargados desde ficheros...")
+        print("Datos de STNs cargados desde fichero...")
 except Exception as e:
     print("Error en los ficheros de configuracion: %s" % e)
 
 
+def nr_ant(stack_band):
+    global STACKS
+    ant_1 = stack_band['1']['estado']
+    ant_2 = stack_band['2']['estado']
+    ant_3 = stack_band['3']['estado']
+    ant_stack = [ant_1, ant_2, ant_3]
+    ant_qty = len([e for e in ant_stack if e == True])
+    return ant_qty
+
+
 def config_stack(band):
+    global STACKS
+    ant_qty = nr_ant(STACKS[str(band)])
+    if ant_qty == 1:
+        STACKS[str(band)]['balun'] = True
+    else:
+        STACKS[str(band)]['balun'] = False
+
+    if STACKS[str(band)]['1']['estado'] == False:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['1']['tta'], STACKS[str(band)]['1']['rele'])
+        mqtt_client.publish(topic, str(0))
+    else:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['1']['tta'], STACKS[str(band)]['1']['rele'])
+        mqtt_client.publish(topic, str(1))  
+
+    if STACKS[str(band)]['2']['estado'] == False:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['1']['tta'], STACKS[str(band)]['2']['rele'])
+        mqtt_client.publish(topic, str(0))
+    else:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['1']['tta'], STACKS[str(band)]['2']['rele'])
+        mqtt_client.publish(topic, str(1))  
+
+    if STACKS[str(band)]['3']['estado'] == False:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['3']['tta'], STACKS[str(band)]['3']['rele'])
+        mqtt_client.publish(topic, str(0))
+    else:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['3']['tta'], STACKS[str(band)]['3']['rele'])
+        mqtt_client.publish(topic, str(1))  
 
     if STACKS[str(band)]['balun'] == False:
         topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['tta'], STACKS[str(band)]['rele'])
         mqtt_client.publish(topic, str(0))
     else:
         topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['tta'], STACKS[str(band)]['rele'])
-        mqtt_client.publish(topic, str(1))  
-
-    for e in STACKS[str(band)]:
-        if e['estado'] == False:
-            topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (e['tta'], e['rele'])
-            mqtt_client.publish(topic, str(0))
-        else:
-            topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (e['tta'], e['rele'])
-            mqtt_client.publish(topic, str(1))  
-
-
-def assign_sixpack(stn, band):
-    el = SIXPACK[str(stn)]
-    if stn == 1:
-        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (el[str(STN1['band'])]['tta'], el[str(STN1['band'])]['rele'])
-        mqtt_client.publish(topic, str(0))
-        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (el[str(band)]['tta'], el[str(band)]['rele'])
         mqtt_client.publish(topic, str(1))
-    else:
-        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (el[str(STN2['band'])]['tta'], el[str(STN2['band'])]['rele'])
-        mqtt_client.publish(topic, str(0))
-        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (el[str(band)]['tta'], el[str(band)]['rele'])
-        mqtt_client.publish(topic, str(1))
-    config_stack(band)
 
+
+def assign_sixpack(STNX, stn, band_in):
+    global SIXPACK
+    for e in SIXPACK[str(stn)]:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SIXPACK[str(stn)][e]['tta'], SIXPACK[str(stn)][e]['rele'])
+        mqtt_client.publish(topic, str(0))
+    if band_in != 0:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SIXPACK[str(stn)][str(band_in)]['tta'], SIXPACK[str(stn)][str(band_in)]['rele'])
+        mqtt_client.publish(topic, str(1))
+        config_stack(band_in)
+
+
+def clear_ant():
+    assign_stn(1, 0)
+    assign_stn(2, 0)
 
 def assign_stn(stn, band):
     global STN1
@@ -84,29 +107,20 @@ def assign_stn(stn, band):
     else:
         STNX = STN2
         STNY = STN1
-    if band != STNY['band']:                    # Si la banda NO ESTA en uso
-        if STNX['band'] != band:            # Si se trata de una banda DIFERENTE
-            assign_sixpack(stn, band)
-            pass
-        STNX['ant'] = band                  # Guardo que tiene una antena asignada
-        STNX['band'] = band                 # Guardo que tiene una banda asignada
-    else:                                       # Si la banda ESTA en uso
-        assign_sixpack(stn, 0)
-        STNX['ant'] = 0                         # Guardo que no tiene antena asignada
-        STNX['band'] = 0                        # Gusardo que no tiene banda asignada
+    if band != STNY['band'] and band != 0:
+        if STNX['band'] != band:
+            assign_sixpack(STNX, stn, band)
+        STNX['ant'] = band
+        STNX['band'] = band
+    else:
+        assign_sixpack(STNX, stn, 0)
+        STNX['ant'] = 0
+        STNX['band'] = 0
 
     if stn == 1:
         STN1 = STNX
     if stn == 2:
         STN2 = STNX
-
-
-def restart():
-    command = "/usr/bin/sudo /sbin/shutdown -r now"
-    import subprocess
-    process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
-    output = process.communicate()[0]
-    #print(output)
 
 
 def status(topic):
@@ -120,9 +134,7 @@ def status(topic):
             'rx2': RX2
         }, sort_keys=False
     )
-    #print(data_json)
-    #  MQTT broker -------------------------------------------------------------------------------------
-    #
+
     mqtt_client.publish(topic, str(data_json))
 
 
@@ -177,14 +189,12 @@ def on_message(client, userdata, msg):
             STN1['auto'] = False
         else:
             STN1['auto'] = True
-            assign_stn(1, 0)
 
     if msg.topic == "set/stn2/antm":
         if STN2['auto']:
             STN2['auto'] = False
         else:
             STN2['auto'] = True
-            assign_stn(2, 0)
 
     if msg.topic == "set/rx1" and not STN1['band'] == 0:
         STN1['rx'][str(STN1['band'])] = dato
@@ -193,44 +203,20 @@ def on_message(client, userdata, msg):
         STN2['rx'][str(STN2['band'])] = dato
 
     if msg.topic == "set/stn1/stack" and int(STN1['band']) != 0:
-        cc = 0
-        if STACKS[str(STN1['band'])]['1']['estado']:
-            cc = cc + 1
-        if STACKS[str(STN1['band'])]['2']['estado']:
-            cc = cc + 1
-        if STACKS[str(STN1['band'])]['3']['estado']:
-            cc = cc + 1
-        if STACKS[str(STN1['band'])][str(dato)]['estado'] and cc > 1:
-            STACKS[str(STN1['band'])][str(dato)]['estado'] = False
-            cc = cc - 1
+        if STACKS[str(STN1['band'])][dato]['estado']:
+            if nr_ant(STACKS[str(STN1['band'])]) > 1:
+                STACKS[str(STN1['band'])][dato]['estado'] = False
         else:
-            STACKS[str(STN1['band'])][str(dato)]['estado'] = True
-            cc = cc + 1
-        if cc > 1:
-            STACKS[str(STN1['band'])]['balun'] = False
-        else:
-            STACKS[str(STN1['band'])]['balun'] = True
-        
+            STACKS[str(STN1['band'])][dato]['estado'] = True
+
         config_stack(str(STN1['band']))
 
     if msg.topic == "set/stn2/stack" and int(STN2['band']) != 0:
-        cc = 0
-        if STACKS[str(STN2['band'])]['1']['estado']:
-            cc = cc + 1
-        if STACKS[str(STN2['band'])]['2']['estado']:
-            cc = cc + 1
-        if STACKS[str(STN2['band'])]['3']['estado']:
-            cc = cc + 1
-        if STACKS[str(STN2['band'])][str(dato)]['estado'] and cc > 1:
-            STACKS[str(STN2['band'])][str(dato)]['estado'] = False
-            cc = cc - 1
+        if STACKS[str(STN2['band'])][dato]['estado']:
+            if nr_ant(STACKS[str(STN2['band'])]) > 1:
+                STACKS[str(STN2['band'])][dato]['estado'] = False
         else:
-            STACKS[str(STN2['band'])][str(dato)]['estado'] = True
-            cc = cc + 1
-        if cc > 1:
-            STACKS[str(STN2['band'])]['balun'] = False
-        else:
-            STACKS[str(STN2['band'])]['balun'] = True
+            STACKS[str(STN2['band'])][dato]['estado'] = True
 
         config_stack(str(STN2['band']))
 
@@ -348,6 +334,7 @@ def on_message(client, userdata, msg):
             elif STACKS[e]['salidas'] == 1:
                 STACKS[e]['2']['estado'] = False
                 STACKS[e]['3']['estado'] = False
+            config_stack(e)
 
         STN1['netbios'] = str(dato['stn1-n'])
         STN2['netbios'] = str(dato['stn2-n'])
@@ -415,6 +402,7 @@ mqtt_client = mqtt.Client()
 mqtt_client.connect(MQTT_HOST, MQTT_PORT, 600)
 status("pytofront")
 status("pytoconfig")
+clear_ant()
 mqtt_client.on_connect = on_connect
 mqtt_client.on_message = on_message
 mqtt_client.loop_forever()

@@ -1,11 +1,4 @@
-""" Six Pack & Filter Control - UDP to MQTTn"""
-#
-# Six Pack & Filter Control
-#
-
-# pylint: disable=invalid-name;
-# pylint: disable=too-few-public-methods;
-# pylint: disable=C0301, R0912, R0914, R0915, R1702, W0703
+""" N1MM UDP to MQTT """
 
 __author__ = 'EB1TR'
 
