@@ -400,6 +400,40 @@ def on_message(client, userdata, msg):
         RX2['6']['tta'] = str(dato['r206t'])
         RX2['6']['rele'] = str(dato['r206r'])
 
+        SEGMENTOS['80']['1']['principio'] = dato['s801c']
+        SEGMENTOS['80']['1']['fin'] = dato['s801f']
+        SEGMENTOS['80']['1']['tta'] = str(dato['s801t'])
+        SEGMENTOS['80']['1']['rele'] = dato['s801r']
+        SEGMENTOS['80']['2']['principio'] = dato['s802c']
+        SEGMENTOS['80']['2']['fin'] = dato['s802f']
+        SEGMENTOS['80']['2']['tta'] = str(dato['s802t'])
+        SEGMENTOS['80']['2']['rele'] = dato['s802r']
+        SEGMENTOS['80']['3']['principio'] = dato['s803c']
+        SEGMENTOS['80']['3']['fin'] = dato['s803f']
+        SEGMENTOS['80']['3']['tta'] = str(dato['s803t'])
+        SEGMENTOS['80']['3']['rele'] = dato['s803r']
+        SEGMENTOS['80']['4']['principio'] = dato['s804c']
+        SEGMENTOS['80']['4']['fin'] = dato['s804f']
+        SEGMENTOS['80']['4']['tta'] = str(dato['s804t'])
+        SEGMENTOS['80']['4']['rele'] = dato['s804r']
+
+        SEGMENTOS['160']['1']['principio'] = dato['s1601c']
+        SEGMENTOS['160']['1']['fin'] = dato['s1601f']
+        SEGMENTOS['160']['1']['tta'] = str(dato['s1601t'])
+        SEGMENTOS['160']['1']['rele'] = dato['s1601r']
+        SEGMENTOS['160']['2']['principio'] = dato['s1602c']
+        SEGMENTOS['160']['2']['fin'] = dato['s1602f']
+        SEGMENTOS['160']['2']['tta'] = str(dato['s1602t'])
+        SEGMENTOS['160']['2']['rele'] = dato['s1602r']
+        SEGMENTOS['160']['3']['principio'] = dato['s1603c']
+        SEGMENTOS['160']['3']['fin'] = dato['s1603f']
+        SEGMENTOS['160']['3']['tta'] = str(dato['s1603t'])
+        SEGMENTOS['160']['3']['rele'] = dato['s1603r']
+        SEGMENTOS['160']['4']['principio'] = dato['s1604c']
+        SEGMENTOS['160']['4']['fin'] = dato['s1604f']
+        SEGMENTOS['160']['4']['tta'] = str(dato['s1604t'])
+        SEGMENTOS['160']['4']['rele'] = dato['s1604r']
+
         with open('cfg/stacks.json', 'w') as fp:
             json.dump(STACKS, fp, indent=4, separators=(", ", ": "))
         with open('cfg/stn1.json', 'w') as fp:
@@ -412,6 +446,8 @@ def on_message(client, userdata, msg):
             json.dump(RX2, fp, indent=4, separators=(", ", ": "))
         with open('cfg/sixpack.json', 'w') as fp:
             json.dump(SIXPACK, fp, indent=4, separators=(", ", ": "))
+        with open('cfg/segmentos.json', 'w') as fp:
+            json.dump(SEGMENTOS, fp, indent=4, separators=(", ", ": "))
 
         status("pytoconfig")
 
