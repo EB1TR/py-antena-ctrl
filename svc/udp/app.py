@@ -18,9 +18,10 @@ import json
 
 import settings
 
-MQTT_HOST = settings.Config.MQTT_HOST
-MQTT_PORT = int(settings.Config.MQTT_PORT)
-
+#MQTT_HOST = settings.Config.MQTT_HOST
+#MQTT_PORT = int(settings.Config.MQTT_PORT)
+MQTT_HOST = "192.168.33.63"
+MQTT_PORT = 1883
 
 try:
     with open('cfg/stn1.json') as json_file:

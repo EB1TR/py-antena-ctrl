@@ -130,6 +130,7 @@ function onMessageArrived(message) {
             $("#stn2-stack3").addClass("spanitemnd")
 
             $("#stn1-segmento").addClass("spanitemnd")
+            $("#stn1-segmento").addClass("spanitemnd")
 
             $(bstn1).addClass("spanitemselected")
             $(bstn2).addClass("spanitemselected")
@@ -184,8 +185,12 @@ function onMessageArrived(message) {
                 else $("#stn2-stack1").removeClass("spanitemnd").removeClass("spanitemselected")
             }
 
-            //if (json.stn1.segmento != 0) $("#stn1-segmento").removeClass("spanitemnd").text(json.stn1.segmento)
-
+            if (json.stn1.segmento != 0 && json.stacks[json.stn1.band][1]['estado']) {
+                $("#stn1-segmento").removeClass("spanitemnd").text(json.stn1.segmento)
+            }
+            if (json.stn2.segmento != 0 && json.stacks[json.stn2.band][1]['estado']) {
+                $("#stn2-segmento").removeClass("spanitemnd").text(json.stn2.segmento)
+            }
 
 
         }

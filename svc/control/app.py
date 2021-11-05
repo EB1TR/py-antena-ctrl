@@ -188,14 +188,15 @@ def on_message(client, userdata, msg):
         if STN1['auto']:
             dato = json.loads(dato)
             assign_stn(1, dato[0])
-            if dato[0] in (160, 80) and dato[1] != STN1['segmento']:
+            if dato[0] in (160, 80) and dato[1] != STN1['segmento'] and STACKS[str(STN1['band'])]['1']['estado'] == True:
                 change_segment(1, dato[0], dato[1])
+
 
     if msg.topic == "stn2/radio1/band":
         if STN2['auto']:
             dato = json.loads(dato)
             assign_stn(2, dato[0])
-            if dato[0] in (160, 80) and dato[1] != STN2['segmento']:
+            if dato[0] in (160, 80) and dato[1] != STN2['segmento'] and STACKS[str(STN1['band'])]['1']['estado'] == True:
                 change_segment(2, dato[0], dato[1])
 
     # Mensajes recibidos desde FRONT

@@ -28,6 +28,11 @@ body {
     background-color: rgba(0,255,0,0.2);
     color: rgba(0,110,0,0.7);
 }
+.spanitemindicator {
+    border: 1px solid rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.2);
+    color: rgba(0, 0, 0, 0.7);
+}
 .spanitemnd {
     border: 1px solid rgba(60,60,60,0.7);
     background-color: rgba(0,0,0,0.2);
