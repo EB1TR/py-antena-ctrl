@@ -77,14 +77,12 @@ def publish_radio_info(mqtt_c, radio_i):
                 mqtt_c.publish("stn1/radio1/band", radio_i[2])
                 mqtt_c.publish("stn1/radio1/mode", radio_i[4])
                 mqtt_c.publish("stn1/radio1/op", radio_i[5])
-                mqtt_c.publish("stn1/radio1/segmento", radio_i[5])
         if radio_i[0] == 2:
             if radio_i[1] == 1:
                 mqtt_c.publish("stn2/radio1/qrg", radio_i[3])
                 mqtt_c.publish("stn2/radio1/band", radio_i[2])
                 mqtt_c.publish("stn2/radio1/mode", radio_i[4])
                 mqtt_c.publish("stn2/radio1/op", radio_i[5])
-                mqtt_c.publish("stn2/radio1/segmento", radio_i[5])
     except:
         print("MQTT problem")
 
@@ -97,7 +95,7 @@ def process_radio_info(xml_data, mqtt_c):
     mode = str(xml_data["RadioInfo"]['Mode'])
     op = str(xml_data["RadioInfo"]['OpCall'])
     op = op.upper()
-    radio_i = [stn, radio, band, qrg, mode, op, segmento]
+    radio_i = [stn, radio, [band, segmento], qrg, mode, op]
     if xml_data["RadioInfo"]['StationName'] == STN1['netbios']:
         radio_i[0] = 1
     if xml_data["RadioInfo"]['StationName'] == STN2['netbios']:
