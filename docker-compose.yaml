@@ -2,7 +2,7 @@ version: "3"
 services:
   mqtt:
     container_name: mqtt
-    restart: always
+    restart: unless-stopped
     build:
       context: ./svc/mqtt
       dockerfile: Dockerfile
@@ -15,7 +15,7 @@ services:
 
   nginx:
     container_name: nginx
-    restart: always
+    restart: unless-stopped
     image: nginx:alpine
     networks:
       antena:
@@ -29,7 +29,7 @@ services:
 
   n1:
     container_name: n1
-    restart: always
+    restart: unless-stopped
     build:
       context: ./svc/udp
       dockerfile: Dockerfile
@@ -46,7 +46,7 @@ services:
 
   control:
     container_name: control
-    restart: always
+    restart: unless-stopped
     build:
       context: ./svc/control
       dockerfile: Dockerfile
