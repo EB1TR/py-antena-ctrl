@@ -7,9 +7,10 @@ import paho.mqtt.client as mqtt
 
 import settings
 
-MQTT_HOST = settings.Config.MQTT_HOST
-MQTT_PORT = int(settings.Config.MQTT_PORT)
-
+#MQTT_HOST = settings.Config.MQTT_HOST
+#MQTT_PORT = int(settings.Config.MQTT_PORT)
+MQTT_HOST = "192.168.33.63"
+MQTT_PORT = 1883
 
 
 try:
@@ -31,6 +32,9 @@ try:
     with open('cfg/rx2.json') as json_file:
         data = json.load(json_file)
         RX2 = dict(data)
+    with open('cfg/segmentos.json') as json_file:
+        data = json.load(json_file)
+        SEGMENTOS = dict(data)
         print("Datos de STNs cargados desde fichero...")
 except Exception as e:
     print("Error en los ficheros de configuracion: %s" % e)
@@ -93,6 +97,20 @@ def assign_sixpack(STNX, stn, band_in):
         mqtt_client.publish(topic, str(1))
         config_stack(band_in)
 
+def change_segment(stn, band, segment):
+    global SEGMENTOS
+    global STN1
+    global STN2
+    for e in SEGMENTOS[str(band)]:
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SEGMENTOS[str(band)][e]['tta'], SEGMENTOS[str(band)][e]['rele'])
+        mqtt_client.publish(topic, str(0))
+    topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SEGMENTOS[str(band)][str(segment)]['tta'], SEGMENTOS[str(band)][str(segment)]['rele'])
+    mqtt_client.publish(topic, str(1))
+    if stn == 1:
+        STN1['segmento'] = segment
+    else:
+        STN2['segmento'] = segment
+
 
 def clear_ant():
     assign_stn(1, 0)
@@ -110,11 +128,9 @@ def assign_stn(stn, band):
     if band != STNY['band'] and band != 0:
         if STNX['band'] != band:
             assign_sixpack(STNX, stn, band)
-        STNX['ant'] = band
         STNX['band'] = band
     else:
         assign_sixpack(STNX, stn, 0)
-        STNX['ant'] = 0
         STNX['band'] = 0
 
     if stn == 1:
@@ -169,11 +185,17 @@ def on_message(client, userdata, msg):
     # Mensajes recibidos desde UDP
     if msg.topic == "stn1/radio1/band":
         if STN1['auto']:
-            assign_stn(1, int(dato))
+            dato = json.loads(dato)
+            assign_stn(1, dato[0])
+            if dato[0] in (160, 80) and dato[1] != STN1['segmento']:
+                change_segment(1, dato[0], dato[1])
 
     if msg.topic == "stn2/radio1/band":
         if STN2['auto']:
-            assign_stn(2, int(dato))
+            dato = json.loads(dato)
+            assign_stn(2, dato[0])
+            if dato[0] in (160, 80) and dato[1] != STN2['segmento']:
+                change_segment(2, dato[0], dato[1])
 
     # Mensajes recibidos desde FRONT
     if not STN1['auto'] and msg.topic == "set/stn1/band":

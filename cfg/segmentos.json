@@ -2,37 +2,53 @@
     "80": {
         "1": {
             "principio": 350000,
-            "fin": 360000
+            "fin": 360000,
+            "tta": "E8EADA0059F8",
+            "rele": 13
         }, 
         "2": {
             "principio": 360000,
-            "fin": 370000
+            "fin": 370000,
+            "tta": "E8EADA0059F8",
+            "rele": 14
         }, 
         "3": {
             "principio": 370000,
-            "fin": 380000
+            "fin": 380000,
+            "tta": "E8EADA0059F8",
+            "rele": 15
         },
         "4": {
             "principio": 380000,
-            "fin": 400000
+            "fin": 400000,
+            "tta": "E8EADA0059F8",
+            "rele": 16
         }
     }, 
     "160": {
         "1": {
             "principio": 180000,
-            "fin": 185000
+            "fin": 185000,
+            "tta": "ss",
+            "rele": 0
         }, 
         "2": {
             "principio": 185000,
-            "fin": 190000
+            "fin": 190000,
+            "tta": "ss",
+            "rele": 0
         }, 
         "3": {
             "principio": 190000,
-            "fin": 195000
+            "fin": 195000,
+            "tta": "ss",
+            "rele": 0
         },
         "4": {
             "principio": 195000,
-            "fin": 200000
+            "fin": 200000,
+            "tta": "ss",
+            "rele": 0
         }
     }
 }

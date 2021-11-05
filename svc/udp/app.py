@@ -66,7 +66,7 @@ def define_band(qrg):
     else:
         segmento = 0
 
-    return band, segmento
+    return band, int(segmento)
 
 
 def publish_radio_info(mqtt_c, radio_i):
@@ -74,13 +74,13 @@ def publish_radio_info(mqtt_c, radio_i):
         if radio_i[0] == 1:
             if radio_i[1] == 1:
                 mqtt_c.publish("stn1/radio1/qrg", radio_i[3])
-                mqtt_c.publish("stn1/radio1/band", radio_i[2])
+                mqtt_c.publish("stn1/radio1/band", str(radio_i[2]))
                 mqtt_c.publish("stn1/radio1/mode", radio_i[4])
                 mqtt_c.publish("stn1/radio1/op", radio_i[5])
         if radio_i[0] == 2:
             if radio_i[1] == 1:
                 mqtt_c.publish("stn2/radio1/qrg", radio_i[3])
-                mqtt_c.publish("stn2/radio1/band", radio_i[2])
+                mqtt_c.publish("stn2/radio1/band", str(radio_i[2]))
                 mqtt_c.publish("stn2/radio1/mode", radio_i[4])
                 mqtt_c.publish("stn2/radio1/op", radio_i[5])
     except:
@@ -100,7 +100,6 @@ def process_radio_info(xml_data, mqtt_c):
         radio_i[0] = 1
     if xml_data["RadioInfo"]['StationName'] == STN2['netbios']:
         radio_i[0] = 2
-
     publish_radio_info(mqtt_c, radio_i)
 
     if radio_i[0] == 0:
