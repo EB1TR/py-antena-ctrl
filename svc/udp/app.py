@@ -29,6 +29,9 @@ try:
     with open('cfg/stn2.json') as json_file:
         data = json.load(json_file)
         STN2 = dict(data)
+    with open('cfg/segmentos.json') as json_file:
+        data = json.load(json_file)
+        SEGMENTOS = dict(data)
 except Exception as e:
     print("Fallo al cargar configuraciones... %s" % e)
     exit()
@@ -55,7 +58,15 @@ def define_band(qrg):
         band = 10
     else:
         band = 0
-    return band
+
+    if band != 0 and band in (80, 160):
+        for e in SEGMENTOS[str(band)]:
+            if qrg in range(SEGMENTOS[str(band)][e]['principio'], SEGMENTOS[str(band)][e]['fin']):
+                segmento = e
+    else:
+        segmento = 0
+
+    return band, segmento
 
 
 def publish_radio_info(mqtt_c, radio_i):
@@ -66,12 +77,14 @@ def publish_radio_info(mqtt_c, radio_i):
                 mqtt_c.publish("stn1/radio1/band", radio_i[2])
                 mqtt_c.publish("stn1/radio1/mode", radio_i[4])
                 mqtt_c.publish("stn1/radio1/op", radio_i[5])
+                mqtt_c.publish("stn1/radio1/segmento", radio_i[5])
         if radio_i[0] == 2:
             if radio_i[1] == 1:
                 mqtt_c.publish("stn2/radio1/qrg", radio_i[3])
                 mqtt_c.publish("stn2/radio1/band", radio_i[2])
                 mqtt_c.publish("stn2/radio1/mode", radio_i[4])
                 mqtt_c.publish("stn2/radio1/op", radio_i[5])
+                mqtt_c.publish("stn2/radio1/segmento", radio_i[5])
     except:
         print("MQTT problem")
 
@@ -80,11 +93,11 @@ def process_radio_info(xml_data, mqtt_c):
     stn = 0
     radio = int(xml_data["RadioInfo"]['RadioNr'])
     qrg = int(xml_data["RadioInfo"]['Freq'])
-    band = define_band(qrg)
+    band, segmento = define_band(qrg)
     mode = str(xml_data["RadioInfo"]['Mode'])
     op = str(xml_data["RadioInfo"]['OpCall'])
     op = op.upper()
-    radio_i = [stn, radio, band, qrg, mode, op]
+    radio_i = [stn, radio, band, qrg, mode, op, segmento]
     if xml_data["RadioInfo"]['StationName'] == STN1['netbios']:
         radio_i[0] = 1
     if xml_data["RadioInfo"]['StationName'] == STN2['netbios']:
