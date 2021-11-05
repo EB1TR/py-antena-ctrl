@@ -147,7 +147,8 @@ def status(topic):
             'stacks': STACKS,
             'sixpack': SIXPACK,
             'rx1': RX1,
-            'rx2': RX2
+            'rx2': RX2,
+            'segmentos': SEGMENTOS
         }, sort_keys=False
     )
 
