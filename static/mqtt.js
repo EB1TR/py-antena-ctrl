@@ -130,7 +130,7 @@ function onMessageArrived(message) {
             $("#stn2-stack3").addClass("spanitemnd")
 
             $("#stn1-segmento").addClass("spanitemnd")
-            $("#stn1-segmento").addClass("spanitemnd")
+            $("#stn2-segmento").addClass("spanitemnd")
 
             $(bstn1).addClass("spanitemselected")
             $(bstn2).addClass("spanitemselected")

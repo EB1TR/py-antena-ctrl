@@ -34,8 +34,9 @@ try:
         data = json.load(json_file)
         SEGMENTOS = dict(data)
 except Exception as e:
-    print("Fallo al cargar configuraciones... %s" % e)
-    exit()
+    print("Fallo al cargar configuraciones.")
+    print(e)
+    exit(0)
 
 
 def mqtt_connect():
@@ -59,14 +60,12 @@ def define_band(qrg):
         band = 10
     else:
         band = 0
-
     if band != 0 and band in (80, 160):
         for e in SEGMENTOS[str(band)]:
-            if qrg in range(SEGMENTOS[str(band)][e]['principio'], SEGMENTOS[str(band)][e]['fin']):
+            if qrg in range(int(SEGMENTOS[str(band)][e]['principio']), int(SEGMENTOS[str(band)][e]['fin'])):
                 segmento = e
     else:
-        segmento = 0
-
+        segmento = "0"
     return band, int(segmento)
 
 
@@ -84,22 +83,31 @@ def publish_radio_info(mqtt_c, radio_i):
                 mqtt_c.publish("stn2/radio1/band", str(radio_i[2]))
                 mqtt_c.publish("stn2/radio1/mode", radio_i[4])
                 mqtt_c.publish("stn2/radio1/op", radio_i[5])
-    except:
-        print("MQTT problem")
+    except Exception as e:
+        print("Problema en la publicación MQTT.")
+        print(e)
 
 
 def process_radio_info(xml_data, mqtt_c):
     stn = 0
     radio = int(xml_data["RadioInfo"]['RadioNr'])
     qrg = int(xml_data["RadioInfo"]['Freq'])
-    band, segmento = define_band(qrg)
     mode = str(xml_data["RadioInfo"]['Mode'])
+    stn_name = xml_data["RadioInfo"]['StationName']
     op = str(xml_data["RadioInfo"]['OpCall'])
     op = op.upper()
+
+    try:
+        band, segmento = define_band(qrg)
+    except Exception as e:
+        print("Fallo en la obtención de la banda y segmento.")
+        print(e)
+    
     radio_i = [stn, radio, [band, segmento], qrg, mode, op]
-    if xml_data["RadioInfo"]['StationName'] == STN1['netbios']:
+    
+    if stn_name == STN1['netbios']:
         radio_i[0] = 1
-    if xml_data["RadioInfo"]['StationName'] == STN2['netbios']:
+    if stn_name == STN2['netbios']:
         radio_i[0] = 2
     publish_radio_info(mqtt_c, radio_i)
 
@@ -112,8 +120,9 @@ def process_radio_info(xml_data, mqtt_c):
 def process_xml(xml_data, mqtt_c):
     try:
         process_radio_info(xml_data, mqtt_c)
-    except:
-        print("Paquete no válido")
+    except Exception as e:
+        print("Fallo al procesar XML.")
+        print(e)
 
 
 def do_udp():

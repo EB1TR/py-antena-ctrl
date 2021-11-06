@@ -116,6 +116,15 @@ def clear_ant():
     assign_stn(1, 0)
     assign_stn(2, 0)
 
+def assign_rx(STNX, RXX, ant):
+    if STNX['rx'][str(STNX['band'])] != "0":
+        ant_out = RXX[STNX['rx'][str(STNX['band'])]]
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (ant_out['tta'], ant_out['rele'])
+        mqtt_client.publish(topic, str(0))
+    ant_in = RXX[ant]
+    topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (ant_in['tta'], ant_in['rele'])
+    mqtt_client.publish(topic, str(1))
+
 def assign_stn(stn, band):
     global STN1
     global STN2
@@ -221,9 +230,12 @@ def on_message(client, userdata, msg):
             STN2['auto'] = True
 
     if msg.topic == "set/rx1" and not STN1['band'] == 0:
+        assign_rx(STN1, RX1, dato)
         STN1['rx'][str(STN1['band'])] = dato
 
+
     if msg.topic == "set/rx2" and not STN2['band'] == 0:
+        assign_rx(STN2, RX2, dato)
         STN2['rx'][str(STN2['band'])] = dato
 
     if msg.topic == "set/stn1/stack" and int(STN1['band']) != 0:
