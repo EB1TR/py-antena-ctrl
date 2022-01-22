@@ -20,7 +20,7 @@ import settings
 
 #MQTT_HOST = settings.Config.MQTT_HOST
 #MQTT_PORT = int(settings.Config.MQTT_PORT)
-MQTT_HOST = "192.168.33.63"
+MQTT_HOST = "192.168.77.244"
 MQTT_PORT = 1883
 
 try:

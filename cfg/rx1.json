@@ -1,7 +1,7 @@
 {
     "1": {
         "nombre": "RX11", 
-        "tta": "E8EADA0059F8", 
+        "tta": "ttanro", 
         "rele": "1"
     }, 
     "2": {
@@ -11,7 +11,7 @@
     }, 
     "3": {
         "nombre": "RX13", 
-        "tta": "E8EADA0059F8", 
+        "tta": "ttanro", 
         "rele": "2"
     }, 
     "4": {
@@ -21,7 +21,7 @@
     }, 
     "5": {
         "nombre": "RX15", 
-        "tta": "E8EADA0059F8", 
+        "tta": "ttanro", 
         "rele": "4"
     }, 
     "6": {

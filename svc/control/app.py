@@ -9,7 +9,7 @@ import settings
 
 #MQTT_HOST = settings.Config.MQTT_HOST
 #MQTT_PORT = int(settings.Config.MQTT_PORT)
-MQTT_HOST = "192.168.33.63"
+MQTT_HOST = "192.168.77.244"
 MQTT_PORT = 1883
 
 
@@ -475,6 +475,7 @@ mqtt_client.connect(MQTT_HOST, MQTT_PORT, 600)
 status("pytofront")
 status("pytoconfig")
 clear_ant()
+print("pasa")
 mqtt_client.on_connect = on_connect
 mqtt_client.on_message = on_message
 mqtt_client.loop_forever()
