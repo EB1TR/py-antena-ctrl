@@ -20,7 +20,7 @@ import settings
 
 #MQTT_HOST = settings.Config.MQTT_HOST
 #MQTT_PORT = int(settings.Config.MQTT_PORT)
-MQTT_HOST = "192.168.77.244"
+MQTT_HOST = "mqtt"
 MQTT_PORT = 1883
 
 try:
@@ -73,16 +73,16 @@ def publish_radio_info(mqtt_c, radio_i):
     try:
         if radio_i[0] == 1:
             if radio_i[1] == 1:
-                mqtt_c.publish("stn1/radio1/qrg", radio_i[3])
-                mqtt_c.publish("stn1/radio1/band", str(radio_i[2]))
-                mqtt_c.publish("stn1/radio1/mode", radio_i[4])
-                mqtt_c.publish("stn1/radio1/op", radio_i[5])
+                mqtt_c.publish("stn1/qrg", radio_i[3])
+                mqtt_c.publish("stn1/band", str(radio_i[2]))
+                mqtt_c.publish("stn1/mode", radio_i[4])
+                mqtt_c.publish("stn1/op", radio_i[5])
         if radio_i[0] == 2:
             if radio_i[1] == 1:
-                mqtt_c.publish("stn2/radio1/qrg", radio_i[3])
-                mqtt_c.publish("stn2/radio1/band", str(radio_i[2]))
-                mqtt_c.publish("stn2/radio1/mode", radio_i[4])
-                mqtt_c.publish("stn2/radio1/op", radio_i[5])
+                mqtt_c.publish("stn2/qrg", radio_i[3])
+                mqtt_c.publish("stn2/band", str(radio_i[2]))
+                mqtt_c.publish("stn2/mode", radio_i[4])
+                mqtt_c.publish("stn2/op", radio_i[5])
     except Exception as e:
         print("Problema en la publicación MQTT.")
         print(e)

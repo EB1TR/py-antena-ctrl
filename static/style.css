@@ -2,6 +2,7 @@ body {
     font-family: sans-serif;
     font-size: 14px;
     background-color: black;
+    color: burlywood;
 }
 #contenor {
     margin: 0px auto 0px auto;
@@ -26,6 +27,17 @@ body {
     display: inline-block;
     background-color: rgba(255,0,0,0.1);
     color: rgba(180,0,0,1);
+    width: 50px;
+    height: 25px;
+    border-radius: 3px;
+}
+.spanitemtw {
+    border: 1px solid rgba(0, 108, 180, 0.8);
+    text-align: center;
+    line-height: 27px;
+    display: inline-block;
+    background-color: rgba(0,108,255,0.1);
+    color: rgba(0,108,180,1);
     width: 50px;
     height: 25px;
     border-radius: 3px;

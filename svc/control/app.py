@@ -9,7 +9,7 @@ import settings
 
 #MQTT_HOST = settings.Config.MQTT_HOST
 #MQTT_PORT = int(settings.Config.MQTT_PORT)
-MQTT_HOST = "192.168.77.244"
+MQTT_HOST = "mqtt"
 MQTT_PORT = 1883
 
 
@@ -167,8 +167,8 @@ def status(topic):
 def on_connect(client, userdata, flags, rc):
     print("Conectado a MQTT")
     client.subscribe([
-        ("stn1/radio1/band", 0),
-        ("stn2/radio1/band", 0),
+        ("stn1/band", 0),
+        ("stn2/band", 0),
         ("set/stn1/antm", 0),
         ("set/stn2/antm", 0),
         ("set/stn1/band", 0),
@@ -193,7 +193,7 @@ def on_message(client, userdata, msg):
     dato = msg.payload.decode('utf-8')
 
     # Mensajes recibidos desde UDP
-    if msg.topic == "stn1/radio1/band":
+    if msg.topic == "stn1/band":
         if STN1['auto']:
             dato = json.loads(dato)
             assign_stn(1, dato[0])
@@ -201,7 +201,7 @@ def on_message(client, userdata, msg):
                 change_segment(1, dato[0], dato[1])
 
 
-    if msg.topic == "stn2/radio1/band":
+    if msg.topic == "stn2/band":
         if STN2['auto']:
             dato = json.loads(dato)
             assign_stn(2, dato[0])

@@ -1,6 +1,6 @@
 clientID = "web"
 clientID += new Date().getUTCMilliseconds()
-client = new Paho.MQTT.Client("192.168.77.244", Number(9001), clientID);
+client = new Paho.MQTT.Client("192.168.33.62", Number(9001), clientID);
 
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
@@ -10,12 +10,14 @@ client.connect({onSuccess:onConnect});
 function onConnect() {
   console.log("Connected");
   client.subscribe("pytofront");
-  client.subscribe("stn1/radio1/qrg");
-  client.subscribe("stn2/radio1/qrg");
-  client.subscribe("stn1/radio1/mode");
-  client.subscribe("stn2/radio1/mode");
-  client.subscribe("stn1/radio1/op");
-  client.subscribe("stn2/radio1/op");
+  client.subscribe("stn1/qrg");
+  client.subscribe("stn2/qrg");
+  client.subscribe("stn1/mode");
+  client.subscribe("stn2/mode");
+  client.subscribe("stn1/op");
+  client.subscribe("stn2/op");
+  client.subscribe("tw1/deg");
+  client.subscribe("tw2/deg");
   message = new Paho.MQTT.Message('0');
   message.destinationName = "update";
   client.send(message);
@@ -34,22 +36,22 @@ function send_command(comm, dato){
 }
 
 function onMessageArrived(message) {
-    if (message.destinationName == "stn1/radio1/qrg") {
+    if (message.destinationName == "stn1/qrg") {
         $('#stn1-r1-qrg').text((message.payloadString/100).toFixed(2))
-    } else if (message.destinationName == "stn2/radio1/qrg") {
+    } else if (message.destinationName == "stn2/qrg") {
         $('#stn2-r1-qrg').text((message.payloadString/100).toFixed(2))
-    } else if (message.destinationName == "stn1/radio2/qrg") {
-        console.log("cc")
-    } else if (message.destinationName == "stn2/radio2/qrg") {
-        console.log("cc")
-    } else if (message.destinationName == "stn1/radio1/mode") {
+    } else if (message.destinationName == "stn1/mode") {
         $('#stn1-r1-mode').text(message.payloadString)
-    } else if (message.destinationName == "stn2/radio1/mode") {
+    } else if (message.destinationName == "stn2/mode") {
         $('#stn2-r1-mode').text(message.payloadString)
-    } else if (message.destinationName == "stn1/radio1/op") {
+    } else if (message.destinationName == "stn1/op") {
         $('#stn1-op').text(message.payloadString)
     } else if (message.destinationName == "stn2/radio1/op") {
         $('#stn2-op').text(message.payloadString)
+    } else if (message.destinationName == "tw1/deg") {
+        $('#tw1').text(message.payloadString+"º")
+    } else if (message.destinationName == "tw2/deg") {
+        $('#tw2').text(message.payloadString+"º")
     } else {
         json = JSON.parse(message.payloadString)
         if (json.stn1 != undefined) {

@@ -60,6 +60,23 @@ services:
     volumes: 
       - "./cfg:/app/cfg"
 
+  node-red:
+   image: nodered/node-red:latest
+   environment:
+     - TZ=Europe/Madrid
+   ports:
+     - "1880:1880"
+     - "12061:12060/udp"
+   networks:
+     antena:
+       ipv4_address: "172.0.33.6"
+   volumes:
+     - nodered:/data
+
+
+volumes:
+  nodered:
+
 networks:
     antena:
         driver: bridge
