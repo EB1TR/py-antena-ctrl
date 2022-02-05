@@ -1,6 +1,6 @@
 clientID = "web"
 clientID += new Date().getUTCMilliseconds()
-client = new Paho.MQTT.Client("192.168.33.62", Number(9001), clientID);
+client = new Paho.MQTT.Client("192.168.77.244", Number(9001), clientID);
 
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
@@ -36,6 +36,7 @@ function send_command(comm, dato){
 }
 
 function onMessageArrived(message) {
+    console.log(message.payloadString)
     if (message.destinationName == "stn1/qrg") {
         $('#stn1-r1-qrg').text((message.payloadString/100).toFixed(2))
     } else if (message.destinationName == "stn2/qrg") {
@@ -46,7 +47,7 @@ function onMessageArrived(message) {
         $('#stn2-r1-mode').text(message.payloadString)
     } else if (message.destinationName == "stn1/op") {
         $('#stn1-op').text(message.payloadString)
-    } else if (message.destinationName == "stn2/radio1/op") {
+    } else if (message.destinationName == "stn2/op") {
         $('#stn2-op').text(message.payloadString)
     } else if (message.destinationName == "tw1/deg") {
         $('#tw1').text(message.payloadString+"º")
