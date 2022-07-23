@@ -54,9 +54,9 @@ def config_stack(band):
     global STACKS
     ant_qty = nr_ant(STACKS[str(band)])
     if ant_qty == 1:
-        STACKS[str(band)]['balun'] = True
-    else:
         STACKS[str(band)]['balun'] = False
+    else:
+        STACKS[str(band)]['balun'] = True
 
     if STACKS[str(band)]['1']['estado'] == False:
         topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (STACKS[str(band)]['1']['tta'], STACKS[str(band)]['1']['rele'])

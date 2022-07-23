@@ -3,9 +3,9 @@ services:
   mqtt:
     container_name: mqtt
     restart: unless-stopped
-    build:
-      context: ./svc/mqtt
-      dockerfile: Dockerfile
+    image: eclipse-mosquitto
+    volumes:
+      - "/home/fabian/GitHub/py-antena-ctrl/svc/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf"
     networks:
       antena:
         ipv4_address: "172.0.33.2"

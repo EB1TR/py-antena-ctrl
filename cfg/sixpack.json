@@ -6,27 +6,27 @@
         }, 
         "160": {
             "tta": "E8EADA0059F8", 
-            "rele": "6"
+            "rele": "1"
         }, 
         "80": {
             "tta": "E8EADA0059F8", 
-            "rele": "5"
+            "rele": "2"
         }, 
         "40": {
             "tta": "E8EADA0059F8", 
-            "rele": "4"
+            "rele": "3"
         }, 
         "20": {
             "tta": "E8EADA0059F8", 
-            "rele": "3"
+            "rele": "4"
         }, 
         "15": {
             "tta": "E8EADA0059F8", 
-            "rele": "2"
+            "rele": "10"
         }, 
         "10": {
             "tta": "E8EADA0059F8", 
-            "rele": "1"
+            "rele": "9"
         }
     }, 
     "2": {
@@ -36,27 +36,27 @@
         }, 
         "160": {
             "tta": "E8EADA0059F8", 
-            "rele": "12"
+            "rele": "5"
         }, 
         "80": {
             "tta": "E8EADA0059F8", 
-            "rele": "11"
+            "rele": "6"
         }, 
         "40": {
             "tta": "E8EADA0059F8", 
-            "rele": "10"
+            "rele": "7"
         }, 
         "20": {
             "tta": "E8EADA0059F8", 
-            "rele": "9"
+            "rele": "8"
         }, 
         "15": {
             "tta": "E8EADA0059F8", 
-            "rele": "8"
+            "rele": "16"
         }, 
         "10": {
             "tta": "E8EADA0059F8", 
-            "rele": "7"
+            "rele": "15"
         }
     }
 }
