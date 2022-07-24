@@ -13,13 +13,8 @@ __date__ = "12/09/2020"
 import socket
 import paho.mqtt.client as mqtt
 import xmltodict
-import os
 import json
 
-import settings
-
-#MQTT_HOST = settings.Config.MQTT_HOST
-#MQTT_PORT = int(settings.Config.MQTT_PORT)
 MQTT_HOST = "mqtt"
 MQTT_PORT = 1883
 

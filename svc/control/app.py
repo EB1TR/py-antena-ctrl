@@ -5,10 +5,6 @@ __author__ = 'EB1TR'
 import json
 import paho.mqtt.client as mqtt
 
-import settings
-
-#MQTT_HOST = settings.Config.MQTT_HOST
-#MQTT_PORT = int(settings.Config.MQTT_PORT)
 MQTT_HOST = "mqtt"
 MQTT_PORT = 1883
 
@@ -97,6 +93,7 @@ def assign_sixpack(STNX, stn, band_in):
         mqtt_client.publish(topic, str(1))
         config_stack(band_in)
 
+
 def change_segment(stn, band, segment):
     global SEGMENTOS
     global STN1
@@ -116,6 +113,7 @@ def clear_ant():
     assign_stn(1, 0)
     assign_stn(2, 0)
 
+
 def assign_rx(STNX, RXX, ant):
     if STNX['rx'][str(STNX['band'])] != "0":
         ant_out = RXX[STNX['rx'][str(STNX['band'])]]
@@ -124,6 +122,7 @@ def assign_rx(STNX, RXX, ant):
     ant_in = RXX[ant]
     topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (ant_in['tta'], ant_in['rele'])
     mqtt_client.publish(topic, str(1))
+
 
 def assign_stn(stn, band):
     global STN1
@@ -200,7 +199,6 @@ def on_message(client, userdata, msg):
             if dato[0] in (160, 80) and dato[1] != STN1['segmento'] and STACKS[str(STN1['band'])]['1']['estado'] == True:
                 change_segment(1, dato[0], dato[1])
 
-
     if msg.topic == "stn2/band":
         if STN2['auto']:
             dato = json.loads(dato)
@@ -232,7 +230,6 @@ def on_message(client, userdata, msg):
     if msg.topic == "set/rx1" and not STN1['band'] == 0:
         assign_rx(STN1, RX1, dato)
         STN1['rx'][str(STN1['band'])] = dato
-
 
     if msg.topic == "set/rx2" and not STN2['band'] == 0:
         assign_rx(STN2, RX2, dato)

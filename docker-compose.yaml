@@ -1,17 +1,29 @@
 version: "3"
 services:
+  portainer:
+    image: portainer/portainer-ce
+    container_name: portainer
+    ports:
+      - "9000:9000/tcp"
+      - "8000:8000/tcp"
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - 'portainer:/data'
+    restart: unless-stopped
+
   mqtt:
     container_name: mqtt
     restart: unless-stopped
     image: eclipse-mosquitto
     volumes:
-      - "/home/fabian/GitHub/py-antena-ctrl/svc/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf"
+      - "./svc/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf"
     networks:
       antena:
         ipv4_address: "172.0.33.2"
     ports:
       - "1883:1883"
       - "9001:9001"
+    restart: unless-stopped
 
   nginx:
     container_name: nginx
@@ -27,6 +39,7 @@ services:
       - "./svc/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro"
     depends_on:
       - mqtt
+    restart: unless-stopped
 
   n1:
     container_name: n1
@@ -44,6 +57,7 @@ services:
       - "12060:12060/udp"
     volumes: 
       - "./cfg:/app/cfg"
+    restart: unless-stopped
 
   control:
     container_name: control
@@ -59,23 +73,24 @@ services:
         ipv4_address: "172.0.33.5"
     volumes: 
       - "./cfg:/app/cfg"
+    restart: unless-stopped
 
-  node-red:
-   image: nodered/node-red:latest
-   environment:
-     - TZ=Europe/Madrid
-   ports:
-     - "1880:1880"
-     - "12061:12060/udp"
-   networks:
-     antena:
-       ipv4_address: "172.0.33.6"
-   volumes:
-     - nodered:/data
-
+#  node-red:
+#   image: nodered/node-red:latest
+#   environment:
+#     - TZ=Europe/Madrid
+#   ports:
+#     - "1880:1880"
+#     - "12061:12060/udp"
+#   networks:
+#     antena:
+#       ipv4_address: "172.0.33.6"
+#   volumes:
+#     - nodered:/data
 
 volumes:
-  nodered:
+  portainer:
+#  nodered:
 
 networks:
     antena:
