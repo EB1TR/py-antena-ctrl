@@ -18,6 +18,10 @@ function onConnect() {
   client.subscribe("stn2/op");
   client.subscribe("tw1/deg");
   client.subscribe("tw2/deg");
+  client.subscribe("host/status/temp");
+  client.subscribe("host/status/memory/used");
+  client.subscribe("host/status/memory/total");
+  client.subscribe("host/status/cpu/used");
   message = new Paho.MQTT.Message('0');
   message.destinationName = "update";
   client.send(message);
@@ -36,7 +40,6 @@ function send_command(comm, dato){
 }
 
 function onMessageArrived(message) {
-    console.log(message.payloadString)
     if (message.destinationName == "stn1/qrg") {
         $('#stn1-r1-qrg').text((message.payloadString/100).toFixed(2))
     } else if (message.destinationName == "stn2/qrg") {
@@ -53,6 +56,14 @@ function onMessageArrived(message) {
         $('#tw1').text(message.payloadString+"º")
     } else if (message.destinationName == "tw2/deg") {
         $('#tw2').text(message.payloadString+"º")
+    } else if (message.destinationName == "host/status/temp") {
+        $('#hosttemp').text(message.payloadString+"º")
+    } else if (message.destinationName == "host/status/memory/used") {
+        $('#hostmemu').text(message.payloadString+"MB")
+    } else if (message.destinationName == "host/status/memory/total") {
+        $('#hostmemt').text(message.payloadString+"MB")
+    } else if (message.destinationName == "host/status/cpu/used") {
+        $('#hostcpu').text(parseFloat(message.payloadString)+"%")
     } else {
         json = JSON.parse(message.payloadString)
         if (json.stn1 != undefined) {
