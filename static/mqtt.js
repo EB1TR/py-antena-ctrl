@@ -1,6 +1,7 @@
 clientID = "web"
+mqttHOST = "192.168.33.85"
 clientID += new Date().getUTCMilliseconds()
-client = new Paho.MQTT.Client("192.168.33.85", Number(9001), clientID);
+client = new Paho.MQTT.Client(mqttHOST, Number(9001), clientID);
 
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
@@ -8,7 +9,7 @@ client.onMessageArrived = onMessageArrived;
 client.connect({onSuccess:onConnect});
 
 function onConnect() {
-  console.log("Connected");
+  console.log("Connectado a MQTT");
   client.subscribe("pytofront");
   client.subscribe("stn1/qrg");
   client.subscribe("stn2/qrg");
@@ -29,7 +30,7 @@ function onConnect() {
 
 function onConnectionLost(responseObject) {
   if (responseObject.errorCode !== 0) {
-    console.log("onConnectionLost:"+responseObject.errorMessage);
+    console.log("Conexión perdida a MQTT:"+responseObject.errorMessage);
   }
 }
 
@@ -132,7 +133,6 @@ function onMessageArrived(message) {
             $("#rx205").text(json.rx2[5]['nombre'])
             $("#rx206").text(json.rx2[6]['nombre'])
 
-
             $("#stn1-as").removeClass("spanitemselected");
             $("#stn2-as").removeClass("spanitemselected");
 
@@ -205,11 +205,6 @@ function onMessageArrived(message) {
             if (json.stn2.segmento != 0 && json.stacks[json.stn2.band][1]['estado']) {
                 $("#stn2-segmento").removeClass("spanitemnd").text(json.stn2.segmento)
             }
-
-
         }
     }
-
-
-
 }

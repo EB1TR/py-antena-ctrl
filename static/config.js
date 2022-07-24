@@ -1,13 +1,11 @@
-// Create a client instance
 clientID = "web"
+mqttHOST = "192.168.33.85"
 clientID += new Date().getUTCMilliseconds()
-client = new Paho.MQTT.Client("192.168.33.85", Number(9001), clientID);
+client = new Paho.MQTT.Client(mqttHOST, Number(9001), clientID);
 
-// set callback handlers
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
 
-// connect the client
 client.connect({onSuccess:onConnect});
 
 (function() {
@@ -42,7 +40,7 @@ client.connect({onSuccess:onConnect});
 })();
 
 function onConnect() {
-  console.log("Connected");
+  console.log("Connectado a MQTT");
   client.subscribe("pytoconfig");
   message = new Paho.MQTT.Message('0');
   message.destinationName = "update";
@@ -51,7 +49,7 @@ function onConnect() {
 
 function onConnectionLost(responseObject) {
   if (responseObject.errorCode !== 0) {
-    console.log("onConnectionLost:"+responseObject.errorMessage);
+    console.log("Conexión perdida a MQTT:"+responseObject.errorMessage);
   }
 }
 
