@@ -10,11 +10,11 @@ do
         mu=$(free -h | awk 'NR==2{print $3}' | egrep -o '[0-9]*')
         #mf=$(free -h | awk 'NR==2{print $7}' | egrep -o '[0-9]*')
         temp=$(vcgencmd measure_temp | egrep -o '[0-9]*\.[0-9]*')
-        mosquitto_pub -t pi/status/temp -m $temp
-        mosquitto_pub -t pi/status/memory/total -m $mt
-        mosquitto_pub -t pi/status/memory/used -m $mu
-        #mosquitto_pub -t pi/status/memory/free -m $mf
-        #mosquitto_pub -t pi/status/cpu/free -m $cpuf
-        mosquitto_pub -t pi/status/cpu/used -m $cpuu
+        mosquitto_pub -t host/status/temp -m $temp
+        mosquitto_pub -t host/status/memory/total -m $mt
+        mosquitto_pub -t host/status/memory/used -m $mu
+        #mosquitto_pub -t host/status/memory/free -m $mf
+        #mosquitto_pub -t host/status/cpu/free -m $cpuf
+        mosquitto_pub -t host/status/cpu/used -m $cpuu
         sleep 5
 done
