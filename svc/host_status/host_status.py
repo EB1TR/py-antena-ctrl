@@ -5,14 +5,11 @@ import psutil
 import time
 import os
 
-MQTT_HOST = "127.0.0.1"
+MQTT_HOST = "192.168.33.85"
 MQTT_PORT = 1883
 
 
-def mqtt_connect():
-    mqtt_c = mqtt.Client(transport='tcp')
-    mqtt_c.connect(MQTT_HOST, MQTT_PORT, 5)
-    return mqtt_c
+flag_connected = False
 
 
 def temp():
@@ -20,21 +17,40 @@ def temp():
     return round(float(cpu_temp.replace("temp=", "")), 1)
 
 
-mqtt_client = mqtt_connect()
+def on_connect(client, userdata, flags, rc):
+    global flag_connected
+    print("MQTT Conectado")
+    flag_connected = True
+
+
+def on_disconnect(client, userdata, rc):
+    global flag_connected
+    print("MQTT Desconectado")
+    flag_connected = False
+
+
+def conn_mqtt():
+    c = mqtt.Client()
+    c.connect(MQTT_HOST, MQTT_PORT, 5)
+    c.on_connect = on_connect
+    c.on_disconnect = on_disconnect
+    return c
+
 
 while True:
-    cpu = psutil.cpu_percent(interval=1)
-    memory = psutil.virtual_memory()
-    disk = psutil.disk_usage('/')
-
-    # Convert Bytes to GB (Bytes -> KB -> MB -> GB)
-    # free = round(disk.free/1024.0/1024.0/1024.0, 1)
-    # total = round(disk.total/1024.0/1024.0/1024.0, 1)
-    # disk_info = str(free) + 'GB free / ' + str(total) + 'GB total ( ' + str(disk.percent) + '% )'
-
-    mqtt_client.publish("host/status/temp", temp())
-    mqtt_client.publish("host/status/cpu/used", round(cpu, 1))
-    mqtt_client.publish("host/status/memory/used", round(memory.percent, 1))
-    mqtt_client.publish("host/status/memory/total", round(disk.percent, 1))
-
+    if not flag_connected:
+        try:
+            client = conn_mqtt()
+            flag_connected = True
+        except:
+            pass
+    else:
+        cpu = psutil.cpu_percent(interval=1)
+        memory = psutil.virtual_memory()
+        disk = psutil.disk_usage('/')
+        client.publish("host/status/temp", temp())
+        client.publish("host/status/cpu/used", round(cpu, 1))
+        client.publish("host/status/memory/used", round(memory.percent, 1))
+        client.publish("host/status/memory/total", round(disk.percent, 1))
+        client.loop(timeout=1.0, max_packets=1)
     time.sleep(1)
