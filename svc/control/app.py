@@ -4,6 +4,7 @@ __author__ = 'EB1TR'
 
 import json
 import paho.mqtt.client as mqtt
+import os
 
 MQTT_HOST = "mqtt"
 MQTT_PORT = 1883
@@ -177,7 +178,8 @@ def on_connect(client, userdata, flags, rc):
         ("set/rx1", 0),
         ("set/rx2", 0),
         ("update", 0),
-        ("configtopy", 0)
+        ("configtopy", 0),
+        ("hostcmd", 0)
     ])
 
 
@@ -463,6 +465,12 @@ def on_message(client, userdata, msg):
 
     if msg.topic == "update":
         status("pytoconfig")
+
+    if msg.topic == "hostcmd":
+        if dato == "reboot":
+            os.system("sudo shutdown -r now")
+        elif dato == "poweroff":
+            os.system("sudo shutdown -h now")
 
     status("pytofront")
 
