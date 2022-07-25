@@ -11,7 +11,7 @@ MQTT_PORT = 1883
 def on_connect(client, userdata, flags, rc):
     print("Conectado a MQTT")
     client.subscribe([
-        ("hostcmd", 0)
+        ("host_cmd", 0)
     ])
 
 
