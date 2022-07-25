@@ -58,27 +58,27 @@ function onMessageArrived(message) {
     } else if (message.destinationName == "tw2/deg") {
         $('#tw2').text(message.payloadString+"º")
     } else if (message.destinationName == "host/status/temp") {
-        $('#hosttemp').text(message.payloadString+"º")
-        if (parseFloat(message.payloadString) > 58) {
-            $("#hosttemp").removeClass("spanitemtw").addClass("spanitem")
+        $('#hosttemp').text(parseFloat(message.payloadString).toFixed(1)+"º")
+        if (parseFloat(message.payloadString) > 55) {
+            $("#hosttemp").removeClass("spanitemhost").addClass("spanitemoff")
         } else {
-            $("#hosttemp").removeClass("spanitem").addClass("spanitemtw")
+            $("#hosttemp").removeClass("spanitemoff").addClass("spanitemhost")
         }
     } else if (message.destinationName == "host/status/memory/used") {
-        $('#hostmemu').text((100-message.payloadString).toFixed(1)+"%")
-        if (parseFloat(message.payloadString) > 512) {
-            $("#hosttemp").removeClass("spanitemtw").addClass("spanitem")
+        $('#hostmemu').text(parseFloat(message.payloadString).toFixed(1)+"%")
+        if (parseFloat(message.payloadString) > 50) {
+            $("#hostmemu").removeClass("spanitemhost").addClass("spanitemoff")
         } else {
-            $("#hosttemp").removeClass("spanitem").addClass("spanitemtw")
+            $("#hostmemu").removeClass("spanitemoff").addClass("spanitemhost")
         }
     } else if (message.destinationName == "host/status/memory/total") {
-        $('#hostmemt').text((100-message.payloadString).toFixed(1)+"%")
+        $('#hostdisu').text(parseFloat(message.payloadString).toFixed(1)+"%")
     } else if (message.destinationName == "host/status/cpu/used") {
-        $('#hostcpu').text(parseFloat(message.payloadString)+"%")
-        if (parseFloat(message.payloadString) > 30) {
-            $("#hosttemp").removeClass("spanitemtw").addClass("spanitem")
+        $('#hostcpuu').text(parseFloat(message.payloadString).toFixed(1)+"%")
+        if (parseFloat(message.payloadString) > 25) {
+            $("#hostcpuu").removeClass("spanitemhost").addClass("spanitemoff")
         } else {
-            $("#hosttemp").removeClass("spanitem").addClass("spanitemtw")
+            $("#hostcpuu").removeClass("spanitemoff").addClass("spanitemhost")
         }
     } else {
         json = JSON.parse(message.payloadString)
