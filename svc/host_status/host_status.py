@@ -5,7 +5,7 @@ import psutil
 import time
 import os
 
-MQTT_HOST = "192.168.33.85"
+MQTT_HOST = "127.0.0.1"
 MQTT_PORT = 1883
 
 
