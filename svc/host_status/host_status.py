@@ -30,7 +30,7 @@ def on_disconnect(client, userdata, rc):
 
 
 def conn_mqtt():
-    c = mqtt.Client()
+    c = mqtt.Client("host_status")
     c.connect(MQTT_HOST, MQTT_PORT, 5)
     c.on_connect = on_connect
     c.on_disconnect = on_disconnect

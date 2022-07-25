@@ -4,7 +4,6 @@ __author__ = 'EB1TR'
 
 import json
 import paho.mqtt.client as mqtt
-import os
 
 MQTT_HOST = "mqtt"
 MQTT_PORT = 1883
@@ -468,7 +467,7 @@ def on_message(client, userdata, msg):
     status("pytofront")
 
 
-mqtt_client = mqtt.Client()
+mqtt_client = mqtt.Client("control")
 mqtt_client.connect(MQTT_HOST, MQTT_PORT, 5)
 status("pytofront")
 status("pytoconfig")
