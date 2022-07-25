@@ -469,7 +469,7 @@ def on_message(client, userdata, msg):
 
 
 mqtt_client = mqtt.Client()
-mqtt_client.connect(MQTT_HOST, MQTT_PORT, 600)
+mqtt_client.connect(MQTT_HOST, MQTT_PORT, 5)
 status("pytofront")
 status("pytoconfig")
 clear_ant()
