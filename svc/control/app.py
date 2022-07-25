@@ -37,14 +37,6 @@ except Exception as e:
     print("Error en los ficheros de configuracion: %s" % e)
 
 
-def restart():
-    command = "/usr/bin/sudo /sbin/shutdown -r now"
-    import subprocess
-    process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
-    output = process.communicate()[0]
-    print(output)
-
-
 def nr_ant(stack_band):
     global STACKS
     ant_1 = stack_band['1']['estado']
@@ -476,7 +468,7 @@ def on_message(client, userdata, msg):
 
     if msg.topic == "hostcmd":
         if dato == "reboot":
-            restart()
+            os.system("reboot")
         elif dato == "poweroff":
             os.system("shutdown -h now")
 

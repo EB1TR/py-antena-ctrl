@@ -65,6 +65,7 @@ services:
     build:
       context: ./svc/control
       dockerfile: Dockerfile
+    privileged: true
     environment:
       - MQTT_HOST=172.0.33.2
       - MQTT_PORT=1883
@@ -73,6 +74,9 @@ services:
         ipv4_address: "172.0.33.5"
     volumes: 
       - "./cfg:/app/cfg"
+      - "/boot:/boot"
+      - "/run/dbus:/run/dbus"
+      - "/run/systemd:/run/systemd"
     restart: unless-stopped
 
 #  node-red:
