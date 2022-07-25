@@ -65,7 +65,6 @@ function onMessageArrived(message) {
             $("#hosttemp").removeClass("spanitem").addClass("spanitemtw")
         }
     } else if (message.destinationName == "host/status/memory/used") {
-        console.log(message.payloadString)
         $('#hostmemu').text((100-message.payloadString).toFixed(1)+"%")
         if (parseFloat(message.payloadString) > 512) {
             $("#hosttemp").removeClass("spanitemtw").addClass("spanitem")

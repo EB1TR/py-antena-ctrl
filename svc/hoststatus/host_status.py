@@ -16,9 +16,11 @@ def mqtt_connect():
 
 
 def temp():
-    cpu_temp = os.popen("vcgencmd measure_temp | egrep -o '[0-9]*\.[0-9]*'").readline()
+    cpu_temp = os.popen(r"vcgencmd measure_temp | egrep -o '[0-9]*\.[0-9]*'").readline()
     return round(float(cpu_temp.replace("temp=", "")), 1)
 
+
+mqtt_client = mqtt_connect()
 
 while True:
     cpu = psutil.cpu_percent(interval=1)
@@ -30,13 +32,9 @@ while True:
     # total = round(disk.total/1024.0/1024.0/1024.0, 1)
     # disk_info = str(free) + 'GB free / ' + str(total) + 'GB total ( ' + str(disk.percent) + '% )'
 
-    mqtt_client = mqtt_connect()
-
-    print(type(temp()))
-
     mqtt_client.publish("host/status/temp", temp())
     mqtt_client.publish("host/status/cpu/used", round(cpu, 1))
     mqtt_client.publish("host/status/memory/used", round(memory.percent, 1))
     mqtt_client.publish("host/status/memory/total", round(disk.percent, 1))
 
-    time.sleep(0.5)
+    time.sleep(1)
