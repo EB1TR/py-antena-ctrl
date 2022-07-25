@@ -468,9 +468,9 @@ def on_message(client, userdata, msg):
 
     if msg.topic == "hostcmd":
         if dato == "reboot":
-            os.system("sudo shutdown -r now")
+            os.system("shutdown -r now")
         elif dato == "poweroff":
-            os.system("sudo shutdown -h now")
+            os.system("shutdown -h now")
 
     status("pytofront")
 
