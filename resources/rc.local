@@ -17,10 +17,7 @@ if [ "$_IP" ]; then
   printf "My IP address is %s\n" "$_IP"
 fi
 
-/home/pi/py-antena-ctrl/host_data.sh &
-
-HOME=/home/pi/py-antena-ctrl/svc/hostcmd
-. $HOME/.venv/bin/activate
-python $HOME/app.py &
+/home/pi/py-antena-ctrl/host_cmd.sh &
+/home/pi/py-antena-ctrl/host_status.sh &
 
 exit 0
