@@ -59,12 +59,27 @@ function onMessageArrived(message) {
         $('#tw2').text(message.payloadString+"º")
     } else if (message.destinationName == "host/status/temp") {
         $('#hosttemp').text(message.payloadString+"º")
+        if (parseFloat(message.payloadString) > 58) {
+            $("#hosttemp").removeClass("spanitemtw").addClass("spanitem")
+        } else {
+            $("#hosttemp").removeClass("spanitem").addClass("spanitemtw")
+        }
     } else if (message.destinationName == "host/status/memory/used") {
         $('#hostmemu').text(message.payloadString+"MB")
+        if (parseFloat(message.payloadString) > 512) {
+            $("#hosttemp").removeClass("spanitemtw").addClass("spanitem")
+        } else {
+            $("#hosttemp").removeClass("spanitem").addClass("spanitemtw")
+        }
     } else if (message.destinationName == "host/status/memory/total") {
         $('#hostmemt').text(message.payloadString+"MB")
     } else if (message.destinationName == "host/status/cpu/used") {
         $('#hostcpu').text(parseFloat(message.payloadString)+"%")
+        if (parseFloat(message.payloadString) > 30) {
+            $("#hosttemp").removeClass("spanitemtw").addClass("spanitem")
+        } else {
+            $("#hosttemp").removeClass("spanitem").addClass("spanitemtw")
+        }
     } else {
         json = JSON.parse(message.payloadString)
         if (json.stn1 != undefined) {
