@@ -26,7 +26,7 @@ def on_message(client, userdata, msg):
 while True:
     try:
         mqtt_client = mqtt.Client()
-        mqtt_client.connect(MQTT_HOST, MQTT_PORT, 5)
+        mqtt_client.connect(MQTT_HOST, MQTT_PORT, 60)
         mqtt_client.on_connect = on_connect
         mqtt_client.on_message = on_message
         mqtt_client.loop_forever()
