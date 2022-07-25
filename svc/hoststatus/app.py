@@ -14,9 +14,10 @@ def mqtt_connect():
     mqtt_c.connect(MQTT_HOST, MQTT_PORT, 5)
     return mqtt_c
 
+
 def temp():
     cpu_temp = os.popen("vcgencmd measure_temp").readline()
-    return cpu_temp.replace("temp=", "")
+    return round(float(cpu_temp.replace("temp=", "")), 1)
 
 
 while True:
