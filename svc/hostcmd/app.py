@@ -18,9 +18,9 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     dato = msg.payload.decode('utf-8')
     if dato == "reboot":
-        os.system("shutdown -r now")
+        os.system("sudo shutdown -r now")
     elif dato == "poweroff":
-        os.system("shutdown -h now")
+        os.system("sudo shutdown -h now")
 
 
 while True:
