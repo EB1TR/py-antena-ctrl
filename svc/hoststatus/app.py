@@ -16,7 +16,7 @@ def mqtt_connect():
 
 
 def temp():
-    cpu_temp = os.popen("vcgencmd measure_temp").readline()
+    cpu_temp = os.popen("vcgencmd measure_temp | egrep -o '[0-9]*\.[0-9]*'").readline()
     return round(float(cpu_temp.replace("temp=", "")), 1)
 
 
