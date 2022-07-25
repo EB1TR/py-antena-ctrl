@@ -34,7 +34,7 @@ while True:
 
     print(type(temp()))
 
-    mqtt_client.publish("host/status/cpu/temp", temp())
+    mqtt_client.publish("host/status/temp", temp())
     mqtt_client.publish("host/status/cpu/used", round(cpu, 1))
     mqtt_client.publish("host/status/memory/used", round(memory.percent, 1))
     mqtt_client.publish("host/status/memory/total", round(disk.percent, 1))
