@@ -178,8 +178,7 @@ def on_connect(client, userdata, flags, rc):
         ("set/rx1", 0),
         ("set/rx2", 0),
         ("update", 0),
-        ("configtopy", 0),
-        ("hostcmd", 0)
+        ("configtopy", 0)
     ])
 
 
@@ -466,12 +465,6 @@ def on_message(client, userdata, msg):
     if msg.topic == "update":
         status("pytoconfig")
 
-    if msg.topic == "hostcmd":
-        if dato == "reboot":
-            os.system("reboot")
-        elif dato == "poweroff":
-            os.system("shutdown -h now")
-
     status("pytofront")
 
 
@@ -480,7 +473,6 @@ mqtt_client.connect(MQTT_HOST, MQTT_PORT, 600)
 status("pytofront")
 status("pytoconfig")
 clear_ant()
-print("pasa")
 mqtt_client.on_connect = on_connect
 mqtt_client.on_message = on_message
 mqtt_client.loop_forever()
