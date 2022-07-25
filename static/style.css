@@ -21,31 +21,31 @@ body {
     color: burlywood;
 }
 .spanitem {
-    border: 1px solid rgba(180,0,0,0.8);
+    border: 1px solid rgba(255,0,0,0.8);
     text-align: center;
     line-height: 27px;
     display: inline-block;
-    background-color: rgba(255,0,0,0.1);
-    color: rgba(180,0,0,1);
+    background-color: rgba(255,0,0,0.2);
+    color: rgba(255,0,0,1);
     width: 50px;
     height: 25px;
     border-radius: 3px;
 }
 .spanitemtw {
-    border: 1px solid rgba(0, 108, 180, 0.8);
+    border: 1px solid rgba(0, 108, 255, 0.8);
     text-align: center;
     line-height: 27px;
     display: inline-block;
-    background-color: rgba(0,108,255,0.1);
-    color: rgba(0,108,180,1);
+    background-color: rgba(0,108,255,0.2);
+    color: rgba(0,108,255,1);
     width: 50px;
     height: 25px;
     border-radius: 3px;
 }
 .spanitemselected {
-    border: 1px solid rgba(0,110,0,0.8);
+    border: 1px solid rgba(0,200,0,0.8);
     background-color: rgba(0,255,0,0.1);
-    color: rgba(0,110,0,1);
+    color: rgba(0,200,0,1);
 }
 .spanitemindicator {
     border: 1px solid rgba(0, 0, 0, 0.7);
@@ -74,4 +74,36 @@ body {
     display: inline-block;
     text-align: right
 }
-
+.spanitemhost {
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    text-align: center;
+    line-height: 27px;
+    display: inline-block;
+    background-color: rgba(255, 255, 255,0.2);
+    color: rgba(255, 255, 255,1);
+    width: 50px;
+    height: 25px;
+    border-radius: 3px;
+}
+.spanitemreboot {
+    border: 1px solid rgba(255, 128, 0, 0.8);
+    text-align: center;
+    line-height: 27px;
+    display: inline-block;
+    background-color: rgba(255,128,0,0.4);
+    color: rgba(255,128,0,1);
+    width: 50px;
+    height: 25px;
+    border-radius: 3px;
+}
+.spanitemoff {
+    border: 1px solid rgba(255, 0, 0, 0.8);
+    text-align: center;
+    line-height: 27px;
+    display: inline-block;
+    background-color: rgba(255,0,0,0.4);
+    color: rgba(255,0,0,1);
+    width: 50px;
+    height: 25px;
+    border-radius: 3px;
+}
