@@ -65,14 +65,15 @@ function onMessageArrived(message) {
             $("#hosttemp").removeClass("spanitem").addClass("spanitemtw")
         }
     } else if (message.destinationName == "host/status/memory/used") {
-        $('#hostmemu').text(message.payloadString+"MB")
+        console.log(message.payloadString)
+        $('#hostmemu').text((100-message.payloadString).toFixed(1)+"%")
         if (parseFloat(message.payloadString) > 512) {
             $("#hosttemp").removeClass("spanitemtw").addClass("spanitem")
         } else {
             $("#hosttemp").removeClass("spanitem").addClass("spanitemtw")
         }
     } else if (message.destinationName == "host/status/memory/total") {
-        $('#hostmemt').text(message.payloadString+"MB")
+        $('#hostmemt').text((100-message.payloadString).toFixed(1)+"%")
     } else if (message.destinationName == "host/status/cpu/used") {
         $('#hostcpu').text(parseFloat(message.payloadString)+"%")
         if (parseFloat(message.payloadString) > 30) {
