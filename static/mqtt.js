@@ -5,11 +5,16 @@ client = new Paho.MQTT.Client(mqttHOST, Number(9001), clientID);
 
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
+client.onFailure = onConnectionLost;
 
-client.connect({onSuccess:onConnect});
+client.connect({
+    onSuccess:onConnect,
+    onFailure:onConnectionLost
+    });
 
 function onConnect() {
   console.log("Connectado a MQTT");
+  $('#contenor').removeClass("FinFout")
   client.subscribe("pytofront");
   client.subscribe("stn1/qrg");
   client.subscribe("stn2/qrg");
@@ -32,6 +37,7 @@ function onConnectionLost(responseObject) {
   if (responseObject.errorCode !== 0) {
     console.log("Conexión perdida a MQTT:"+responseObject.errorMessage);
   }
+  $('#contenor').addClass("FinFout")
 }
 
 function send_command(comm, dato){
