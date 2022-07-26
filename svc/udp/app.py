@@ -36,7 +36,7 @@ except Exception as e:
 
 def mqtt_connect():
     mqtt_c = mqtt.Client("n1")
-    mqtt_c.connect(MQTT_HOST, MQTT_PORT, 5)
+    mqtt_c.connect(MQTT_HOST, MQTT_PORT)
     return mqtt_c
 
 
