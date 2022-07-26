@@ -467,11 +467,17 @@ def on_message(client, userdata, msg):
     status("pytofront")
 
 
+def on_disconect(client, userdata, msg):
+    print("Conexión MQTT perdida")
+    exit(0)
+
+
 mqtt_client = mqtt.Client("control")
-mqtt_client.connect(MQTT_HOST, MQTT_PORT, 5)
+mqtt_client.connect(MQTT_HOST, MQTT_PORT)
 status("pytofront")
 status("pytoconfig")
 clear_ant()
 mqtt_client.on_connect = on_connect
 mqtt_client.on_message = on_message
+mqtt_client.on_disconnect = on_disconect
 mqtt_client.loop_forever()
