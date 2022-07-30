@@ -100,9 +100,9 @@ def process_radio_info(xml_data, mqtt_c):
     
     radio_i = [stn, radio, [band, segmento], qrg, mode, op]
     
-    if stn_name == STN1['netbios']:
+    if stn_name == str(STN1['netbios']).upper():
         radio_i[0] = 1
-    if stn_name == STN2['netbios']:
+    if stn_name == str(STN2['netbios']).upper():
         radio_i[0] = 2
     publish_radio_info(mqtt_c, radio_i)
 
