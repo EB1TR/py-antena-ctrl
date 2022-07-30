@@ -461,12 +461,12 @@ def on_message(client, userdata, msg):
 
         status("pytoconfig")
 
+        mqtt_client.publish("host_cmd", "restartn1")
+
     if msg.topic == "update":
         status("pytoconfig")
 
     status("pytofront")
-
-    mqtt_client.publish("host_cmd", "restartn1")
 
 
 def on_disconect(client, userdata, msg):
