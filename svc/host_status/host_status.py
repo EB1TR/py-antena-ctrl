@@ -7,6 +7,7 @@ import os
 
 MQTT_HOST = "127.0.0.1"
 MQTT_PORT = 1883
+MQTT_KEEP = 0
 
 
 flag_connected = False
@@ -31,7 +32,7 @@ def on_disconnect(client, userdata, rc):
 
 def conn_mqtt():
     c = mqtt.Client("host_status")
-    c.connect(MQTT_HOST, MQTT_PORT, 5)
+    c.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEP)
     c.on_connect = on_connect
     c.on_disconnect = on_disconnect
     return c

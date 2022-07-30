@@ -6,6 +6,7 @@ import time
 
 MQTT_HOST = "127.0.0.1"
 MQTT_PORT = 1883
+MQTT_KEEP = 0
 
 
 def on_connect(client, userdata, flags, rc):
@@ -28,7 +29,7 @@ def on_message(client, userdata, msg):
 while True:
     try:
         mqtt_client = mqtt.Client("host_cmd")
-        mqtt_client.connect(MQTT_HOST, MQTT_PORT, 5)
+        mqtt_client.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEP)
         mqtt_client.on_connect = on_connect
         mqtt_client.on_message = on_message
         mqtt_client.loop_forever()

@@ -17,6 +17,7 @@ import json
 
 MQTT_HOST = "mqtt"
 MQTT_PORT = 1883
+MQTT_KEEP = 0
 
 try:
     with open('cfg/stn1.json') as json_file:
@@ -36,7 +37,7 @@ except Exception as e:
 
 def mqtt_connect():
     mqtt_c = mqtt.Client("n1")
-    mqtt_c.connect(MQTT_HOST, MQTT_PORT)
+    mqtt_c.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEP)
     return mqtt_c
 
 

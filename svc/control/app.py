@@ -7,6 +7,7 @@ import paho.mqtt.client as mqtt
 
 MQTT_HOST = "mqtt"
 MQTT_PORT = 1883
+MQTT_KEEP = 0
 
 
 try:
@@ -475,7 +476,7 @@ def on_disconect(client, userdata, msg):
 
 
 mqtt_client = mqtt.Client("control")
-mqtt_client.connect(MQTT_HOST, MQTT_PORT)
+mqtt_client.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEP)
 status("pytofront")
 status("pytoconfig")
 clear_ant()
