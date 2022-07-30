@@ -6,7 +6,7 @@ import time
 
 MQTT_HOST = "127.0.0.1"
 MQTT_PORT = 1883
-MQTT_KEEP = 1
+MQTT_KEEP = 600
 
 
 def on_connect(client, userdata, flags, rc):
