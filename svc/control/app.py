@@ -7,7 +7,7 @@ import paho.mqtt.client as mqtt
 
 MQTT_HOST = "mqtt"
 MQTT_PORT = 1883
-MQTT_KEEP = 0
+MQTT_KEEP = 1
 
 
 try:

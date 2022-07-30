@@ -17,7 +17,7 @@ import json
 
 MQTT_HOST = "mqtt"
 MQTT_PORT = 1883
-MQTT_KEEP = 0
+MQTT_KEEP = 1
 
 try:
     with open('cfg/stn1.json') as json_file:

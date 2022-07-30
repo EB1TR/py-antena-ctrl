@@ -7,7 +7,7 @@ import os
 
 MQTT_HOST = "127.0.0.1"
 MQTT_PORT = 1883
-MQTT_KEEP = 0
+MQTT_KEEP = 1
 
 
 flag_connected = False
