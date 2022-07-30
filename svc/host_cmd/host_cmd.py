@@ -22,7 +22,7 @@ def on_message(client, userdata, msg):
     elif dato == "poweroff":
         os.system("sudo shutdown -h now")
     elif dato == "restartn1":
-        os.system("docker-compose -f ../../docker-compose.yaml restart n1")
+        os.system("docker-compose -f $PATHCTRL/docker-compose.yaml restart n1")
 
 
 while True:
