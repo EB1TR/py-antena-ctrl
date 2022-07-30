@@ -134,3 +134,18 @@ body {
    -o-animation: flickerAnimation 1s infinite;
     animation: flickerAnimation 1s infinite;
 }
+.spantwstn {
+    border: 1px solid rgba(255, 0, 0, 0.8);
+    text-align: center;
+    line-height: 27px;
+    display: inline-block;
+    background-color: rgba(255,0,0,0.4);
+    color: rgba(255,0,0,1);
+    width: 50px;
+    height: 25px;
+    border-radius: 3px;
+    -webkit-animation: flickerAnimation 1s infinite;
+    -moz-animation: flickerAnimation 1s infinite;
+    -o-animation: flickerAnimation 1s infinite;
+     animation: flickerAnimation 1s infinite;
+}
