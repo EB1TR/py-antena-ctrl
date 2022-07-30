@@ -3,168 +3,189 @@
         "salidas": 0, 
         "balun": false, 
         "tta": "xxx", 
-        "rele": 0, 
+        "rele": 0,
         "1": {
             "estado": false, 
             "nombre": "N/A", 
             "tta": "ttanro", 
-            "rele": 0
+            "rele": 0,
+            "tw": 0
         }, 
         "2": {
             "estado": false, 
             "nombre": "N/A", 
             "tta": "ttanro", 
-            "rele": 0
+            "rele": 0,
+            "tw": 0
         }, 
         "3": {
             "estado": false, 
             "nombre": "N/A", 
             "tta": "ttanro", 
-            "rele": 0
+            "rele": 0,
+            "tw": 0
         }
     }, 
     "160": {
         "salidas": 1, 
         "balun": true, 
         "tta": "ttanro", 
-        "rele": 0, 
+        "rele": 0,
         "1": {
             "estado": true, 
             "nombre": "ANT1", 
             "tta": "ttanro", 
-            "rele": "0"
+            "rele": "0",
+            "tw": 0
         }, 
         "2": {
             "estado": false, 
             "nombre": "ANT2", 
             "tta": "ttanro", 
-            "rele": "0"
+            "rele": "0",
+            "tw": 0
         }, 
         "3": {
             "estado": false, 
             "nombre": "ANT3", 
             "tta": "ttanro", 
-            "rele": "0"
+            "rele": "0",
+            "tw": 0
         }
     }, 
     "80": {
         "salidas": 1, 
         "balun": true, 
         "tta": "ttanro", 
-        "rele": 0, 
+        "rele": 0,
         "1": {
             "estado": true, 
             "nombre": "ANT1", 
             "tta": "ttanro", 
-            "rele": "0"
+            "rele": "0",
+            "tw": 0
         }, 
         "2": {
             "estado": false, 
             "nombre": "ANT2", 
             "tta": "ttanro", 
-            "rele": "0"
+            "rele": "0",
+            "tw": 0
         }, 
         "3": {
             "estado": false, 
             "nombre": "ANT3", 
             "tta": "ttanro", 
-            "rele": "0"
+            "rele": "0",
+            "tw": 0
         }
     }, 
     "40": {
         "salidas": 2, 
         "balun": false, 
         "tta": "E8EADA0059F7", 
-        "rele": 16, 
+        "rele": 16,
         "1": {
             "estado": true, 
             "nombre": "Dip", 
             "tta": "E8EADA0059F7", 
-            "rele": "13"
+            "rele": "13",
+            "tw": 2
         }, 
         "2": {
             "estado": true, 
             "nombre": "Ver", 
             "tta": "E8EADA0059F7", 
-            "rele": "14"
+            "rele": "14",
+            "tw": 0
         }, 
         "3": {
             "estado": false, 
             "nombre": "ANT3", 
             "tta": "E8EADA0059F7", 
-            "rele": "15"
+            "rele": "15",
+            "tw": 0
         }
     }, 
     "20": {
         "salidas": 2, 
         "balun": false, 
         "tta": "E8EADA0059F7", 
-        "rele": 4, 
+        "rele": 4,
         "1": {
             "estado": true, 
             "nombre": "MB7", 
             "tta": "E8EADA0059F7", 
-            "rele": "1"
+            "rele": "1",
+            "tw": 1
         }, 
         "2": {
             "estado": true, 
             "nombre": "MB6", 
             "tta": "E8EADA0059F7", 
-            "rele": "2"
+            "rele": "2",
+            "tw": 2
         }, 
         "3": {
             "estado": false, 
             "nombre": "ANT3", 
             "tta": "E8EADA0059F7", 
-            "rele": "3"
+            "rele": "3",
+            "tw": 0
         }
     }, 
     "15": {
         "salidas": 2, 
         "balun": false, 
         "tta": "E8EADA0059F7", 
-        "rele": 8, 
+        "rele": 8,
         "1": {
             "estado": true, 
             "nombre": "MB7", 
             "tta": "E8EADA0059F7", 
-            "rele": "5"
+            "rele": "5",
+            "tw": 1
         }, 
         "2": {
             "estado": true, 
             "nombre": "MB6", 
             "tta": "E8EADA0059F7", 
-            "rele": "6"
+            "rele": "6",
+            "tw": 2
         }, 
         "3": {
             "estado": false, 
             "nombre": "ANT3", 
             "tta": "E8EADA0059F7", 
-            "rele": "7"
+            "rele": "7",
+            "tw": 0
         }
     }, 
     "10": {
         "salidas": 2, 
         "balun": false, 
         "tta": "E8EADA0059F7", 
-        "rele": 12, 
+        "rele": 12,
         "1": {
             "estado": true, 
             "nombre": "MB7", 
             "tta": "E8EADA0059F7", 
-            "rele": "9"
+            "rele": "9",
+            "tw": 1
         }, 
         "2": {
             "estado": true, 
             "nombre": "MB6", 
             "tta": "E8EADA0059F7", 
-            "rele": "10"
+            "rele": "10",
+            "tw": 2
         }, 
         "3": {
             "estado": false, 
             "nombre": "ANT3", 
             "tta": "E8EADA0059F7", 
-            "rele": "11"
+            "rele": "11",
+            "tw": 0
         }
     }
 }

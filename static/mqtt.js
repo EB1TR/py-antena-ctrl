@@ -93,8 +93,6 @@ function onMessageArrived(message) {
             bstn1 = "#stn1-b"+json.stn1.band
             bstn2 = "#stn2-b"+json.stn2.band
 
-            bandstn1 = json.stn1.band
-
             asstn1 = json.stn1.auto
             asstn2 = json.stn2.auto
 
@@ -107,6 +105,37 @@ function onMessageArrived(message) {
             ststn21 = json.stacks[json.stn2.band][1]['estado']
             ststn22 = json.stacks[json.stn2.band][2]['estado']
             ststn23 = json.stacks[json.stn2.band][3]['estado']
+
+            if ((json.stacks[json.stn1.band][1]['tw'] == 1 && ststn11 == true) ||
+                (json.stacks[json.stn1.band][2]['tw'] == 1 && ststn12 == true) || 
+                (json.stacks[json.stn1.band][3]['tw'] == 1 && ststn13 == true)) {
+                $("#tw1stn1").show()
+                console.log("c1")
+            } else {
+                $("#tw1stn1").hide()
+                console.log("c2")
+            }
+            if ((json.stacks[json.stn1.band][1]['tw'] == 2 && ststn11 == true) ||
+                (json.stacks[json.stn1.band][2]['tw'] == 2 && ststn12 == true) || 
+                (json.stacks[json.stn1.band][3]['tw'] == 2 && ststn13 == true)) {
+                $("#tw2stn1").show()
+            } else {
+                $("#tw2stn1").hide()
+            }
+            if ((json.stacks[json.stn2.band][1]['tw'] == 1 && ststn21 == true) ||
+                (json.stacks[json.stn2.band][2]['tw'] == 1 && ststn22 == true) || 
+                (json.stacks[json.stn2.band][3]['tw'] == 1 && ststn23 == true)) {
+                $("#tw1stn2").show()
+            } else {
+                $("#tw1stn2").hide()
+            }
+            if ((json.stacks[json.stn2.band][1]['tw'] == 2 && ststn21 == true) ||
+                (json.stacks[json.stn2.band][2]['tw'] == 2 && ststn22 == true) || 
+                (json.stacks[json.stn2.band][3]['tw'] == 2 && ststn23 == true)) {
+                $("#tw2stn2").show()
+            } else {
+                $("#tw2stn2").hide()
+            }
 
             $("#stn1-b0").removeClass("spanitemselected");
             $("#stn1-b160").removeClass("spanitemselected");
