@@ -88,10 +88,9 @@ def process_radio_info(xml_data, mqtt_c):
     stn = 0
     radio = int(xml_data["RadioInfo"]['RadioNr'])
     qrg = int(xml_data["RadioInfo"]['Freq'])
-    mode = str(xml_data["RadioInfo"]['Mode'])
-    stn_name = xml_data["RadioInfo"]['StationName']
-    op = str(xml_data["RadioInfo"]['OpCall'])
-    op = op.upper()
+    mode = str(xml_data["RadioInfo"]['Mode']).upper()
+    stn_name = str(xml_data["RadioInfo"]['StationName']).upper()
+    op = str(xml_data["RadioInfo"]['OpCall']).upper()
 
     try:
         band, segmento = define_band(qrg)
