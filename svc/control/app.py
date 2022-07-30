@@ -466,6 +466,8 @@ def on_message(client, userdata, msg):
 
     status("pytofront")
 
+    mqtt_client.publish("host_cmd", "restartn1")
+
 
 def on_disconect(client, userdata, msg):
     print("Conexión MQTT perdida")
