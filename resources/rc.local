@@ -15,8 +15,9 @@
 _IP=$(hostname -I) || true
 if [ "$_IP" ]; then
   printf "My IP address is %s\n" "$_IP"
+  /home/pi/py-antena-ctrl/ip.sh &
 fi
-PATHCTRL=/home/pi/py-antena-ctrl
+export PATHCTRL=/home/pi/py-antena-ctrl
 /home/pi/py-antena-ctrl/host_cmd.sh &
 /home/pi/py-antena-ctrl/host_status.sh &
 
