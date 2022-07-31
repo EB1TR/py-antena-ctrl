@@ -110,10 +110,8 @@ function onMessageArrived(message) {
                 (json.stacks[json.stn1.band][2]['tw'] == 1 && ststn12 == true) || 
                 (json.stacks[json.stn1.band][3]['tw'] == 1 && ststn13 == true)) {
                 $("#tw1stn1").show()
-                console.log("c1")
             } else {
                 $("#tw1stn1").hide()
-                console.log("c2")
             }
             if ((json.stacks[json.stn1.band][1]['tw'] == 2 && ststn11 == true) ||
                 (json.stacks[json.stn1.band][2]['tw'] == 2 && ststn12 == true) || 
@@ -258,3 +256,24 @@ function onMessageArrived(message) {
         }
     }
 }
+
+function wcyData() {
+    fetch('https://api.ure.es/wcy')
+        .then(response => response.json())
+        .then(data => {
+            $("#wcysfi").text(data[0]["sfi"])
+            $("#wcyssn").text(data[0]["ssn"])
+            $("#wcya").text(data[0]["a"])
+            $("#wcyk").text(data[0]["k"])
+            $("#wcyek").text(data[0]["ek"])
+            $("#wcygmf").text(data[0]["gmf"])
+            $("#wcysa").text(data[0]["sa"])
+            $("#wcyts").text(data[0]["isots"])
+        });
+}
+
+wcyData()
+
+setInterval(function() {
+    wcyData()
+}, 1000 * 10 * 10); // where X is your every X minutes
