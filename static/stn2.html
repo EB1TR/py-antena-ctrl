@@ -8,10 +8,10 @@
 		<meta charset="utf-8">
 		<title>Antenna Control</title>
 	</head>
-
 	<body style="text-align: center">
     	<div id="contenor">
-    		<table class="tablestn" style="float: left; margin: 5px;">
+			<div style="float:left">
+				<table class="tablestn" style="float: left; margin: 5px;">
         		<tr>
 					<td>
 						<span class="spanitem" id="tw1stn1">STN1</span>
@@ -39,56 +39,81 @@
                     <td class="tdstn"><a href="#"><span onclick="send_command('set/tw1', 150)" class="spanitemtw" id="tw1sp6">ZS</span></a></td>
 				</tr>
     		</table>
-
-    		<table class="tablestn" style="float: left; margin: 5px;">
+				<br><br>
+				<table class="tablestn">
 				<tr>
-					<td class="colcentered texto-stn" colspan="7"><span id="stn2-n">---</span> | <span id="stn2-op">---</span> | <span id="stn2-r1-qrg">----.--</span> | <span id="stn2-r1-mode">---</span></td>
+					<th colspan="7">Status del Host</th>
 				</tr>
 				<tr>
-					<td colspan="3"><hr></td>
-					<td colspan="1">Banda</td>
-					<td colspan="3"><hr></td>
+					<th>Temp.</th>
+					<th>CPU</th>
+					<th>Mem. U</th>
+					<th>Disc U</th>
+					<th></th>
+					<th colspan="2">RaspBerry Pi</th>
 				</tr>
 				<tr>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/band', 0)" class="spanitem" id="stn2-b0">N/A</span></a></td>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/band', 160)" class="spanitem" id="stn2-b160">160m</span></a></td>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/band', 80)" class="spanitem" id="stn2-b80">80m</span></a></td>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/band', 40)" class="spanitem" id="stn2-b40">40m</span></a></td>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/band', 20)" class="spanitem" id="stn2-b20">20m</span></a></td>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/band', 15)" class="spanitem" id="stn2-b15">15m</span></a></td>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/band', 10)" class="spanitem" id="stn2-b10">10m</span></a></td>
+					<td class="tdstn"><span class="spanitemhost" id="hosttemp">---</span></td>
+					<td class="tdstn"><span class="spanitemhost" id="hostcpuu">---</span></td>
+					<td class="tdstn"><span class="spanitemhost" id="hostmemu">---</span></td>
+					<td class="tdstn"><span class="spanitemhost" id="hostdisu">---</span></td>
+					<td class="tdstn"><span class="spanitemtw" id="hostadd1">---</span></td>
+					<td class="tdstn"><a href="#"><span onclick="send_command('host_cmd', 'reboot')" class="spanitemreboot" id="hostadd2">Reboot</span></a></td>
+					<td class="tdstn"><a href="#"><span onclick="send_command('host_cmd', 'poweroff')" class="spanitemoff" id="hostadd3">OFF</span></a></td>
 				</tr>
-				<tr>
-					<td colspan="3"><hr></td>
-					<td colspan="1">Antena</td>
-					<td colspan="3"><hr></td>
-				</tr>
-				<tr>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/stack', 1)" class="spanitem" id="stn2-stack1">1</span></a></td>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/stack', 2)" class="spanitem" id="stn2-stack2">2</span></a></td>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/stack', 3)" class="spanitem" id="stn2-stack3">3</span></a></td>
-					<td class="tdstn"></td>
-					<td class="tdstn"><span class="spanitem" id="stn2-segmento"></span></td>
-					<td class="tdstn"></td>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/antm', 0)" class="spanitem" id="stn2-as">AUTO</span></a></td>
-				</tr>
-				<tr>
-					<td colspan="3"><hr></td>
-					<td colspan="1">RX</td>
-					<td colspan="3"><hr></td>
-				</tr>
-				<tr>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/rx2', 0)" class="spanitem" id="rx200">N/A</span></a></td>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/rx2', 1)" class="spanitem" id="rx201">--</span></a></td>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/rx2', 2)" class="spanitem" id="rx202">--</span></a></td>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/rx2', 3)" class="spanitem" id="rx203">--</span></a></td>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/rx2', 4)" class="spanitem" id="rx204">--</span></a></td>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/rx2', 5)" class="spanitem" id="rx205">--</span></a></td>
-					<td class="tdstn"><a href="#"><span onclick="send_command('set/rx2', 6)" class="spanitem" id="rx206">--</span></a></td>
-				</tr>
-    		</table>
-
-    		<table class="tablestn" style="float: left; margin: 5px;">
+			</table>
+			</div>
+    		<div style="float:left">
+				<table class="tablestn" style="float: left; margin: 5px;">
+					<tr>
+						<td class="colcentered texto-stn" colspan="7"><span id="stn2-n">---</span> | <span id="stn2-op">---</span> | <span id="stn2-r1-qrg">----.--</span> | <span id="stn2-r1-mode">---</span></td>
+					</tr>
+					<tr>
+						<td colspan="3"><hr></td>
+						<td colspan="1">Banda</td>
+						<td colspan="3"><hr></td>
+					</tr>
+					<tr>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/band', 0)" class="spanitem" id="stn2-b0">N/A</span></a></td>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/band', 160)" class="spanitem" id="stn2-b160">160m</span></a></td>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/band', 80)" class="spanitem" id="stn2-b80">80m</span></a></td>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/band', 40)" class="spanitem" id="stn2-b40">40m</span></a></td>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/band', 20)" class="spanitem" id="stn2-b20">20m</span></a></td>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/band', 15)" class="spanitem" id="stn2-b15">15m</span></a></td>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/band', 10)" class="spanitem" id="stn2-b10">10m</span></a></td>
+					</tr>
+					<tr>
+						<td colspan="3"><hr></td>
+						<td colspan="1">Antena</td>
+						<td colspan="3"><hr></td>
+					</tr>
+					<tr>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/stack', 1)" class="spanitem" id="stn2-stack1">1</span></a></td>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/stack', 2)" class="spanitem" id="stn2-stack2">2</span></a></td>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/stack', 3)" class="spanitem" id="stn2-stack3">3</span></a></td>
+						<td class="tdstn"></td>
+						<td class="tdstn"><span class="spanitem" id="stn2-segmento"></span></td>
+						<td class="tdstn"></td>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/antm', 0)" class="spanitem" id="stn2-as">AUTO</span></a></td>
+					</tr>
+					<tr>
+						<td colspan="3"><hr></td>
+						<td colspan="1">RX</td>
+						<td colspan="3"><hr></td>
+					</tr>
+					<tr>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/rx2', 0)" class="spanitem" id="rx200">N/A</span></a></td>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/rx2', 1)" class="spanitem" id="rx201">--</span></a></td>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/rx2', 2)" class="spanitem" id="rx202">--</span></a></td>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/rx2', 3)" class="spanitem" id="rx203">--</span></a></td>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/rx2', 4)" class="spanitem" id="rx204">--</span></a></td>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/rx2', 5)" class="spanitem" id="rx205">--</span></a></td>
+						<td class="tdstn"><a href="#"><span onclick="send_command('set/rx2', 6)" class="spanitem" id="rx206">--</span></a></td>
+					</tr>
+    			</table>
+			</div>
+			<div style="float:left">
+				<table class="tablestn" style="float: left; margin: 5px;">
         		<tr>
 					<td>
 						<span class="spanitem" id="tw2stn1">STN1</span>
@@ -116,6 +141,33 @@
                     <td class="tdstn"><a href="#"><span onclick="send_command('set/tw2', 150)" class="spanitemtw" id="tw2sp6">ZS</span></a></td>
 				</tr>
     		</table>
+				<br><br>
+				<table class="tablestn">
+						<tr>
+							<th colspan="7">
+								Datos de Propagación: <span id="wcyts">---</span>
+							</th>
+						</tr>
+						<tr>
+							<th>SFI</th>
+							<th>SSN</th>
+							<th>K</th>
+							<th>A</th>
+							<th>eK</th>
+							<th>GMF</th>
+							<th>SA</th>
+						</tr>
+						<tr>
+							<td class="tdstn"><span class="spanitemhost" id="wcysfi">---</span></td>
+							<td class="tdstn"><span class="spanitemhost" id="wcyssn">---</span></td>
+							<td class="tdstn"><span class="spanitemhost" id="wcyk">---</span></td>
+							<td class="tdstn"><span class="spanitemhost" id="wcya">---</span></td>
+							<td class="tdstn"><span class="spanitemhost" id="wcyek">---</span></td>
+							<td class="tdstn"><span class="spanitemhost" id="wcygmf">---</span></td>
+							<td class="tdstn"><span class="spanitemhost" id="wcysa">---</span></td>
+						</tr>
+					</table>
+			</div>
     	</div>
 	</body>
 </html>
