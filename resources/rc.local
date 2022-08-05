@@ -10,15 +10,14 @@
 # bits.
 #
 # By default this script does nothing.
-
+export PATHCTRL=/home/pi/py-antena-ctrl
 # Print the IP address
 _IP=$(hostname -I) || true
 if [ "$_IP" ]; then
   printf "My IP address is %s\n" "$_IP"
-  /home/pi/py-antena-ctrl/ip.sh &
+  $PATHCTRL/ip.sh &
 fi
-export PATHCTRL=/home/pi/py-antena-ctrl
-/home/pi/py-antena-ctrl/host_cmd.sh &
-/home/pi/py-antena-ctrl/host_status.sh &
+$PATHCTRL/host_cmd.sh &
+$PATHCTRL/host_status.sh &
 
 exit 0
