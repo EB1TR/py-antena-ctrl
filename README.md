@@ -3,8 +3,7 @@
 ### Actualizar e instalar paquetes necesarios
 sudo apt update<br>
 sudo apt upgrade<br>
-sudo apt install git curl libffi-dev libssl-dev python3-dev python3 python3-pip virtualenv<br>
-sudo apt install virtualenv
+sudo apt install git curl libffi-dev libssl-dev python3-dev python3 python3-pip virtualenv<br>y
 
 ### Instalar Docker
 curl -fsSL https://get.docker.com -o get-docker.sh<br>
@@ -37,6 +36,11 @@ deactivate<br>
 
 ### Modificamos rc.local para lanzar tareas en el Host
 sudo cp py-antena-ctrl/resources/rc.local /etc/rc.local<br>
+
+### Contrucción de las imagenes de Docker y arranque
+cd /home/pi/py-antena-ctrl<br>
+docker-compose build<br>
+docker-compose up -d<br>
 
 ### Reboot
 sudo shutdown -r now<br>
