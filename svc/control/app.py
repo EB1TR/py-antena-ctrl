@@ -99,11 +99,12 @@ def change_segment(stn, band, segment):
     global SEGMENTOS
     global STN1
     global STN2
-    for e in SEGMENTOS[str(band)]:
-        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SEGMENTOS[str(band)][e]['tta'], SEGMENTOS[str(band)][e]['rele'])
-        mqtt_client.publish(topic, str(0))
-    topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SEGMENTOS[str(band)][str(segment)]['tta'], SEGMENTOS[str(band)][str(segment)]['rele'])
-    mqtt_client.publish(topic, str(1))
+    if segment != 0:
+        for e in SEGMENTOS[str(band)]:
+            topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SEGMENTOS[str(band)][e]['tta'], SEGMENTOS[str(band)][e]['rele'])
+            mqtt_client.publish(topic, str(0))
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SEGMENTOS[str(band)][str(segment)]['tta'], SEGMENTOS[str(band)][str(segment)]['rele'])
+        mqtt_client.publish(topic, str(1))
     if stn == 1:
         STN1['segmento'] = segment
     else:
@@ -197,14 +198,14 @@ def on_message(client, userdata, msg):
         if STN1['auto']:
             dato = json.loads(dato)
             assign_stn(1, dato[0])
-            if dato[0] in (160, 80) and dato[1] != STN1['segmento'] and STACKS[str(STN1['band'])]['1']['estado'] == True:
+            if dato[1] != STN1['segmento'] and STACKS[str(STN1['band'])]['1']['estado']:
                 change_segment(1, dato[0], dato[1])
 
     if msg.topic == "stn2/band":
         if STN2['auto']:
             dato = json.loads(dato)
             assign_stn(2, dato[0])
-            if dato[0] in (160, 80) and dato[1] != STN2['segmento'] and STACKS[str(STN1['band'])]['1']['estado'] == True:
+            if dato[1] != STN2['segmento'] and STACKS[str(STN2['band'])]['1']['estado']:
                 change_segment(2, dato[0], dato[1])
 
     # Mensajes recibidos desde FRONT
