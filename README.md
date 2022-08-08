@@ -1,4 +1,4 @@
-# Intrucciones de Instalación
+# Instrucciones de Instalación
 
 ### Actualizar e instalar paquetes necesarios
 sudo apt update<br>
@@ -25,10 +25,14 @@ mkdir venvs/host_cmd<br>
 mkdir venvs/host_status<br>
 virtualenv venvs/host_cmd<br>
 virtualenv venvs/host_status<br>
+
+### Instalación de paquetes para host_cmd
 source venvs/host_cmd/bin/activate<br>
 pip install --upgrade pip<br>
 pip install paho-mqtt<br>
 deactivate<br>
+
+### Instalación de paquetes para host_status
 source venvs/host_status/bin/activate<br>
 pip install --upgrade pip<br>
 pip install paho-mqtt psutil<br>
@@ -37,7 +41,7 @@ deactivate<br>
 ### Modificamos rc.local para lanzar tareas en el Host
 sudo cp py-antena-ctrl/resources/rc.local /etc/rc.local<br>
 
-### Contrucción de las imagenes de Docker y arranque
+### Construcción de las imágenes de Docker y arranque
 cd /home/pi/py-antena-ctrl<br>
 docker-compose build<br>
 docker-compose up -d<br>
