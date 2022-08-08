@@ -60,9 +60,25 @@ function onMessageArrived(message) {
     } else if (message.destinationName == "stn2/op") {
         $('#stn2-op').text(message.payloadString)
     } else if (message.destinationName == "tw1/deg") {
-        $('#tw1').text(message.payloadString+"º")
+        tw1deg = parseInt(message.payloadString)
+        if (tw1deg>360) {
+            tw1deg = tw1deg - 360
+            $('#tw1').text(tw1deg+"º")
+            $("#tw1").addClass("twred")
+        } else {
+            $('#tw1').text(message.payloadString+"º")
+            $('#tw1').removeClass("twred")
+        }
     } else if (message.destinationName == "tw2/deg") {
-        $('#tw2').text(message.payloadString+"º")
+        tw2deg = parseInt(message.payloadString)
+        if (tw2deg>360) {
+            tw2deg = tw2deg - 360
+            $('#tw2').text(tw1deg+"º")
+            $("#tw2").addClass("twred")
+        } else {
+            $('#tw2').text(message.payloadString+"º")
+            $('#tw2').removeClass("twred")
+        }
     } else if (message.destinationName == "host/status/temp") {
         $('#hosttemp').text(parseFloat(message.payloadString).toFixed(1)+"º")
         if (parseFloat(message.payloadString) > 55) {
