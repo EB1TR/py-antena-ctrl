@@ -1,5 +1,5 @@
 clientID = "web"
-mqttHOST = "1.1.1.1"
+mqttHOST = "192.168.33.85"
 clientID += new Date().getUTCMilliseconds()
 client = new Paho.MQTT.Client(mqttHOST, Number(9001), clientID);
 
@@ -24,6 +24,12 @@ function onConnect() {
   client.subscribe("stn2/op");
   client.subscribe("tw1/deg");
   client.subscribe("tw2/deg");
+  client.subscribe("tw1/mode");
+  client.subscribe("tw2/mode");
+  client.subscribe("tw1/setdeg");
+  client.subscribe("tw2/setdeg");
+  client.subscribe("tw1/nec");
+  client.subscribe("tw2/nec");
   client.subscribe("host/status/temp");
   client.subscribe("host/status/memory/used");
   client.subscribe("host/status/memory/total");
@@ -70,15 +76,25 @@ function onMessageArrived(message) {
             $('#tw1').removeClass("twred")
         }
     } else if (message.destinationName == "tw2/deg") {
-        tw2deg = parseInt(message.payloadString)
-        if (tw2deg>360) {
-            tw2deg = tw2deg - 360
-            $('#tw2').text(tw1deg+"º")
-            $("#tw2").addClass("twred")
+        $('#tw2').text(message.payloadString+"º")
+    } else if (message.destinationName == "tw1/mode") {
+        $('#tw1mode').text(message.payloadString.toUpperCase())
+    } else if (message.destinationName == "tw2/mode") {
+        $('#tw2mode').text(message.payloadString.toUpperCase())
+    } else if (message.destinationName == "tw1/setdeg") {
+        $('#tw1set').text(message.payloadString+"º")
+    } else if (message.destinationName == "tw2/setdeg") {
+        $('#tw2set').text(message.payloadString+"º")
+    } else if (message.destinationName == "tw1/nec") {
+        if (message.payloadString == "CCW") {
+            $('#tw1nec').text("◀️")
+        } else if (message.payloadString == "CW") {
+            $('#tw1nec').text("▶️")
         } else {
-            $('#tw2').text(message.payloadString+"º")
-            $('#tw2').removeClass("twred")
+            $('#tw1nec').text("🔼")
         }
+    } else if (message.destinationName == "tw2/nec") {
+        $('#tw2set').text(message.payloadString+"º")
     } else if (message.destinationName == "host/status/temp") {
         $('#hosttemp').text(parseFloat(message.payloadString).toFixed(1)+"º")
         if (parseFloat(message.payloadString) > 55) {
