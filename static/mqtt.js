@@ -10,10 +10,64 @@ client.onFailure = onConnectionLost;
 client.connect({
     onSuccess:onConnect,
     onFailure:onConnectionLost
-    });
+});
+
+
+function checkarm(freq) {
+    try {
+        // Se extraen las frecuencias del DOM
+        qrgstn1 = $('#stn1-r1-qrg').text()
+        qrgstn2 = $('#stn2-r1-qrg').text()
+
+        // Se calculan las freuencias que pueden molestar
+        qrgstn1i = parseFloat(qrgstn1) - freq
+        qrgstn1s = parseFloat(qrgstn1) + freq
+        qrgstn2i = parseFloat(qrgstn2) - freq
+        qrgstn2s = parseFloat(qrgstn2) + freq
+
+        // Se calculan armónicos de la STN1
+        qrgstn12 = qrgstn1 * 2
+        qrgstn13 = qrgstn1 * 3
+        qrgstn14 = qrgstn1 * 4
+        qrgstn16 = qrgstn1 * 6
+        qrgstn18 = qrgstn1 * 8
+
+        // Se calculan armónicos de la STN2
+        qrgstn22 = qrgstn2 * 2
+        qrgstn23 = qrgstn2 * 3
+        qrgstn24 = qrgstn2 * 4
+        qrgstn26 = qrgstn2 * 6
+        qrgstn28 = qrgstn2 * 8
+
+        // Se colorea la freuencia de la STN1 según la interferencia que pudiera generar
+        if ((qrgstn12 > qrgstn2i && qrgstn12 < qrgstn2s) ||
+            (qrgstn13 > qrgstn2i && qrgstn13 < qrgstn2s) ||
+            (qrgstn14 > qrgstn2i && qrgstn14 < qrgstn2s) ||
+            (qrgstn16 > qrgstn2i && qrgstn16 < qrgstn2s) ||
+            (qrgstn18 > qrgstn2i && qrgstn18 < qrgstn2s)){
+            $('#stn1-r1-qrg').addClass("twred")
+        } else {
+            $('#stn1-r1-qrg').removeClass("twred")
+        }
+
+        // Se colorea la freuencia de la STN2 según la interferencia que pudiera generar
+        if ((qrgstn22 > qrgstn1i && qrgstn22 < qrgstn1s) ||
+            (qrgstn23 > qrgstn1i && qrgstn23 < qrgstn1s) ||
+            (qrgstn24 > qrgstn1i && qrgstn24 < qrgstn1s) ||
+            (qrgstn26 > qrgstn1i && qrgstn26 < qrgstn1s) ||
+            (qrgstn28 > qrgstn1i && qrgstn28 < qrgstn1s)){
+            $('#stn2-r1-qrg').addClass("twred")
+        } else {
+            $('#stn2-r1-qrg').removeClass("twred")
+        }
+
+    } catch {
+        console.log("error")
+    }
+}
 
 function onConnect() {
-  console.log("Connectado a MQTT");
+  console.log("Connectado a MQTT.");
   $('#contenor').removeClass("FinFout")
   client.subscribe("pytofront");
   client.subscribe("stn1/qrg");
@@ -34,9 +88,11 @@ function onConnect() {
   client.subscribe("host/status/memory/used");
   client.subscribe("host/status/memory/total");
   client.subscribe("host/status/cpu/used");
+  console.log("Suscrito a topics MQTT.");
   message = new Paho.MQTT.Message('0');
   message.destinationName = "update";
   client.send(message);
+  console.log("Información inicial solicitada.")
 }
 
 function onConnectionLost(responseObject) {
@@ -90,14 +146,14 @@ function onMessageArrived(message) {
         if (message.payloadString.toUpperCase() == "REM") {
             $("#tw1mode").addClass("spanitemselected");
         } else {
-            $("#tw1mode").removeClass("spanitemselected").addClass("spanitem");
+            $("#tw1mode").removeClass("spanitemselected");
         }
     } else if (message.destinationName == "tw2/mode") {
         $('#tw2mode').text(message.payloadString.toUpperCase())
         if (message.payloadString.toUpperCase() == "REM") {
             $("#tw2mode").addClass("spanitemselected");
         } else {
-            $("#tw2mode").removeClass("spanitemselected").addClass("spanitem");
+            $("#tw2mode").removeClass("spanitemselected");
         }
     } else if (message.destinationName == "tw1/setdeg") {
         $('#tw1set').text(message.payloadString+"º")
@@ -162,6 +218,7 @@ function onMessageArrived(message) {
             ststn22 = json.stacks[json.stn2.band][2]['estado']
             ststn23 = json.stacks[json.stn2.band][3]['estado']
 
+            // Se pinta la utilización de la TW1 por parte de la STN1
             if ((json.stacks[json.stn1.band][1]['tw'] == 1 && ststn11 == true) ||
                 (json.stacks[json.stn1.band][2]['tw'] == 1 && ststn12 == true) || 
                 (json.stacks[json.stn1.band][3]['tw'] == 1 && ststn13 == true)) {
@@ -169,6 +226,8 @@ function onMessageArrived(message) {
             } else {
                 $("#tw1stn1").hide()
             }
+
+            // Se pinta la utilización de la TW2 por parte de la STN1
             if ((json.stacks[json.stn1.band][1]['tw'] == 2 && ststn11 == true) ||
                 (json.stacks[json.stn1.band][2]['tw'] == 2 && ststn12 == true) || 
                 (json.stacks[json.stn1.band][3]['tw'] == 2 && ststn13 == true)) {
@@ -176,6 +235,8 @@ function onMessageArrived(message) {
             } else {
                 $("#tw2stn1").hide()
             }
+
+            // Se pinta la utilización de la TW1 por parte de la STN2
             if ((json.stacks[json.stn2.band][1]['tw'] == 1 && ststn21 == true) ||
                 (json.stacks[json.stn2.band][2]['tw'] == 1 && ststn22 == true) || 
                 (json.stacks[json.stn2.band][3]['tw'] == 1 && ststn23 == true)) {
@@ -183,6 +244,8 @@ function onMessageArrived(message) {
             } else {
                 $("#tw1stn2").hide()
             }
+
+            // Se pinta la utilización de la TW2 por parte de la STN2
             if ((json.stacks[json.stn2.band][1]['tw'] == 2 && ststn21 == true) ||
                 (json.stacks[json.stn2.band][2]['tw'] == 2 && ststn22 == true) || 
                 (json.stacks[json.stn2.band][3]['tw'] == 2 && ststn23 == true)) {
@@ -191,38 +254,18 @@ function onMessageArrived(message) {
                 $("#tw2stn2").hide()
             }
 
-            $("#stn1-b0").removeClass("spanitemselected");
-            $("#stn1-b160").removeClass("spanitemselected");
-            $("#stn1-b80").removeClass("spanitemselected");
-            $("#stn1-b40").removeClass("spanitemselected");
-            $("#stn1-b20").removeClass("spanitemselected");
-            $("#stn1-b15").removeClass("spanitemselected");
-            $("#stn1-b10").removeClass("spanitemselected");
-            $("#stn2-b0").removeClass("spanitemselected");
+            // Se resetea el estado de banda seleccionada
+            $("[id^=stn1-b]").addClass("spanitemselected");
+            $("[id^=stn2-b]").addClass("spanitemselected");
 
-            $("#stn2-b160").removeClass("spanitemselected");
-            $("#stn2-b80").removeClass("spanitemselected");
-            $("#stn2-b40").removeClass("spanitemselected");
-            $("#stn2-b20").removeClass("spanitemselected");
-            $("#stn2-b15").removeClass("spanitemselected");
-            $("#stn2-b10").removeClass("spanitemselected");
+            // Se resetea el estado de antena de RX
+            $("[id^=rx]").addClass("spanitemselected");
 
-            $("#rx100").removeClass("spanitemselected");
-            $("#rx101").removeClass("spanitemselected");
-            $("#rx102").removeClass("spanitemselected");
-            $("#rx103").removeClass("spanitemselected");
-            $("#rx104").removeClass("spanitemselected");
-            $("#rx105").removeClass("spanitemselected");
-            $("#rx106").removeClass("spanitemselected");
+            // Se resetea el estado AUTO ON/OFF de la conmutación
+            $("#stn1-as").removeClass("spanitemselected");
+            $("#stn2-as").removeClass("spanitemselected");
 
-            $("#rx200").removeClass("spanitemselected");
-            $("#rx201").removeClass("spanitemselected");
-            $("#rx202").removeClass("spanitemselected");
-            $("#rx203").removeClass("spanitemselected");
-            $("#rx204").removeClass("spanitemselected");
-            $("#rx205").removeClass("spanitemselected");
-            $("#rx206").removeClass("spanitemselected");
-
+            // Se pinta el nombre de las antena de RX en la STN1
             $("#rx101").text(json.rx1[1]['nombre'])
             $("#rx102").text(json.rx1[2]['nombre'])
             $("#rx103").text(json.rx1[3]['nombre'])
@@ -230,6 +273,7 @@ function onMessageArrived(message) {
             $("#rx105").text(json.rx1[5]['nombre'])
             $("#rx106").text(json.rx1[6]['nombre'])
 
+            // Se pinta el nombre de las antena de RX en la STN2
             $("#rx201").text(json.rx2[1]['nombre'])
             $("#rx202").text(json.rx2[2]['nombre'])
             $("#rx203").text(json.rx2[3]['nombre'])
@@ -237,28 +281,23 @@ function onMessageArrived(message) {
             $("#rx205").text(json.rx2[5]['nombre'])
             $("#rx206").text(json.rx2[6]['nombre'])
 
-            $("#stn1-as").removeClass("spanitemselected");
-            $("#stn2-as").removeClass("spanitemselected");
-
-            $("#stn1-stack1").addClass("spanitemnd")
-            $("#stn1-stack2").addClass("spanitemnd")
-            $("#stn1-stack3").addClass("spanitemnd")
-            $("#stn2-stack1").addClass("spanitemnd")
-            $("#stn2-stack2").addClass("spanitemnd")
-            $("#stn2-stack3").addClass("spanitemnd")
-
+            // Se colorea segmento de banda en la banda seleccionada en la STN1
             $("#stn1-segmento").addClass("spanitemnd")
+
+            // Se colorea segmento de banda en la banda seleccionada en la STN2
             $("#stn2-segmento").addClass("spanitemnd")
 
+            // Se colorea la banda seleccionada en la STN1
             $(bstn1).addClass("spanitemselected")
+
+            // Se colorea la banda seleccionada en la STN1
             $(bstn2).addClass("spanitemselected")
 
+            // Se colorea AUTO ON/OFF en la STN1
             if (asstn1 == true) $("#stn1-as").addClass("spanitemselected")
-            if (asstn2 == true) $("#stn2-as").addClass("spanitemselected")
 
-            $("#stn1-stack1").text(json.stacks[json.stn1.band][1]['nombre'])
-            $("#stn1-stack2").text(json.stacks[json.stn1.band][2]['nombre'])
-            $("#stn1-stack3").text(json.stacks[json.stn1.band][3]['nombre'])
+            // Se colorea AUTO ON/OFF en la STN2
+            if (asstn2 == true) $("#stn2-as").addClass("spanitemselected")
 
             $("#rx10" + json.stn1.rx[json.stn1.band]).addClass("spanitemselected")
             $("#rx20" + json.stn2.rx[json.stn2.band]).addClass("spanitemselected")
@@ -266,6 +305,15 @@ function onMessageArrived(message) {
             $('#stn1-n').text(json.stn1.netbios)
             $('#stn2-n').text(json.stn2.netbios)
 
+            // Se colorea el estado de cada entrada del Stack en la banda seleccionada en la STN1
+            $("#stn1-stack1").addClass("spanitemnd")
+            $("#stn1-stack2").addClass("spanitemnd")
+            $("#stn1-stack3").addClass("spanitemnd")
+            // Se pinta el nombre de antena de cada posición Stack en la banda seleccionada en la STN1
+            $("#stn1-stack1").text(json.stacks[json.stn1.band][1]['nombre'])
+            $("#stn1-stack2").text(json.stacks[json.stn1.band][2]['nombre'])
+            $("#stn1-stack3").text(json.stacks[json.stn1.band][3]['nombre'])
+            // Se colorea la selección del Stack de la STN1
             if (ststn10 == 3) {
                 if (ststn11 == true) $("#stn1-stack1").removeClass("spanitemnd").addClass("spanitemselected")
                 else $("#stn1-stack1").removeClass("spanitemnd").removeClass("spanitemselected")
@@ -283,9 +331,15 @@ function onMessageArrived(message) {
                 else $("#stn1-stack1").removeClass("spanitemnd").removeClass("spanitemselected")
             }
 
+            // Se colorea el estado de cada entrada del Stack en la banda seleccionada en la STN2
+            $("#stn2-stack1").addClass("spanitemnd")
+            $("#stn2-stack2").addClass("spanitemnd")
+            $("#stn2-stack3").addClass("spanitemnd")
+            // Se pinta el nombre de antena de cada posición Stack en la banda seleccionada en la STN2
             $("#stn2-stack1").text(json.stacks[json.stn2.band][1]['nombre'])
             $("#stn2-stack2").text(json.stacks[json.stn2.band][2]['nombre'])
             $("#stn2-stack3").text(json.stacks[json.stn2.band][3]['nombre'])
+            // Se colorea la selección del Stack de la STN1
             if (ststn20 == 3) {
                 if (ststn21 == true) $("#stn2-stack1").removeClass("spanitemnd").addClass("spanitemselected")
                 else $("#stn2-stack1").removeClass("spanitemnd").removeClass("spanitemselected")
@@ -303,14 +357,20 @@ function onMessageArrived(message) {
                 else $("#stn2-stack1").removeClass("spanitemnd").removeClass("spanitemselected")
             }
 
+            // Se elimina la indicación de segmento de la STN1 si no se está en una banda que los utilice
             if (json.stn1.segmento != 0 && json.stacks[json.stn1.band][1]['estado']) {
                 $("#stn1-segmento").removeClass("spanitemnd").text(json.stn1.segmento)
             }
+
+            // Se elimina la indicación de segmento de la STN2 si no se está en una banda que los utilice
             if (json.stn2.segmento != 0 && json.stacks[json.stn2.band][1]['estado']) {
                 $("#stn2-segmento").removeClass("spanitemnd").text(json.stn2.segmento)
             }
         }
     }
+
+    // Chequea armónicos y, eventualmente, colorea la frecuencia de la STN interfiriente
+    checkarm(20)
 }
 
 function wcyData() {
@@ -326,10 +386,11 @@ function wcyData() {
             $("#wcysa").text(data[0]["sa"])
             $("#wcyts").text(data[0]["isots"])
         });
+    console.log("Nuevos datos WCY.")
 }
 
 wcyData()
 
 setInterval(function() {
     wcyData()
-}, 1000 * 10 * 10); // where X is your every X minutes
+}, 300000); // 300000ms = 5 minutos
