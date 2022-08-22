@@ -161,19 +161,19 @@ function onMessageArrived(message) {
         $('#tw2set').text(message.payloadString+"º")
     } else if (message.destinationName == "tw1/nec") {
         if (message.payloadString == "CCW") {
-            $('#tw1nec').text("◀️")
+            $('#tw1nec').text("↪️")
         } else if (message.payloadString == "CW") {
-            $('#tw1nec').text("▶️")
+            $('#tw1nec').text("↩️")
         } else {
-            $('#tw1nec').text("🔼")
+            $('#tw1nec').text("🆗")
         }
     } else if (message.destinationName == "tw2/nec") {
         if (message.payloadString == "CCW") {
-            $('#tw2nec').text("◀️")
+            $('#tw2nec').text("↪️")
         } else if (message.payloadString == "CW") {
-            $('#tw2nec').text("▶️")
+            $('#tw2nec').text("↩️")
         } else {
-            $('#tw2nec').text("🔼")
+            $('#tw2nec').text("🆗")
         }
     } else if (message.destinationName == "host/status/temp") {
         $('#hosttemp').text(parseFloat(message.payloadString).toFixed(1)+"º")
