@@ -255,11 +255,11 @@ function onMessageArrived(message) {
             }
 
             // Se resetea el estado de banda seleccionada
-            $("[id^=stn1-b]").addClass("spanitemselected");
-            $("[id^=stn2-b]").addClass("spanitemselected");
+            $("[id^=stn1-b]").removeClass("spanitemselected");
+            $("[id^=stn2-b]").removeClass("spanitemselected");
 
             // Se resetea el estado de antena de RX
-            $("[id^=rx]").addClass("spanitemselected");
+            $("[id^=rx]").removeClass("spanitemselected");
 
             // Se resetea el estado AUTO ON/OFF de la conmutación
             $("#stn1-as").removeClass("spanitemselected");
