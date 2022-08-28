@@ -200,63 +200,96 @@ def on_message(client, userdata, msg):
             assign_stn(1, dato[0])
             if dato[1] != STN1['segmento'] and STACKS[str(STN1['band'])]['1']['estado']:
                 change_segment(1, dato[0], dato[1])
-
-    if msg.topic == "stn2/band":
+    elif msg.topic == "stn2/band":
         if STN2['auto']:
             dato = json.loads(dato)
             assign_stn(2, dato[0])
             if dato[1] != STN2['segmento'] and STACKS[str(STN2['band'])]['1']['estado']:
                 change_segment(2, dato[0], dato[1])
-
     # Mensajes recibidos desde FRONT
-    if not STN1['auto'] and msg.topic == "set/stn1/band":
+    elif not STN1['auto'] and msg.topic == "set/stn1/band":
         dato = int(dato)
         assign_stn(1, dato)
 
-    if not STN2['auto'] and msg.topic == "set/stn2/band":
+    elif not STN2['auto'] and msg.topic == "set/stn2/band":
         dato = int(dato)
         assign_stn(2, dato)
-
-    if msg.topic == "set/stn1/antm":
+    elif msg.topic == "set/stn1/antm":
         if STN1['auto']:
             STN1['auto'] = False
         else:
             STN1['auto'] = True
-
-    if msg.topic == "set/stn2/antm":
+    elif msg.topic == "set/stn2/antm":
         if STN2['auto']:
             STN2['auto'] = False
         else:
             STN2['auto'] = True
-
-    if msg.topic == "set/rx1" and not STN1['band'] == 0:
+    elif msg.topic == "set/rx1" and not STN1['band'] == 0:
         assign_rx(STN1, RX1, dato)
         STN1['rx'][str(STN1['band'])] = dato
-
-    if msg.topic == "set/rx2" and not STN2['band'] == 0:
+    elif msg.topic == "set/rx2" and not STN2['band'] == 0:
         assign_rx(STN2, RX2, dato)
         STN2['rx'][str(STN2['band'])] = dato
-
-    if msg.topic == "set/stn1/stack" and int(STN1['band']) != 0:
+    elif msg.topic == "set/stn1/stack" and int(STN1['band']) != 0:
         if STACKS[str(STN1['band'])][dato]['estado']:
             if nr_ant(STACKS[str(STN1['band'])]) > 1:
                 STACKS[str(STN1['band'])][dato]['estado'] = False
         else:
             STACKS[str(STN1['band'])][dato]['estado'] = True
-
         config_stack(str(STN1['band']))
-
-    if msg.topic == "set/stn2/stack" and int(STN2['band']) != 0:
+    elif msg.topic == "set/stn2/stack" and int(STN2['band']) != 0:
         if STACKS[str(STN2['band'])][dato]['estado']:
             if nr_ant(STACKS[str(STN2['band'])]) > 1:
                 STACKS[str(STN2['band'])][dato]['estado'] = False
         else:
             STACKS[str(STN2['band'])][dato]['estado'] = True
-
         config_stack(str(STN2['band']))
-
+    elif msg.topic == "set/stn1/nostack" and int(STN1['band']) != 0:
+        if nr_ant(STACKS[str(STN1['band'])]) > 1:
+            ant_a = STACKS[str(STN1['band'])]["1"]['estado']
+            ant_b = STACKS[str(STN1['band'])]["2"]['estado']
+            ant_c = STACKS[str(STN1['band'])]["3"]['estado']
+            stack = [ant_a, ant_b, ant_c]
+            if nr_ant(STACKS[str(STN1['band'])]) > 1:
+                if stack.count(True) == 1:
+                    if STACKS[str(STN1['band'])]["1"]['estado']:
+                        STACKS[str(STN1['band'])]["1"]['estado'] = False
+                        STACKS[str(STN1['band'])]["2"]['estado'] = True
+                    elif STACKS[str(STN1['band'])]["2"]['estado']:
+                        STACKS[str(STN1['band'])]["2"]['estado'] = False
+                        STACKS[str(STN1['band'])]["3"]['estado'] = True
+                    else:
+                        STACKS[str(STN1['band'])]["3"]['estado'] = False
+                        STACKS[str(STN1['band'])]["1"]['estado'] = True
+                else:
+                    STACKS[str(STN1['band'])]["2"]['estado'] = False
+                    STACKS[str(STN1['band'])]["3"]['estado'] = False
+                    STACKS[str(STN1['band'])]["1"]['estado'] = True
+                config_stack(str(STN1['band']))
+    elif msg.topic == "set/stn2/nostack" and int(STN1['band']) != 0:
+        if nr_ant(STACKS[str(STN2['band'])]) > 1:
+            ant_a = STACKS[str(STN2['band'])]["1"]['estado']
+            ant_b = STACKS[str(STN2['band'])]["2"]['estado']
+            ant_c = STACKS[str(STN2['band'])]["3"]['estado']
+            stack = [ant_a, ant_b, ant_c]
+            if nr_ant(STACKS[str(STN2['band'])]) > 1:
+                if stack.count(True) == 1:
+                    if STACKS[str(STN2['band'])]["1"]['estado']:
+                        STACKS[str(STN2['band'])]["1"]['estado'] = False
+                        STACKS[str(STN2['band'])]["2"]['estado'] = True
+                    elif STACKS[str(STN2['band'])]["2"]['estado']:
+                        STACKS[str(STN2['band'])]["2"]['estado'] = False
+                        STACKS[str(STN2['band'])]["3"]['estado'] = True
+                    else:
+                        STACKS[str(STN2['band'])]["3"]['estado'] = False
+                        STACKS[str(STN2['band'])]["1"]['estado'] = True
+                else:
+                    STACKS[str(STN2['band'])]["2"]['estado'] = False
+                    STACKS[str(STN2['band'])]["3"]['estado'] = False
+                    STACKS[str(STN2['band'])]["1"]['estado'] = True
+                config_stack(str(STN2['band']))
     # Mensajes recibidos desde CONFIGURACION
-    if msg.topic == "configtopy":
+    elif msg.topic == "configtopy":
         dato = json.loads(dato)
 
         STACKS['160']['salidas'] = int(dato['a1600'])
@@ -465,7 +498,7 @@ def on_message(client, userdata, msg):
 
         mqtt_client.publish("host_cmd", "restartn1")
 
-    if msg.topic == "update":
+    elif msg.topic == "update":
         status("pytoconfig")
 
     status("pytofront")
