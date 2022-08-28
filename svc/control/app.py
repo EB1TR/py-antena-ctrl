@@ -179,7 +179,10 @@ def on_connect(client, userdata, flags, rc):
         ("set/rx1", 0),
         ("set/rx2", 0),
         ("update", 0),
-        ("configtopy", 0)
+        ("configtopy", 0),
+        ("configtopy", 0),
+        ("set/stn1/nostack", 0),
+        ("set/stn2/nostack", 0)
     ])
 
 
@@ -245,49 +248,65 @@ def on_message(client, userdata, msg):
             STACKS[str(STN2['band'])][dato]['estado'] = True
         config_stack(str(STN2['band']))
     elif msg.topic == "set/stn1/nostack" and int(STN1['band']) != 0:
-        if nr_ant(STACKS[str(STN1['band'])]) > 1:
+        if STACKS[str(STN1['band'])]["salidas"] > 1:
             ant_a = STACKS[str(STN1['band'])]["1"]['estado']
             ant_b = STACKS[str(STN1['band'])]["2"]['estado']
             ant_c = STACKS[str(STN1['band'])]["3"]['estado']
             stack = [ant_a, ant_b, ant_c]
-            if nr_ant(STACKS[str(STN1['band'])]) > 1:
-                if stack.count(True) == 1:
-                    if STACKS[str(STN1['band'])]["1"]['estado']:
-                        STACKS[str(STN1['band'])]["1"]['estado'] = False
-                        STACKS[str(STN1['band'])]["2"]['estado'] = True
-                    elif STACKS[str(STN1['band'])]["2"]['estado']:
-                        STACKS[str(STN1['band'])]["2"]['estado'] = False
-                        STACKS[str(STN1['band'])]["3"]['estado'] = True
-                    else:
-                        STACKS[str(STN1['band'])]["3"]['estado'] = False
-                        STACKS[str(STN1['band'])]["1"]['estado'] = True
-                else:
+            if stack.count(True) == 1:
+                if STACKS[str(STN1['band'])]["salidas"] == 2 and STACKS[str(STN1['band'])]["1"]['estado']:
+                    STACKS[str(STN1['band'])]["1"]['estado'] = False
+                    STACKS[str(STN1['band'])]["2"]['estado'] = True
+                elif STACKS[str(STN1['band'])]["salidas"] == 2 and STACKS[str(STN1['band'])]["2"]['estado']:
                     STACKS[str(STN1['band'])]["2"]['estado'] = False
-                    STACKS[str(STN1['band'])]["3"]['estado'] = False
                     STACKS[str(STN1['band'])]["1"]['estado'] = True
-                config_stack(str(STN1['band']))
-    elif msg.topic == "set/stn2/nostack" and int(STN1['band']) != 0:
-        if nr_ant(STACKS[str(STN2['band'])]) > 1:
+                elif STACKS[str(STN1['band'])]["salidas"] == 3 and STACKS[str(STN1['band'])]["1"]['estado']:
+                    STACKS[str(STN1['band'])]["1"]['estado'] = False
+                    STACKS[str(STN1['band'])]["3"]['estado'] = False
+                    STACKS[str(STN1['band'])]["2"]['estado'] = True
+                elif STACKS[str(STN1['band'])]["salidas"] == 3 and STACKS[str(STN1['band'])]["2"]['estado']:
+                    STACKS[str(STN1['band'])]["2"]['estado'] = False
+                    STACKS[str(STN1['band'])]["1"]['estado'] = False
+                    STACKS[str(STN1['band'])]["3"]['estado'] = True
+                elif STACKS[str(STN1['band'])]["salidas"] == 3 and STACKS[str(STN1['band'])]["3"]['estado']:
+                    STACKS[str(STN1['band'])]["3"]['estado'] = False
+                    STACKS[str(STN1['band'])]["2"]['estado'] = False
+                    STACKS[str(STN1['band'])]["1"]['estado'] = True
+            else:
+                STACKS[str(STN1['band'])]["2"]['estado'] = False
+                STACKS[str(STN1['band'])]["3"]['estado'] = False
+                STACKS[str(STN1['band'])]["1"]['estado'] = True
+            config_stack(str(STN1['band']))
+    elif msg.topic == "set/stn2/nostack" and int(STN2['band']) != 0:
+        if STACKS[str(STN2['band'])]["salidas"] > 1:
             ant_a = STACKS[str(STN2['band'])]["1"]['estado']
             ant_b = STACKS[str(STN2['band'])]["2"]['estado']
             ant_c = STACKS[str(STN2['band'])]["3"]['estado']
             stack = [ant_a, ant_b, ant_c]
-            if nr_ant(STACKS[str(STN2['band'])]) > 1:
-                if stack.count(True) == 1:
-                    if STACKS[str(STN2['band'])]["1"]['estado']:
-                        STACKS[str(STN2['band'])]["1"]['estado'] = False
-                        STACKS[str(STN2['band'])]["2"]['estado'] = True
-                    elif STACKS[str(STN2['band'])]["2"]['estado']:
-                        STACKS[str(STN2['band'])]["2"]['estado'] = False
-                        STACKS[str(STN2['band'])]["3"]['estado'] = True
-                    else:
-                        STACKS[str(STN2['band'])]["3"]['estado'] = False
-                        STACKS[str(STN2['band'])]["1"]['estado'] = True
-                else:
+            if stack.count(True) == 1:
+                if STACKS[str(STN2['band'])]["salidas"] == 2 and STACKS[str(STN2['band'])]["1"]['estado']:
+                    STACKS[str(STN2['band'])]["1"]['estado'] = False
+                    STACKS[str(STN2['band'])]["2"]['estado'] = True
+                elif STACKS[str(STN2['band'])]["salidas"] == 2 and STACKS[str(STN2['band'])]["2"]['estado']:
                     STACKS[str(STN2['band'])]["2"]['estado'] = False
-                    STACKS[str(STN2['band'])]["3"]['estado'] = False
                     STACKS[str(STN2['band'])]["1"]['estado'] = True
-                config_stack(str(STN2['band']))
+                elif STACKS[str(STN2['band'])]["salidas"] == 3 and STACKS[str(STN2['band'])]["1"]['estado']:
+                    STACKS[str(STN2['band'])]["1"]['estado'] = False
+                    STACKS[str(STN2['band'])]["3"]['estado'] = False
+                    STACKS[str(STN2['band'])]["2"]['estado'] = True
+                elif STACKS[str(STN2['band'])]["salidas"] == 3 and STACKS[str(STN2['band'])]["2"]['estado']:
+                    STACKS[str(STN2['band'])]["2"]['estado'] = False
+                    STACKS[str(STN2['band'])]["1"]['estado'] = False
+                    STACKS[str(STN2['band'])]["3"]['estado'] = True
+                elif STACKS[str(STN2['band'])]["salidas"] == 3 and STACKS[str(STN2['band'])]["3"]['estado']:
+                    STACKS[str(STN2['band'])]["3"]['estado'] = False
+                    STACKS[str(STN2['band'])]["2"]['estado'] = False
+                    STACKS[str(STN2['band'])]["1"]['estado'] = True
+            else:
+                STACKS[str(STN2['band'])]["2"]['estado'] = False
+                STACKS[str(STN2['band'])]["3"]['estado'] = False
+                STACKS[str(STN2['band'])]["1"]['estado'] = True
+            config_stack(str(STN2['band']))
     # Mensajes recibidos desde CONFIGURACION
     elif msg.topic == "configtopy":
         dato = json.loads(dato)
