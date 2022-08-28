@@ -364,6 +364,7 @@ function onMessageArrived(message) {
 
             // Se elimina la indicación de segmento de la STN2 si no se está en una banda que los utilice
             if (json.stn2.segmento != 0 && json.stacks[json.stn2.band][1]['estado']) {
+                console.log("entra")
                 $("#stn2-segmento").removeClass("spanitemnd").text(json.stn2.segmento)
             }
         }
