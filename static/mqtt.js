@@ -375,19 +375,17 @@ function onMessageArrived(message) {
 }
 
 function wcyData() {
-    fetch('https://api.ure.es/wcy')
+    fetch('https://api.ure.es/wwv')
         .then(response => response.json())
         .then(data => {
             $("#wcysfi").text(data[0]["sfi"])
             $("#wcyssn").text(data[0]["ssn"])
             $("#wcya").text(data[0]["a"])
             $("#wcyk").text(data[0]["k"])
-            $("#wcyek").text(data[0]["ek"])
             $("#wcygmf").text(data[0]["gmf"])
-            $("#wcysa").text(data[0]["sa"])
             $("#wcyts").text(data[0]["isots"])
+            $("#wcyau").text(data[0]["aurora"])
         });
-    console.log("Nuevos datos WCY.")
 }
 
 wcyData()
