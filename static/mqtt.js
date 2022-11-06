@@ -135,7 +135,7 @@ function onMessageArrived(message) {
         tw2deg = parseInt(message.payloadString)
         if (tw2deg>360) {
             tw2deg = tw2deg - 360
-            $('#tw2').text(tw1deg+"º")
+            $('#tw2').text(tw2deg+"º")
             $("#tw2").addClass("twred")
         } else {
             $('#tw2').text(message.payloadString+"º")
