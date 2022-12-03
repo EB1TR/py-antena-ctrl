@@ -126,6 +126,7 @@ def do_udp():
     print("Netbios STN1: " + STN1['netbios'])
     print("Netbios STN2: " + STN2['netbios'])
     mqtt_c = mqtt_connect()
+    mqtt_c.loop_start()
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind(("0.0.0.0", 12060))
     while True:
