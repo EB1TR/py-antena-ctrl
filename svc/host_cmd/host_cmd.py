@@ -32,7 +32,7 @@ while True:
         mqtt_client.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEP)
         mqtt_client.on_connect = on_connect
         mqtt_client.on_message = on_message
-        mqtt_client.loop_start()
+        mqtt_client.loop_forever()
     except:
         print("MQTT no disponible")
         time.sleep(2)

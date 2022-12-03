@@ -536,4 +536,4 @@ clear_ant()
 mqtt_client.on_connect = on_connect
 mqtt_client.on_message = on_message
 mqtt_client.on_disconnect = on_disconect
-mqtt_client.loop_start()
+mqtt_client.loop_forever()
