@@ -38,6 +38,7 @@ except Exception as e:
 def mqtt_connect():
     mqtt_c = mqtt.Client("n1")
     mqtt_c.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEP)
+    mqtt_c.loop_start()
     return mqtt_c
 
 
@@ -126,7 +127,6 @@ def do_udp():
     print("Netbios STN1: " + STN1['netbios'])
     print("Netbios STN2: " + STN2['netbios'])
     mqtt_c = mqtt_connect()
-    mqtt_c.loop_forever()
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind(("0.0.0.0", 12060))
     while True:
