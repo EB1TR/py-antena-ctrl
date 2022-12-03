@@ -54,6 +54,8 @@ services:
       - "12060:12060/udp"
     volumes:
       - "./cfg:/app/cfg"
+    depends_on:
+      - mqtt
     restart: unless-stopped
 
   control:
@@ -69,6 +71,8 @@ services:
         ipv4_address: "172.0.33.5"
     volumes:
       - "./cfg:/app/cfg"
+    depends_on:
+      - mqtt
     restart: unless-stopped
 
 #  node-red:
