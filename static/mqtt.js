@@ -84,10 +84,6 @@ function onConnect() {
   client.subscribe("tw2/setdeg");
   client.subscribe("tw1/nec");
   client.subscribe("tw2/nec");
-  client.subscribe("host/status/temp");
-  client.subscribe("host/status/memory/used");
-  client.subscribe("host/status/memory/total");
-  client.subscribe("host/status/cpu/used");
   console.log("Suscrito a topics MQTT.");
   message = new Paho.MQTT.Message('0');
   message.destinationName = "update";
@@ -174,29 +170,6 @@ function onMessageArrived(message) {
             $('#tw2nec').text("↩️")
         } else {
             $('#tw2nec').text("🆗")
-        }
-    } else if (message.destinationName == "host/status/temp") {
-        $('#hosttemp').text(parseFloat(message.payloadString).toFixed(1)+"º")
-        if (parseFloat(message.payloadString) > 55) {
-            $("#hosttemp").removeClass("spanitemhost").addClass("spanitemoff")
-        } else {
-            $("#hosttemp").removeClass("spanitemoff").addClass("spanitemhost")
-        }
-    } else if (message.destinationName == "host/status/memory/used") {
-        $('#hostmemu').text(parseFloat(message.payloadString).toFixed(1)+"%")
-        if (parseFloat(message.payloadString) > 50) {
-            $("#hostmemu").removeClass("spanitemhost").addClass("spanitemoff")
-        } else {
-            $("#hostmemu").removeClass("spanitemoff").addClass("spanitemhost")
-        }
-    } else if (message.destinationName == "host/status/memory/total") {
-        $('#hostdisu').text(parseFloat(message.payloadString).toFixed(1)+"%")
-    } else if (message.destinationName == "host/status/cpu/used") {
-        $('#hostcpuu').text(parseFloat(message.payloadString).toFixed(1)+"%")
-        if (parseFloat(message.payloadString) > 25) {
-            $("#hostcpuu").removeClass("spanitemhost").addClass("spanitemoff")
-        } else {
-            $("#hostcpuu").removeClass("spanitemoff").addClass("spanitemhost")
         }
     } else {
         json = JSON.parse(message.payloadString)
@@ -373,23 +346,3 @@ function onMessageArrived(message) {
     // Chequea armónicos y, eventualmente, colorea la frecuencia de la STN interfiriente
     checkarm(20)
 }
-
-function wcyData() {
-    fetch('https://api.ure.es/wwv')
-        .then(response => response.json())
-        .then(data => {
-            $("#wcysfi").text(data[0]["sfi"])
-            $("#wcyssn").text(data[0]["ssn"])
-            $("#wcya").text(data[0]["a"])
-            $("#wcyk").text(data[0]["k"])
-            $("#wcygmf").text(data[0]["gmf"])
-            $("#wcyts").text(data[0]["isots"])
-            $("#wcyau").text(data[0]["aurora"])
-        });
-}
-
-wcyData()
-
-setInterval(function() {
-    wcyData()
-}, 300000); // 300000ms = 5 minutos
