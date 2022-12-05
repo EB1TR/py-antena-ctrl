@@ -11,13 +11,16 @@ __author__ = 'EB1TR'
 __date__ = "12/09/2020"
 
 import socket
+import time
+
 import paho.mqtt.client as mqtt
 import xmltodict
 import json
 
 MQTT_HOST = "mqtt"
 MQTT_PORT = 1883
-MQTT_KEEP = 600
+MQTT_KEEP = 5
+mqtt_flag = True
 
 try:
     with open('cfg/stn1.json') as json_file:
@@ -36,10 +39,18 @@ except Exception as e:
 
 
 def mqtt_connect():
-    mqtt_c = mqtt.Client("n1")
-    mqtt_c.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEP)
-    mqtt_c.loop_start()
-    return mqtt_c
+    global mqtt_flag
+    while mqtt_flag:
+        try:
+            print("Intentando conexión MQTT: %s:%s" % (MQTT_HOST, MQTT_PORT))
+            mqtt_c = mqtt.Client("n1")
+            mqtt_c.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEP)
+            mqtt_c.loop_start()
+            mqtt_flag = False
+            return mqtt_c
+        except:
+            print("Conexión fallida a MQTT: %s:%s" % (MQTT_HOST, MQTT_PORT))
+            time.sleep(1)
 
 
 def define_band(qrg):
@@ -68,62 +79,59 @@ def define_band(qrg):
 
 def publish_radio_info(mqtt_c, radio_i):
     try:
-        if radio_i[0] == 1:
-            if radio_i[1] == 1:
-                mqtt_c.publish("stn1/qrg", radio_i[3])
-                mqtt_c.publish("stn1/band", str(radio_i[2]))
-                mqtt_c.publish("stn1/mode", radio_i[4])
-                mqtt_c.publish("stn1/op", radio_i[5])
-        if radio_i[0] == 2:
-            if radio_i[1] == 1:
-                mqtt_c.publish("stn2/qrg", radio_i[3])
-                mqtt_c.publish("stn2/band", str(radio_i[2]))
-                mqtt_c.publish("stn2/mode", radio_i[4])
-                mqtt_c.publish("stn2/op", radio_i[5])
+        if mqtt_c.is_connected() and radio_i[0] == 1:
+            mqtt_c.publish("stn1/qrg", radio_i[2])
+            mqtt_c.publish("stn1/band", str(radio_i[1]))
+            mqtt_c.publish("stn1/mode", radio_i[3])
+            mqtt_c.publish("stn1/op", radio_i[4])
+            print("Publicación correcta: %s" % radio_i)
+        elif mqtt_c.is_connected() and radio_i[0] == 2:
+            mqtt_c.publish("stn2/qrg", radio_i[3])
+            mqtt_c.publish("stn2/band", str(radio_i[2]))
+            mqtt_c.publish("stn2/mode", radio_i[3])
+            mqtt_c.publish("stn2/op", radio_i[4])
+            print("Publicación correcta: %s" % radio_i)
+        elif not mqtt_c.is_connected():
+            print("MQTT desconectado.")
+        else:
+            print("Radio no válida.")
     except Exception as e:
-        print("Problema en la publicación MQTT.")
+        print("Excepción en publicadión MQTT")
         print(e)
 
 
-def process_radio_info(xml_data, mqtt_c):
-    stn = 0
-    radio = int(xml_data["RadioInfo"]['RadioNr'])
-    qrg = int(xml_data["RadioInfo"]['Freq'])
-    mode = str(xml_data["RadioInfo"]['Mode']).upper()
-    stn_name = str(xml_data["RadioInfo"]['StationName']).upper()
-    op = str(xml_data["RadioInfo"]['OpCall']).upper()
-
+def process_radio_info(xml_data):
+    global STN1
+    global STN2
     try:
+        qrg = int(xml_data["RadioInfo"]['Freq'])
+        mode = str(xml_data["RadioInfo"]['Mode']).upper()
+        op = str(xml_data["RadioInfo"]['OpCall']).upper()
+        stn_name = str(xml_data["RadioInfo"]['StationName']).upper()
+        if stn_name == str(STN1['netbios']).upper():
+            stn = 1
+        elif stn_name == str(STN2['netbios']).upper():
+            stn = 2
+        else:
+            stn = 0
         band, segmento = define_band(qrg)
+        radio_dict = [stn, [band, segmento], qrg, mode, op]
+        return radio_dict
     except Exception as e:
-        print("Fallo en la obtención de la banda y segmento.")
+        print("Fallo al procesar Radio Info.")
         print(e)
-    
-    radio_i = [stn, radio, [band, segmento], qrg, mode, op]
-    
-    if stn_name == str(STN1['netbios']).upper():
-        radio_i[0] = 1
-    if stn_name == str(STN2['netbios']).upper():
-        radio_i[0] = 2
-    publish_radio_info(mqtt_c, radio_i)
-
-    if radio_i[0] == 0:
-        print("STN no se ha encontrado: " + str(radio_i))
-    else:
-        print(str(radio_i))
 
 
-def process_xml(xml_data, mqtt_c):
+def process_xml(data):
     try:
-        process_radio_info(xml_data, mqtt_c)
+        xml_data = xmltodict.parse(data)
+        return xml_data
     except Exception as e:
         print("Fallo al procesar XML.")
         print(e)
 
 
 def do_udp():
-    global STN1
-    global STN2
     print("Netbios STN1: " + STN1['netbios'])
     print("Netbios STN2: " + STN2['netbios'])
     mqtt_c = mqtt_connect()
@@ -133,9 +141,11 @@ def do_udp():
         try:
             data, address = sock.recvfrom(1024)
             data = data.decode('utf-8')
-            xml_data = xmltodict.parse(data)
-            process_xml(xml_data, mqtt_c)
+            xml_data = process_xml(data)
+            data_dict = process_radio_info(xml_data)
+            publish_radio_info(mqtt_c, data_dict)
         except:
+            print("Fallo general en el servicio UDP.")
             pass
 
 
