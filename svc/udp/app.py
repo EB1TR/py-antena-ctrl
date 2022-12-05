@@ -12,7 +12,7 @@ __date__ = "12/09/2020"
 
 import socket
 import time
-
+import sys
 import paho.mqtt.client as mqtt
 import xmltodict
 import json
@@ -48,6 +48,9 @@ def mqtt_connect():
             mqtt_c.loop_start()
             mqtt_flag = False
             return mqtt_c
+        except KeyboardInterrupt:
+            print("Parando: Usuario")
+            sys.exit(0)
         except:
             print("Conexión fallida a MQTT: %s:%s" % (MQTT_HOST, MQTT_PORT))
             time.sleep(1)
@@ -144,6 +147,9 @@ def do_udp():
             xml_data = process_xml(data)
             data_dict = process_radio_info(xml_data)
             publish_radio_info(mqtt_c, data_dict)
+        except KeyboardInterrupt:
+            print("Parando: Usuario")
+            sys.exit(0)
         except:
             print("Fallo general en el servicio UDP.")
             pass
