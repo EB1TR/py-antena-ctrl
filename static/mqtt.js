@@ -10,61 +10,7 @@ client.onFailure = onConnectionLost;
 client.connect({
     onSuccess:onConnect,
     onFailure:onConnectionLost
-});
-
-
-function checkarm(freq) {
-    try {
-        // Se extraen las frecuencias del DOM
-        qrgstn1 = $('#stn1-r1-qrg').text()
-        qrgstn2 = $('#stn2-r1-qrg').text()
-
-        // Se calculan las freuencias que pueden molestar
-        qrgstn1i = parseFloat(qrgstn1) - freq
-        qrgstn1s = parseFloat(qrgstn1) + freq
-        qrgstn2i = parseFloat(qrgstn2) - freq
-        qrgstn2s = parseFloat(qrgstn2) + freq
-
-        // Se calculan armónicos de la STN1
-        qrgstn12 = qrgstn1 * 2
-        qrgstn13 = qrgstn1 * 3
-        qrgstn14 = qrgstn1 * 4
-        qrgstn16 = qrgstn1 * 6
-        qrgstn18 = qrgstn1 * 8
-
-        // Se calculan armónicos de la STN2
-        qrgstn22 = qrgstn2 * 2
-        qrgstn23 = qrgstn2 * 3
-        qrgstn24 = qrgstn2 * 4
-        qrgstn26 = qrgstn2 * 6
-        qrgstn28 = qrgstn2 * 8
-
-        // Se colorea la freuencia de la STN1 según la interferencia que pudiera generar
-        if ((qrgstn12 > qrgstn2i && qrgstn12 < qrgstn2s) ||
-            (qrgstn13 > qrgstn2i && qrgstn13 < qrgstn2s) ||
-            (qrgstn14 > qrgstn2i && qrgstn14 < qrgstn2s) ||
-            (qrgstn16 > qrgstn2i && qrgstn16 < qrgstn2s) ||
-            (qrgstn18 > qrgstn2i && qrgstn18 < qrgstn2s)){
-            $('#stn1-r1-qrg').addClass("twred")
-        } else {
-            $('#stn1-r1-qrg').removeClass("twred")
-        }
-
-        // Se colorea la freuencia de la STN2 según la interferencia que pudiera generar
-        if ((qrgstn22 > qrgstn1i && qrgstn22 < qrgstn1s) ||
-            (qrgstn23 > qrgstn1i && qrgstn23 < qrgstn1s) ||
-            (qrgstn24 > qrgstn1i && qrgstn24 < qrgstn1s) ||
-            (qrgstn26 > qrgstn1i && qrgstn26 < qrgstn1s) ||
-            (qrgstn28 > qrgstn1i && qrgstn28 < qrgstn1s)){
-            $('#stn2-r1-qrg').addClass("twred")
-        } else {
-            $('#stn2-r1-qrg').removeClass("twred")
-        }
-
-    } catch {
-        console.log("error")
-    }
-}
+});s
 
 function onConnect() {
   console.log("Connectado a MQTT.");
@@ -303,7 +249,6 @@ function onMessageArrived(message) {
                 if (ststn11 == true) $("#stn1-stack1").removeClass("spanitemnd").addClass("spanitemselected")
                 else $("#stn1-stack1").removeClass("spanitemnd").removeClass("spanitemselected")
             }
-
             // Se colorea el estado de cada entrada del Stack en la banda seleccionada en la STN2
             $("#stn2-stack1").addClass("spanitemnd")
             $("#stn2-stack2").addClass("spanitemnd")
@@ -337,12 +282,8 @@ function onMessageArrived(message) {
 
             // Se elimina la indicación de segmento de la STN2 si no se está en una banda que los utilice
             if (json.stn2.segmento != 0 && json.stacks[json.stn2.band][1]['estado']) {
-                console.log("entra")
                 $("#stn2-segmento").removeClass("spanitemnd").text(json.stn2.segmento)
             }
         }
     }
-
-    // Chequea armónicos y, eventualmente, colorea la frecuencia de la STN interfiriente
-    checkarm(20)
 }
