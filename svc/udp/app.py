@@ -89,8 +89,8 @@ def publish_radio_info(mqtt_c, radio_i):
             mqtt_c.publish("stn1/op", radio_i[4])
             print("Publicación correcta: %s" % radio_i)
         elif mqtt_c.is_connected() and radio_i[0] == 2:
-            mqtt_c.publish("stn2/qrg", radio_i[3])
-            mqtt_c.publish("stn2/band", str(radio_i[2]))
+            mqtt_c.publish("stn2/qrg", radio_i[2])
+            mqtt_c.publish("stn2/band", str(radio_i[1]))
             mqtt_c.publish("stn2/mode", radio_i[3])
             mqtt_c.publish("stn2/op", radio_i[4])
             print("Publicación correcta: %s" % radio_i)
