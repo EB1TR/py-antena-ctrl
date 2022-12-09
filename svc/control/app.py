@@ -233,19 +233,21 @@ def on_message(client, userdata, msg):
         assign_rx(STN2, RX2, dato)
         STN2['rx'][str(STN2['band'])] = dato
     elif msg.topic == "set/stn1/stack" and int(STN1['band']) != 0:
-        if STACKS[str(STN1['band'])][dato]['estado']:
-            if nr_ant(STACKS[str(STN1['band'])]) > 1:
-                STACKS[str(STN1['band'])][dato]['estado'] = False
-        else:
-            STACKS[str(STN1['band'])][dato]['estado'] = True
-        config_stack(str(STN1['band']))
+        if int(dato) <= STACKS[str(STN1['band'])]['salidas']:
+            if STACKS[str(STN1['band'])][dato]['estado']:
+                if nr_ant(STACKS[str(STN1['band'])]) > 1:
+                    STACKS[str(STN1['band'])][dato]['estado'] = False
+            else:
+                STACKS[str(STN1['band'])][dato]['estado'] = True
+            config_stack(str(STN1['band']))
     elif msg.topic == "set/stn2/stack" and int(STN2['band']) != 0:
-        if STACKS[str(STN2['band'])][dato]['estado']:
-            if nr_ant(STACKS[str(STN2['band'])]) > 1:
-                STACKS[str(STN2['band'])][dato]['estado'] = False
-        else:
-            STACKS[str(STN2['band'])][dato]['estado'] = True
-        config_stack(str(STN2['band']))
+        if int(dato) <= STACKS[str(STN2['band'])]['salidas']:
+            if STACKS[str(STN2['band'])][dato]['estado']:
+                if nr_ant(STACKS[str(STN2['band'])]) > 1:
+                    STACKS[str(STN2['band'])][dato]['estado'] = False
+            else:
+                STACKS[str(STN2['band'])][dato]['estado'] = True
+            config_stack(str(STN2['band']))
     elif msg.topic == "set/stn1/nostack" and int(STN1['band']) != 0:
         if STACKS[str(STN1['band'])]["salidas"] > 1:
             ant_a = STACKS[str(STN1['band'])]["1"]['estado']
