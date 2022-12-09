@@ -1,15 +1,5 @@
 version: "3"
 services:
-#  portainer:
-#    image: portainer/portainer-ce
-#    container_name: portainer
-#    ports:
-#      - "9000:9000/tcp"
-#      - "8000:8000/tcp"
-#    volumes:
-#      - '/var/run/docker.sock:/var/run/docker.sock'
-#      - 'portainer:/data'
-#    restart: unless-stopped
 
   mqtt:
     container_name: mqtt
@@ -74,23 +64,6 @@ services:
     depends_on:
       - mqtt
     restart: unless-stopped
-
-#  node-red:
-#   image: nodered/node-red:latest
-#   environment:
-#     - TZ=Europe/Madrid
-#   ports:
-#     - "1880:1880"
-#     - "12061:12060/udp"
-#   networks:
-#     antena:
-#       ipv4_address: "172.0.33.6"
-#   volumes:
-#     - nodered:/data
-
-# volumes:
-#   portainer:
-#   nodered:
 
 networks:
     antena:

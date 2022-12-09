@@ -1,5 +1,5 @@
 clientID = "web"
-mqttHOST = "192.168.33.85"
+mqttHOST = "192.168.33.100"
 clientID += new Date().getUTCMilliseconds()
 client = new Paho.MQTT.Client(mqttHOST, Number(9001), clientID);
 
@@ -10,61 +10,7 @@ client.onFailure = onConnectionLost;
 client.connect({
     onSuccess:onConnect,
     onFailure:onConnectionLost
-});
-
-
-function checkarm(freq) {
-    try {
-        // Se extraen las frecuencias del DOM
-        qrgstn1 = $('#stn1-r1-qrg').text()
-        qrgstn2 = $('#stn2-r1-qrg').text()
-
-        // Se calculan las freuencias que pueden molestar
-        qrgstn1i = parseFloat(qrgstn1) - freq
-        qrgstn1s = parseFloat(qrgstn1) + freq
-        qrgstn2i = parseFloat(qrgstn2) - freq
-        qrgstn2s = parseFloat(qrgstn2) + freq
-
-        // Se calculan armónicos de la STN1
-        qrgstn12 = qrgstn1 * 2
-        qrgstn13 = qrgstn1 * 3
-        qrgstn14 = qrgstn1 * 4
-        qrgstn16 = qrgstn1 * 6
-        qrgstn18 = qrgstn1 * 8
-
-        // Se calculan armónicos de la STN2
-        qrgstn22 = qrgstn2 * 2
-        qrgstn23 = qrgstn2 * 3
-        qrgstn24 = qrgstn2 * 4
-        qrgstn26 = qrgstn2 * 6
-        qrgstn28 = qrgstn2 * 8
-
-        // Se colorea la freuencia de la STN1 según la interferencia que pudiera generar
-        if ((qrgstn12 > qrgstn2i && qrgstn12 < qrgstn2s) ||
-            (qrgstn13 > qrgstn2i && qrgstn13 < qrgstn2s) ||
-            (qrgstn14 > qrgstn2i && qrgstn14 < qrgstn2s) ||
-            (qrgstn16 > qrgstn2i && qrgstn16 < qrgstn2s) ||
-            (qrgstn18 > qrgstn2i && qrgstn18 < qrgstn2s)){
-            $('#stn1-r1-qrg').addClass("twred")
-        } else {
-            $('#stn1-r1-qrg').removeClass("twred")
-        }
-
-        // Se colorea la freuencia de la STN2 según la interferencia que pudiera generar
-        if ((qrgstn22 > qrgstn1i && qrgstn22 < qrgstn1s) ||
-            (qrgstn23 > qrgstn1i && qrgstn23 < qrgstn1s) ||
-            (qrgstn24 > qrgstn1i && qrgstn24 < qrgstn1s) ||
-            (qrgstn26 > qrgstn1i && qrgstn26 < qrgstn1s) ||
-            (qrgstn28 > qrgstn1i && qrgstn28 < qrgstn1s)){
-            $('#stn2-r1-qrg').addClass("twred")
-        } else {
-            $('#stn2-r1-qrg').removeClass("twred")
-        }
-
-    } catch {
-        console.log("error")
-    }
-}
+});s
 
 function onConnect() {
   console.log("Connectado a MQTT.");
@@ -84,10 +30,6 @@ function onConnect() {
   client.subscribe("tw2/setdeg");
   client.subscribe("tw1/nec");
   client.subscribe("tw2/nec");
-  client.subscribe("host/status/temp");
-  client.subscribe("host/status/memory/used");
-  client.subscribe("host/status/memory/total");
-  client.subscribe("host/status/cpu/used");
   console.log("Suscrito a topics MQTT.");
   message = new Paho.MQTT.Message('0');
   message.destinationName = "update";
@@ -174,29 +116,6 @@ function onMessageArrived(message) {
             $('#tw2nec').text("↩️")
         } else {
             $('#tw2nec').text("🆗")
-        }
-    } else if (message.destinationName == "host/status/temp") {
-        $('#hosttemp').text(parseFloat(message.payloadString).toFixed(1)+"º")
-        if (parseFloat(message.payloadString) > 55) {
-            $("#hosttemp").removeClass("spanitemhost").addClass("spanitemoff")
-        } else {
-            $("#hosttemp").removeClass("spanitemoff").addClass("spanitemhost")
-        }
-    } else if (message.destinationName == "host/status/memory/used") {
-        $('#hostmemu').text(parseFloat(message.payloadString).toFixed(1)+"%")
-        if (parseFloat(message.payloadString) > 50) {
-            $("#hostmemu").removeClass("spanitemhost").addClass("spanitemoff")
-        } else {
-            $("#hostmemu").removeClass("spanitemoff").addClass("spanitemhost")
-        }
-    } else if (message.destinationName == "host/status/memory/total") {
-        $('#hostdisu').text(parseFloat(message.payloadString).toFixed(1)+"%")
-    } else if (message.destinationName == "host/status/cpu/used") {
-        $('#hostcpuu').text(parseFloat(message.payloadString).toFixed(1)+"%")
-        if (parseFloat(message.payloadString) > 25) {
-            $("#hostcpuu").removeClass("spanitemhost").addClass("spanitemoff")
-        } else {
-            $("#hostcpuu").removeClass("spanitemoff").addClass("spanitemhost")
         }
     } else {
         json = JSON.parse(message.payloadString)
@@ -330,7 +249,6 @@ function onMessageArrived(message) {
                 if (ststn11 == true) $("#stn1-stack1").removeClass("spanitemnd").addClass("spanitemselected")
                 else $("#stn1-stack1").removeClass("spanitemnd").removeClass("spanitemselected")
             }
-
             // Se colorea el estado de cada entrada del Stack en la banda seleccionada en la STN2
             $("#stn2-stack1").addClass("spanitemnd")
             $("#stn2-stack2").addClass("spanitemnd")
@@ -364,32 +282,8 @@ function onMessageArrived(message) {
 
             // Se elimina la indicación de segmento de la STN2 si no se está en una banda que los utilice
             if (json.stn2.segmento != 0 && json.stacks[json.stn2.band][1]['estado']) {
-                console.log("entra")
                 $("#stn2-segmento").removeClass("spanitemnd").text(json.stn2.segmento)
             }
         }
     }
-
-    // Chequea armónicos y, eventualmente, colorea la frecuencia de la STN interfiriente
-    checkarm(20)
 }
-
-function wcyData() {
-    fetch('https://api.ure.es/wwv')
-        .then(response => response.json())
-        .then(data => {
-            $("#wcysfi").text(data[0]["sfi"])
-            $("#wcyssn").text(data[0]["ssn"])
-            $("#wcya").text(data[0]["a"])
-            $("#wcyk").text(data[0]["k"])
-            $("#wcygmf").text(data[0]["gmf"])
-            $("#wcyts").text(data[0]["isots"])
-            $("#wcyau").text(data[0]["aurora"])
-        });
-}
-
-wcyData()
-
-setInterval(function() {
-    wcyData()
-}, 300000); // 300000ms = 5 minutos
