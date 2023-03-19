@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+	<head>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+		<script src="mqtt-free.js" type="text/javascript"></script>
+		<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="style.css">
+		<meta charset="utf-8">
+		<title>Antenna Control</title>
+	</head>
+
+	<body style="text-align: center">
+    	<div id="contenor">
+    		<table class="tablestn">
+				<tr>
+                    <td colspan="1"><hr></td>
+                    <td colspan="2">STACK 160</td>
+                    <td colspan="1"><hr></td>
+                </tr>
+        		<tr>
+                    <td class="tdstn"><a href="#"><span onclick="send_command('set/stack160', 1)" class="spanitem" id="stack1601">1</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack160', 2)" class="spanitem" id="stack1602">2</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack160', 3)" class="spanitem" id="stack1603">3</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack160', 0)" class="spanitemtw" id="stn1-nostack">SWAP</span></a></td>
+				</tr>
+    		</table>
+
+    		<table class="tablestn">
+				<tr>
+                    <td colspan="1"><hr></td>
+                    <td colspan="2">STACK 80</td>
+                    <td colspan="1"><hr></td>
+                </tr>
+        		<tr>
+                    <td class="tdstn"><a href="#"><span onclick="send_command('set/stack80', 1)" class="spanitem" id="stack801">1</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack80', 2)" class="spanitem" id="stack802">2</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack80', 3)" class="spanitem" id="stack803">3</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack80', 0)" class="spanitemtw" id="stn1-nostack">SWAP</span></a></td>
+				</tr>
+    		</table>
+
+    		<table class="tablestn">
+				<tr>
+                    <td colspan="1"><hr></td>
+                    <td colspan="2">STACK 40</td>
+                    <td colspan="1"><hr></td>
+                </tr>
+        		<tr>
+                    <td class="tdstn"><a href="#"><span onclick="send_command('set/stack40', 1)" class="spanitem" id="stack401">1</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack40', 2)" class="spanitem" id="stack402">2</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack40', 3)" class="spanitem" id="stack403">3</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack40', 0)" class="spanitemtw" id="stn1-nostack">SWAP</span></a></td>
+				</tr>
+    		</table>
+    		<table class="tablestn">
+				<tr>
+                    <td colspan="1"><hr></td>
+                    <td colspan="2">STACK 20</td>
+                    <td colspan="1"><hr></td>
+                </tr>
+        		<tr>
+                    <td class="tdstn"><a href="#"><span onclick="send_command('set/stack20', 1)" class="spanitem" id="stack201">1</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack20', 2)" class="spanitem" id="stack202">2</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack20', 3)" class="spanitem" id="stack203">3</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack20', 0)" class="spanitemtw" id="stn1-nostack">SWAP</span></a></td>
+				</tr>
+    		</table>
+
+    		<table class="tablestn">
+				<tr>
+                    <td colspan="1"><hr></td>
+                    <td colspan="2">STACK 15</td>
+                    <td colspan="1"><hr></td>
+                </tr>
+        		<tr>
+                    <td class="tdstn"><a href="#"><span onclick="send_command('set/stack15', 1)" class="spanitem" id="stack151">1</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack15', 2)" class="spanitem" id="stack152">2</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack15', 3)" class="spanitem" id="stack153">3</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack15', 0)" class="spanitemtw" id="stn1-nostack">SWAP</span></a></td>
+				</tr>
+    		</table>
+
+    		<table class="tablestn">
+				<tr>
+                    <td colspan="1"><hr></td>
+                    <td colspan="2">STACK 10</td>
+                    <td colspan="1"><hr></td>
+                </tr>
+        		<tr>
+                    <td class="tdstn"><a href="#"><span onclick="send_command('set/stack10', 1)" class="spanitem" id="stack101">1</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack10', 2)" class="spanitem" id="stack102">2</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack10', 3)" class="spanitem" id="stack103">3</span></a></td>
+            		<td class="tdstn"><a href="#"><span onclick="send_command('set/stack10', 0)" class="spanitemtw" id="stn1-nostack">SWAP</span></a></td>
+				</tr>
+    		</table>
+
+			<br><br>
+    	</div>
+	</body>
+</html>
