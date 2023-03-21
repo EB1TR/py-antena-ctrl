@@ -164,61 +164,150 @@ function onMessageArrived(message) {
             else if (ststn1603 == true) $("#stack1603").removeClass("spanitemnd").removeClass("spanitemne").addClass("spanitemselected")
             else $("#stack1603").removeClass("spanitemnd").removeClass("spanitemselected").removeClass("spanitemne")
 
-        // Se pintan Mástiles 1 y 2
-        } else if (message.destinationName == "tw1/deg") {
-            tw1deg = parseInt(message.payloadString)
-            if (tw1deg>360) {
-                tw1deg = tw1deg - 360
-                $('#tw1').text(tw1deg+"º")
-                $("#tw1").addClass("twred")
+
+            if (json.stn1.band == 10 || json.stn2.band == 10) {
+                $("#leg10").addClass("legsel")
+                if (json.stn1.band == 10) $("#leg10").text("STACK 10M | STN1")
+                else $("#leg10").text("STACK 10M STN2")
             } else {
-                $('#tw1').text(message.payloadString+"º")
-                $('#tw1').removeClass("twred")
+                $("#leg10").removeClass("legsel").text("STACK 10M")
             }
-        } else if (message.destinationName == "tw2/deg") {
-            tw2deg = parseInt(message.payloadString)
-            if (tw2deg>360) {
-                tw2deg = tw2deg - 360
-                $('#tw2').text(tw2deg+"º")
-                $("#tw2").addClass("twred")
+            if (json.stn1.band == 15 || json.stn2.band == 15) {
+                $("#leg15").addClass("legsel")
+                if (json.stn1.band == 15) $("#leg15").text("STACK 15M | STN1")
+                else $("#leg15").text("STACK 15M | STN2")
             } else {
-                $('#tw2').text(message.payloadString+"º")
-                $('#tw2').removeClass("twred")
+                $("#leg15").removeClass("legsel").text("STACK 15M")
             }
-        } else if (message.destinationName == "tw1/mode") {
-            $('#tw1mode').text(message.payloadString.toUpperCase())
-            if (message.payloadString.toUpperCase() == "REM") {
-                $("#tw1mode").addClass("spanitemselected");
+            if (json.stn1.band == 20 || json.stn2.band == 20) {
+                $("#leg20").addClass("legsel")
+                if (json.stn1.band == 20) $("#leg20").text("STACK 20M | STN1")
+                else $("#leg20").text("STACK 20M | STN2")
             } else {
-                $("#tw1mode").removeClass("spanitemselected");
+                $("#leg20").removeClass("legsel").text("STACK 20M")
             }
-        } else if (message.destinationName == "tw2/mode") {
-            $('#tw2mode').text(message.payloadString.toUpperCase())
-            if (message.payloadString.toUpperCase() == "REM") {
-                $("#tw2mode").addClass("spanitemselected");
+            if (json.stn1.band == 40 || json.stn2.band == 40) {
+                $("#leg40").addClass("legsel")
+                if (json.stn1.band == 40) $("#leg40").text("STACK 40M | STN1")
+                else $("#leg40").text("STACK 40M | STN2")
             } else {
-                $("#tw2mode").removeClass("spanitemselected");
+                $("#leg40").removeClass("legsel").text("STACK 40M")
             }
-        } else if (message.destinationName == "tw1/setdeg") {
-            $('#tw1set').text(message.payloadString+"º")
-        } else if (message.destinationName == "tw2/setdeg") {
-            $('#tw2set').text(message.payloadString+"º")
-        } else if (message.destinationName == "tw1/nec") {
-            if (message.payloadString == "CCW") {
-                $('#tw1nec').text("↪️")
-            } else if (message.payloadString == "CW") {
-                $('#tw1nec').text("↩️")
+            if (json.stn1.band == 80 || json.stn2.band == 80) {
+                $("#leg80").addClass("legsel")
+                if (json.stn1.band == 80) $("#leg80").text("STACK 80M | STN1")
+                else $("#leg80").text("STACK 80M | STN2")
             } else {
-                $('#tw1nec').text("🆗")
+                $("#leg80").removeClass("legsel").text("STACK 80M")
             }
-        } else if (message.destinationName == "tw2/nec") {
-            if (message.payloadString == "CCW") {
-                $('#tw2nec').text("↪️")
-            } else if (message.payloadString == "CW") {
-                $('#tw2nec').text("↩️")
+            if (json.stn1.band == 160 || json.stn2.band == 160) {
+                $("#leg160").addClass("legsel")
+                if (json.stn1.band == 10) $("#leg160").text("STACK 160M | STN1")
+                else $("#leg160").text("STACK 160M | STN2")
             } else {
-                $('#tw2nec').text("🆗")
+                $("#leg160").removeClass("legsel").text("STACK 160M")
             }
+
+
+            ststn10 = json.stacks[json.stn1.band]['salidas']
+            ststn11 = json.stacks[json.stn1.band][1]['estado']
+            ststn12 = json.stacks[json.stn1.band][2]['estado']
+            ststn13 = json.stacks[json.stn1.band][3]['estado']
+
+            ststn20 = json.stacks[json.stn2.band]['salidas']
+            ststn21 = json.stacks[json.stn2.band][1]['estado']
+            ststn22 = json.stacks[json.stn2.band][2]['estado']
+            ststn23 = json.stacks[json.stn2.band][3]['estado']
+
+            // Se pinta la utilización de la TW1 por parte de la STN1
+            if ((json.stacks[json.stn1.band][1]['tw'] == 1 && ststn11 == true) ||
+                (json.stacks[json.stn1.band][2]['tw'] == 1 && ststn12 == true) ||
+                (json.stacks[json.stn1.band][3]['tw'] == 1 && ststn13 == true)) {
+                $("#tw1stn1").show()
+            } else {
+                $("#tw1stn1").hide()
+            }
+
+            // Se pinta la utilización de la TW2 por parte de la STN1
+            if ((json.stacks[json.stn1.band][1]['tw'] == 2 && ststn11 == true) ||
+                (json.stacks[json.stn1.band][2]['tw'] == 2 && ststn12 == true) ||
+                (json.stacks[json.stn1.band][3]['tw'] == 2 && ststn13 == true)) {
+                $("#tw2stn1").show()
+            } else {
+                $("#tw2stn1").hide()
+            }
+
+            // Se pinta la utilización de la TW1 por parte de la STN2
+            if ((json.stacks[json.stn2.band][1]['tw'] == 1 && ststn21 == true) ||
+                (json.stacks[json.stn2.band][2]['tw'] == 1 && ststn22 == true) ||
+                (json.stacks[json.stn2.band][3]['tw'] == 1 && ststn23 == true)) {
+                $("#tw1stn2").show()
+            } else {
+                $("#tw1stn2").hide()
+            }
+
+            // Se pinta la utilización de la TW2 por parte de la STN2
+            if ((json.stacks[json.stn2.band][1]['tw'] == 2 && ststn21 == true) ||
+                (json.stacks[json.stn2.band][2]['tw'] == 2 && ststn22 == true) ||
+                (json.stacks[json.stn2.band][3]['tw'] == 2 && ststn23 == true)) {
+                $("#tw2stn2").show()
+            } else {
+                $("#tw2stn2").hide()
+            }
+        }
+    } else if (message.destinationName == "tw1/deg") {
+        tw1deg = parseInt(message.payloadString)
+        if (tw1deg>360) {
+            tw1deg = tw1deg - 360
+            $('#tw1').text(tw1deg+"º")
+            $("#tw1").addClass("twred")
+        } else {
+            $('#tw1').text(message.payloadString+"º")
+            $('#tw1').removeClass("twred")
+        }
+    } else if (message.destinationName == "tw2/deg") {
+        tw2deg = parseInt(message.payloadString)
+        if (tw2deg>360) {
+            tw2deg = tw2deg - 360
+            $('#tw2').text(tw2deg+"º")
+            $("#tw2").addClass("twred")
+        } else {
+            $('#tw2').text(message.payloadString+"º")
+            $('#tw2').removeClass("twred")
+        }
+    } else if (message.destinationName == "tw1/mode") {
+        $('#tw1mode').text(message.payloadString.toUpperCase())
+        if (message.payloadString.toUpperCase() == "REM") {
+            $("#tw1mode").addClass("spanitemselected");
+        } else {
+            $("#tw1mode").removeClass("spanitemselected");
+        }
+    } else if (message.destinationName == "tw2/mode") {
+        $('#tw2mode').text(message.payloadString.toUpperCase())
+        if (message.payloadString.toUpperCase() == "REM") {
+            $("#tw2mode").addClass("spanitemselected");
+        } else {
+            $("#tw2mode").removeClass("spanitemselected");
+        }
+    } else if (message.destinationName == "tw1/setdeg") {
+        $('#tw1set').text(message.payloadString+"º")
+    } else if (message.destinationName == "tw2/setdeg") {
+        $('#tw2set').text(message.payloadString+"º")
+    } else if (message.destinationName == "tw1/nec") {
+        if (message.payloadString == "CCW") {
+            $('#tw1nec').text("↪️")
+        } else if (message.payloadString == "CW") {
+            $('#tw1nec').text("↩️")
+        } else {
+            $('#tw1nec').text("🆗")
+        }
+    } else if (message.destinationName == "tw2/nec") {
+        if (message.payloadString == "CCW") {
+            $('#tw2nec').text("↪️")
+        } else if (message.payloadString == "CW") {
+            $('#tw2nec').text("↩️")
+        } else {
+            $('#tw2nec').text("🆗")
         }
     }
 }

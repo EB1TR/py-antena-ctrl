@@ -1,61 +1,61 @@
 {
     "1": {
         "0": {
-            "tta": "", 
+            "tta": "",
             "rele": "0"
-        }, 
+        },
         "160": {
-            "tta": "E8EADA0059F8", 
+            "tta": "E8EADA0059F8",
             "rele": "1"
-        }, 
+        },
         "80": {
-            "tta": "E8EADA0059F8", 
+            "tta": "E8EADA0059F8",
             "rele": "2"
-        }, 
+        },
         "40": {
-            "tta": "E8EADA0059F8", 
+            "tta": "E8EADA0059F8",
             "rele": "3"
-        }, 
+        },
         "20": {
-            "tta": "E8EADA0059F8", 
+            "tta": "E8EADA0059F8",
             "rele": "4"
-        }, 
+        },
         "15": {
-            "tta": "E8EADA0059F8", 
+            "tta": "E8EADA0059F8",
             "rele": "10"
-        }, 
+        },
         "10": {
-            "tta": "E8EADA0059F8", 
+            "tta": "E8EADA0059F8",
             "rele": "9"
         }
-    }, 
+    },
     "2": {
         "0": {
-            "tta": "", 
+            "tta": "",
             "rele": "0"
-        }, 
+        },
         "160": {
-            "tta": "E8EADA0059F8", 
+            "tta": "E8EADA0059F8",
             "rele": "5"
-        }, 
+        },
         "80": {
-            "tta": "E8EADA0059F8", 
+            "tta": "E8EADA0059F8",
             "rele": "6"
-        }, 
+        },
         "40": {
-            "tta": "E8EADA0059F8", 
+            "tta": "E8EADA0059F8",
             "rele": "7"
-        }, 
+        },
         "20": {
-            "tta": "E8EADA0059F8", 
+            "tta": "E8EADA0059F8",
             "rele": "8"
-        }, 
+        },
         "15": {
-            "tta": "E8EADA0059F8", 
+            "tta": "E8EADA0059F8",
             "rele": "16"
-        }, 
+        },
         "10": {
-            "tta": "E8EADA0059F8", 
+            "tta": "E8EADA0059F8",
             "rele": "15"
         }
     }

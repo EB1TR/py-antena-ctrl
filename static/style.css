@@ -10,7 +10,7 @@ body {
 .tablestn {
     margin: 0 auto;
     background-color: rgb(0, 0, 0);
-    border: 1px solid rgb(255, 255, 255);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     padding: 5px;
     border-radius: 3px;
 }
@@ -21,12 +21,12 @@ body {
     color: burlywood;
 }
 .spanitem {
-    border: 1px solid rgba(255,0,0,0.8);
+    border: 1px solid rgba(255, 59, 59, 0.8);
     text-align: center;
     line-height: 27px;
     display: inline-block;
     background-color: rgba(255,0,0,0.2);
-    color: rgba(255,0,0,1);
+    color: rgba(255, 59, 59, 0.8);
     width: 50px;
     height: 25px;
     border-radius: 3px;
@@ -43,9 +43,9 @@ body {
     border-radius: 3px;
 }
 .spanitemselected {
-    border: 1px solid rgba(0,200,0,0.8);
-    background-color: rgba(0,255,0,0.1);
-    color: rgba(0,200,0,1);
+    border: 1px solid rgba(49, 170, 49, 0.8);
+    background-color: rgba(49, 170, 49, 0.1);
+    color: rgba(49, 170, 49, 0.8);
 }
 .spanitemindicator {
     border: 1px solid rgba(0, 0, 0, 0.7);
@@ -59,9 +59,9 @@ body {
     display: none;
 }
 .spanitemne {
-    border: 1px solid rgba(115, 115, 115, 0.8);
+    border: 1px solid rgba(115, 115, 115, 0.3);
     background-color: rgba(98, 98, 98, 0.1);
-    color: rgba(115, 115, 115, 0.8);
+    color: rgba(115, 115, 115, 0.3);
 }
 .spanitemwselected {
     background-color: #1daa00;
@@ -102,58 +102,72 @@ body {
     border-radius: 3px;
 }
 .spanitemoff {
-    border: 1px solid rgba(255, 0, 0, 0.8);
+    border: 1px solid rgba(255, 59, 59, 0.8);
     text-align: center;
     line-height: 27px;
     display: inline-block;
-    background-color: rgba(255,0,0,0.4);
-    color: rgba(255,0,0,1);
+    background-color: rgba(255, 59, 59, 0.4);
+    color: rgba(255, 59, 59, 0.8);
     width: 50px;
     height: 25px;
     border-radius: 3px;
 }
 
 @keyframes flickerAnimation {
-  0%   { opacity:1; }
-  50%  { opacity:0; }
-  100% { opacity:1; }
+    0%   { opacity:1; }
+    50%  { opacity:0; }
+    100% { opacity:1; }
 }
 @-o-keyframes flickerAnimation{
-  0%   { opacity:1; }
-  50%  { opacity:0; }
-  100% { opacity:1; }
+    0%   { opacity:1; }
+    50%  { opacity:0; }
+    100% { opacity:1; }
 }
 @-moz-keyframes flickerAnimation{
-  0%   { opacity:1; }
-  50%  { opacity:0; }
-  100% { opacity:1; }
+    0%   { opacity:1; }
+    50%  { opacity:0; }
+    100% { opacity:1; }
 }
 @-webkit-keyframes flickerAnimation{
-  0%   { opacity:1; }
-  50%  { opacity:0; }
-  100% { opacity:1; }
+    0%   { opacity:1; }
+    50%  { opacity:0; }
+    100% { opacity:1; }
 }
 .FinFout {
-   -webkit-animation: flickerAnimation 1s infinite;
-   -moz-animation: flickerAnimation 1s infinite;
-   -o-animation: flickerAnimation 1s infinite;
+    -webkit-animation: flickerAnimation 1s infinite;
+    -moz-animation: flickerAnimation 1s infinite;
+    -o-animation: flickerAnimation 1s infinite;
     animation: flickerAnimation 1s infinite;
 }
 .spantwstn {
-    border: 1px solid rgba(255, 0, 0, 0.8);
+    border: 1px solid rgba(255, 59, 59, 0.8);
     text-align: center;
     line-height: 27px;
     display: inline-block;
-    background-color: rgba(255,0,0,0.4);
-    color: rgba(255,0,0,1);
+    background-color: rgba(255, 59, 59, 0.4);
+    color: rgba(255, 59, 59, 0.8);
     width: 50px;
     height: 25px;
     border-radius: 3px;
     -webkit-animation: flickerAnimation 1s infinite;
     -moz-animation: flickerAnimation 1s infinite;
     -o-animation: flickerAnimation 1s infinite;
-     animation: flickerAnimation 1s infinite;
+    animation: flickerAnimation 1s infinite;
 }
 .twred {
-    color: rgba(255,0,0,0.8);
+    color: rgba(255, 59, 59, 0.8);
+}
+.legendns {
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 3px;
+    padding: 4px;
+    font-weight: bold;
+    vertical-align: middle;
+}
+.legsel {
+    color: rgba(255, 59, 59, 0.8);
+}
+.fieldsetns {
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 3px;
 }

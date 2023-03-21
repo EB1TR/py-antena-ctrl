@@ -1,5 +1,5 @@
 clientID = "web"
-mqttHOST = "192.168.33.100"
+mqttHOST = "192.168.33.200"
 clientID += new Date().getUTCMilliseconds()
 client = new Paho.MQTT.Client(mqttHOST, Number(9001), clientID);
 
@@ -10,44 +10,44 @@ client.onFailure = onConnectionLost;
 client.connect({
     onSuccess:onConnect,
     onFailure:onConnectionLost
-});s
+});
 
 function onConnect() {
-  console.log("Connectado a MQTT.");
-  $('#contenor').removeClass("FinFout")
-  client.subscribe("pytofront");
-  client.subscribe("stn1/qrg");
-  client.subscribe("stn2/qrg");
-  client.subscribe("stn1/mode");
-  client.subscribe("stn2/mode");
-  client.subscribe("stn1/op");
-  client.subscribe("stn2/op");
-  client.subscribe("tw1/deg");
-  client.subscribe("tw2/deg");
-  client.subscribe("tw1/mode");
-  client.subscribe("tw2/mode");
-  client.subscribe("tw1/setdeg");
-  client.subscribe("tw2/setdeg");
-  client.subscribe("tw1/nec");
-  client.subscribe("tw2/nec");
-  console.log("Suscrito a topics MQTT.");
-  message = new Paho.MQTT.Message('0');
-  message.destinationName = "update";
-  client.send(message);
-  console.log("Información inicial solicitada.")
+    console.log("Connectado a MQTT.");
+    $('#contenor').removeClass("FinFout")
+    client.subscribe("pytofront");
+    client.subscribe("stn1/qrg");
+    client.subscribe("stn2/qrg");
+    client.subscribe("stn1/mode");
+    client.subscribe("stn2/mode");
+    client.subscribe("stn1/op");
+    client.subscribe("stn2/op");
+    client.subscribe("tw1/deg");
+    client.subscribe("tw2/deg");
+    client.subscribe("tw1/mode");
+    client.subscribe("tw2/mode");
+    client.subscribe("tw1/setdeg");
+    client.subscribe("tw2/setdeg");
+    client.subscribe("tw1/nec");
+    client.subscribe("tw2/nec");
+    console.log("Suscrito a topics MQTT.");
+    message = new Paho.MQTT.Message('0');
+    message.destinationName = "update";
+    client.send(message);
+    console.log("Información inicial solicitada.")
 }
 
 function onConnectionLost(responseObject) {
-  if (responseObject.errorCode !== 0) {
-    console.log("Conexión perdida a MQTT:"+responseObject.errorMessage);
-  }
-  $('#contenor').addClass("FinFout")
+    if (responseObject.errorCode !== 0) {
+        console.log("Conexión perdida a MQTT:"+responseObject.errorMessage);
+    }
+    $('#contenor').addClass("FinFout")
 }
 
 function send_command(comm, dato){
-  message = new Paho.MQTT.Message(String(dato));
-  message.destinationName = comm;
-  client.send(message);
+    message = new Paho.MQTT.Message(String(dato));
+    message.destinationName = comm;
+    client.send(message);
 }
 
 function onMessageArrived(message) {
@@ -139,7 +139,7 @@ function onMessageArrived(message) {
 
             // Se pinta la utilización de la TW1 por parte de la STN1
             if ((json.stacks[json.stn1.band][1]['tw'] == 1 && ststn11 == true) ||
-                (json.stacks[json.stn1.band][2]['tw'] == 1 && ststn12 == true) || 
+                (json.stacks[json.stn1.band][2]['tw'] == 1 && ststn12 == true) ||
                 (json.stacks[json.stn1.band][3]['tw'] == 1 && ststn13 == true)) {
                 $("#tw1stn1").show()
             } else {
@@ -148,7 +148,7 @@ function onMessageArrived(message) {
 
             // Se pinta la utilización de la TW2 por parte de la STN1
             if ((json.stacks[json.stn1.band][1]['tw'] == 2 && ststn11 == true) ||
-                (json.stacks[json.stn1.band][2]['tw'] == 2 && ststn12 == true) || 
+                (json.stacks[json.stn1.band][2]['tw'] == 2 && ststn12 == true) ||
                 (json.stacks[json.stn1.band][3]['tw'] == 2 && ststn13 == true)) {
                 $("#tw2stn1").show()
             } else {
@@ -157,7 +157,7 @@ function onMessageArrived(message) {
 
             // Se pinta la utilización de la TW1 por parte de la STN2
             if ((json.stacks[json.stn2.band][1]['tw'] == 1 && ststn21 == true) ||
-                (json.stacks[json.stn2.band][2]['tw'] == 1 && ststn22 == true) || 
+                (json.stacks[json.stn2.band][2]['tw'] == 1 && ststn22 == true) ||
                 (json.stacks[json.stn2.band][3]['tw'] == 1 && ststn23 == true)) {
                 $("#tw1stn2").show()
             } else {
@@ -166,7 +166,7 @@ function onMessageArrived(message) {
 
             // Se pinta la utilización de la TW2 por parte de la STN2
             if ((json.stacks[json.stn2.band][1]['tw'] == 2 && ststn21 == true) ||
-                (json.stacks[json.stn2.band][2]['tw'] == 2 && ststn22 == true) || 
+                (json.stacks[json.stn2.band][2]['tw'] == 2 && ststn22 == true) ||
                 (json.stacks[json.stn2.band][3]['tw'] == 2 && ststn23 == true)) {
                 $("#tw2stn2").show()
             } else {
@@ -220,7 +220,7 @@ function onMessageArrived(message) {
 
             $("#rx10" + json.stn1.rx[json.stn1.band]).addClass("spanitemselected")
             $("#rx20" + json.stn2.rx[json.stn2.band]).addClass("spanitemselected")
-            
+
             $('#stn1-n').text(json.stn1.netbios)
             $('#stn2-n').text(json.stn2.netbios)
 

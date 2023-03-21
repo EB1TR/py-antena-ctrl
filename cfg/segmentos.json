@@ -1,53 +1,53 @@
 {
     "80": {
         "1": {
-            "principio": "350000", 
-            "fin": "360000", 
-            "tta": "ttanro", 
+            "principio": "350000",
+            "fin": "360000",
+            "tta": "ttanro",
             "rele": "13"
-        }, 
+        },
         "2": {
-            "principio": "360000", 
-            "fin": "370000", 
-            "tta": "ttanro", 
+            "principio": "360000",
+            "fin": "370000",
+            "tta": "ttanro",
             "rele": "14"
-        }, 
+        },
         "3": {
-            "principio": "370000", 
-            "fin": "380000", 
-            "tta": "ttanro", 
+            "principio": "370000",
+            "fin": "380000",
+            "tta": "ttanro",
             "rele": "15"
-        }, 
+        },
         "4": {
-            "principio": "380000", 
-            "fin": "400000", 
-            "tta": "ttanro", 
+            "principio": "380000",
+            "fin": "400000",
+            "tta": "ttanro",
             "rele": "16"
         }
-    }, 
+    },
     "160": {
         "1": {
-            "principio": "180000", 
-            "fin": "185000", 
-            "tta": "ttanro", 
+            "principio": "180000",
+            "fin": "185000",
+            "tta": "ttanro",
             "rele": "0"
-        }, 
+        },
         "2": {
-            "principio": "185000", 
-            "fin": "190000", 
-            "tta": "ttanro", 
+            "principio": "185000",
+            "fin": "190000",
+            "tta": "ttanro",
             "rele": "0"
-        }, 
+        },
         "3": {
-            "principio": "190000", 
-            "fin": "195000", 
-            "tta": "ttanro", 
+            "principio": "190000",
+            "fin": "195000",
+            "tta": "ttanro",
             "rele": "0"
-        }, 
+        },
         "4": {
-            "principio": "195000", 
-            "fin": "200000", 
-            "tta": "ttanro", 
+            "principio": "195000",
+            "fin": "200000",
+            "tta": "ttanro",
             "rele": "0"
         }
     }
