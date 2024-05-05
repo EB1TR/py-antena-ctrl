@@ -124,6 +124,8 @@ function onMessageArrived(message) {
             bstn1 = "#stn1-b"+json.stn1.band
             bstn2 = "#stn2-b"+json.stn2.band
 
+            console.log(bstn1)
+
             asstn1 = json.stn1.auto
             asstn2 = json.stn2.auto
 
@@ -177,49 +179,19 @@ function onMessageArrived(message) {
             $("[id^=stn1-b]").removeClass("spanitemselected");
             $("[id^=stn2-b]").removeClass("spanitemselected");
 
-            // Se resetea el estado de antena de RX
-            $("[id^=rx]").removeClass("spanitemselected");
+            $(bstn1).addClass("spanitemselected")
+            $(bstn2).addClass("spanitemselected")
+
 
             // Se resetea el estado AUTO ON/OFF de la conmutación
             $("#stn1-as").removeClass("spanitemselected");
             $("#stn2-as").removeClass("spanitemselected");
-
-            // Se pinta el nombre de las antena de RX en la STN1
-            $("#rx101").text(json.rx1[1]['nombre'])
-            $("#rx102").text(json.rx1[2]['nombre'])
-            $("#rx103").text(json.rx1[3]['nombre'])
-            $("#rx104").text(json.rx1[4]['nombre'])
-            $("#rx105").text(json.rx1[5]['nombre'])
-            $("#rx106").text(json.rx1[6]['nombre'])
-
-            // Se pinta el nombre de las antena de RX en la STN2
-            $("#rx201").text(json.rx2[1]['nombre'])
-            $("#rx202").text(json.rx2[2]['nombre'])
-            $("#rx203").text(json.rx2[3]['nombre'])
-            $("#rx204").text(json.rx2[4]['nombre'])
-            $("#rx205").text(json.rx2[5]['nombre'])
-            $("#rx206").text(json.rx2[6]['nombre'])
-
-            // Se colorea segmento de banda en la banda seleccionada en la STN1
-            $("#stn1-segmento").addClass("spanitemnd")
-
-            // Se colorea segmento de banda en la banda seleccionada en la STN2
-            $("#stn2-segmento").addClass("spanitemnd")
-
-            // Se colorea la banda seleccionada en la STN1
-            $(bstn1).addClass("spanitemselected")
-
-            // Se colorea la banda seleccionada en la STN1
-            $(bstn2).addClass("spanitemselected")
 
             // Se colorea AUTO ON/OFF en la STN1
             if (asstn1 == true) $("#stn1-as").addClass("spanitemselected")
 
             // Se colorea AUTO ON/OFF en la STN2
             if (asstn2 == true) $("#stn2-as").addClass("spanitemselected")
-
-            $("#rx10" + json.stn1.rx[json.stn1.band]).addClass("spanitemselected")
-            $("#rx20" + json.stn2.rx[json.stn2.band]).addClass("spanitemselected")
 
             $('#stn1-n').text(json.stn1.netbios)
             $('#stn2-n').text(json.stn2.netbios)
@@ -228,10 +200,12 @@ function onMessageArrived(message) {
             $("#stn1-stack1").addClass("spanitemnd")
             $("#stn1-stack2").addClass("spanitemnd")
             $("#stn1-stack3").addClass("spanitemnd")
+
             // Se pinta el nombre de antena de cada posición Stack en la banda seleccionada en la STN1
             $("#stn1-stack1").text(json.stacks[json.stn1.band][1]['nombre'])
             $("#stn1-stack2").text(json.stacks[json.stn1.band][2]['nombre'])
             $("#stn1-stack3").text(json.stacks[json.stn1.band][3]['nombre'])
+
             // Se colorea la selección del Stack de la STN1
             if (ststn10 == 3) {
                 if (ststn11 == true) $("#stn1-stack1").removeClass("spanitemnd").addClass("spanitemselected")
@@ -253,10 +227,12 @@ function onMessageArrived(message) {
             $("#stn2-stack1").addClass("spanitemnd")
             $("#stn2-stack2").addClass("spanitemnd")
             $("#stn2-stack3").addClass("spanitemnd")
+
             // Se pinta el nombre de antena de cada posición Stack en la banda seleccionada en la STN2
             $("#stn2-stack1").text(json.stacks[json.stn2.band][1]['nombre'])
             $("#stn2-stack2").text(json.stacks[json.stn2.band][2]['nombre'])
             $("#stn2-stack3").text(json.stacks[json.stn2.band][3]['nombre'])
+
             // Se colorea la selección del Stack de la STN1
             if (ststn20 == 3) {
                 if (ststn21 == true) $("#stn2-stack1").removeClass("spanitemnd").addClass("spanitemselected")
