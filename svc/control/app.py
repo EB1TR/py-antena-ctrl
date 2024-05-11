@@ -11,21 +11,22 @@ MQTT_KEEP = 60
 
 
 try:
-    with open('../../cfg/stacks.json') as json_file:
+    with open('cfg/stacks.json') as json_file:
         data = json.load(json_file)
         STACKS = dict(data)
-    with open('../../cfg/sixpack.json') as json_file:
+    with open('cfg/sixpack.json') as json_file:
         data = json.load(json_file)
         SIXPACK = dict(data)
-    with open('../../cfg/stn1.json') as json_file:
+    with open('cfg/stn1.json') as json_file:
         data = json.load(json_file)
         STN1 = dict(data)
-    with open('../../cfg/stn2.json') as json_file:
+    with open('cfg/stn2.json') as json_file:
         data = json.load(json_file)
         STN2 = dict(data)
         print("Datos de STNs cargados desde fichero...")
 except Exception as e:
     print("Error en los ficheros de configuracion: %s" % e)
+    exit(0)
 
 
 def nr_ant(stack_band):
@@ -134,7 +135,6 @@ def clear_ant():
 def assign_stn(stn, band):
     global STN1
     global STN2
-    print(STN1, STN2)
     if stn == 1:
         STNX = STN1
         STNY = STN2
