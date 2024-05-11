@@ -17,9 +17,6 @@ try:
     with open('../../cfg/sixpack.json') as json_file:
         data = json.load(json_file)
         SIXPACK = dict(data)
-    with open('../../cfg/multiplex.json') as json_file:
-        data = json.load(json_file)
-        MULTIPLEX = dict(data)
     with open('../../cfg/stn1.json') as json_file:
         data = json.load(json_file)
         STN1 = dict(data)
@@ -123,14 +120,19 @@ def assign_sixpack(STNX, stn, band_in):
         mqtt_client.publish(topic, str(0))
     # Activamos los relés que correspondan del SixPack
     if band_in != 0:
-        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SIXPACK[str(stn)][str(band_in)]['tta'], SIXPACK[str(stn)][str(band_in)]['rele'])
-        mqtt_client.publish(topic, str(1))
+
         # Ahora pasamos a las antenas
         if bool(SIXPACK[str(stn)][str(band_in)]['multiplex']) != True:
             print("NO es banda multiplexada")
+            topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SIXPACK[str(stn)][str(band_in)]['tta'], SIXPACK[str(stn)][str(band_in)]['rele'])
+            mqtt_client.publish(topic, str(1))
             config_stack(band_in)
         else:
             print("SI es banda multiplexada")
+            topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SIXPACK[str(stn)][str(STN1['multiplex'])]['tta'], SIXPACK[str(stn)][str(STN1['multiplex'])]['rele'])
+            print(topic)
+            mqtt_client.publish(topic, str(1))
+            config_stack(band_in)
 
 
 
@@ -174,8 +176,7 @@ def status(topic):
             'stn1': STN1,
             'stn2': STN2,
             'stacks': STACKS,
-            'sixpack': SIXPACK,
-            'multiplex': MULTIPLEX
+            'sixpack': SIXPACK
         }, sort_keys=False
     )
     mqtt_client.publish(topic, str(data_json))
@@ -235,7 +236,6 @@ def on_message(client, userdata, msg):
     global STN2
     global STACKS
     global SIXPACK
-    global MULTIPLEX
 
     dato = msg.payload.decode('utf-8')
 

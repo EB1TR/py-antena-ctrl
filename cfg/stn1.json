@@ -1,5 +1,6 @@
 {
     "netbios": "ED1B-STN1",
     "auto": false,
-    "band": 0
+    "band": 0,
+    "multiplex": 160
 }
