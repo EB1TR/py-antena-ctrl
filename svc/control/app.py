@@ -5,7 +5,7 @@ __author__ = 'EB1TR'
 import json
 import paho.mqtt.client as mqtt
 
-MQTT_HOST = "192.168.33.200"
+MQTT_HOST = "mqtt"
 MQTT_PORT = 1883
 MQTT_KEEP = 60
 
@@ -120,20 +120,10 @@ def assign_sixpack(STNX, stn, band_in):
         mqtt_client.publish(topic, str(0))
     # Activamos los relés que correspondan del SixPack
     if band_in != 0:
-
-        # Ahora pasamos a las antenas
-        if bool(SIXPACK[str(stn)][str(band_in)]['multiplex']) != True:
-            print("NO es banda multiplexada")
-            topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SIXPACK[str(stn)][str(band_in)]['tta'], SIXPACK[str(stn)][str(band_in)]['rele'])
-            mqtt_client.publish(topic, str(1))
-            config_stack(band_in)
-        else:
-            print("SI es banda multiplexada")
-            topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (SIXPACK[str(stn)][str(STN1['multiplex'])]['tta'], SIXPACK[str(stn)][str(STN1['multiplex'])]['rele'])
-            print(topic)
-            mqtt_client.publish(topic, str(1))
-            config_stack(band_in)
-
+        topic = "SmartDEN_MQTT16R/%s/Set/RS%s" % (
+        SIXPACK[str(stn)][str(band_in)]['tta'], SIXPACK[str(stn)][str(band_in)]['rele'])
+        mqtt_client.publish(topic, str(1))
+        config_stack(band_in)
 
 
 def clear_ant():

@@ -29,9 +29,6 @@ try:
     with open('cfg/stn2.json') as json_file:
         data = json.load(json_file)
         STN2 = dict(data)
-    with open('cfg/segmentos.json') as json_file:
-        data = json.load(json_file)
-        SEGMENTOS = dict(data)
 except Exception as e:
     print("Fallo al cargar configuraciones.")
     print(e)
@@ -71,12 +68,8 @@ def define_band(qrg):
         band = 10
     else:
         band = 0
-    if band != 0 and band in (80, 160):
-        for e in SEGMENTOS[str(band)]:
-            if qrg in range(int(SEGMENTOS[str(band)][e]['principio']), int(SEGMENTOS[str(band)][e]['fin'])):
-                segmento = e
-    else:
-        segmento = "0"
+
+    segmento = "0"
     return band, int(segmento)
 
 
