@@ -1,5 +1,5 @@
 clientID = "web"
-mqttHOST = "192.168.33.200"
+mqttHOST = "192.168.88.10"
 clientID += new Date().getUTCMilliseconds()
 client = new Paho.MQTT.Client(mqttHOST, Number(9001), clientID);
 
