@@ -16,20 +16,11 @@ function onConnect() {
     console.log("Connectado a MQTT.");
     $('#contenor').removeClass("FinFout")
     client.subscribe("pytofront");
-    client.subscribe("stn1/qrg");
-    client.subscribe("stn2/qrg");
-    client.subscribe("stn1/mode");
-    client.subscribe("stn2/mode");
-    client.subscribe("stn1/op");
-    client.subscribe("stn2/op");
-    client.subscribe("tw1/deg");
-    client.subscribe("tw2/deg");
-    client.subscribe("tw1/mode");
-    client.subscribe("tw2/mode");
-    client.subscribe("tw1/setdeg");
-    client.subscribe("tw2/setdeg");
-    client.subscribe("tw1/nec");
-    client.subscribe("tw2/nec");
+    client.subscribe("stn1/#");
+    client.subscribe("stn2/#");
+    client.subscribe("tw1/#");
+    client.subscribe("tw2/#");
+    client.subscribe("tw3/#");
     console.log("Suscrito a topics MQTT.");
     message = new Paho.MQTT.Message('0');
     message.destinationName = "update";
@@ -83,6 +74,16 @@ function onMessageArrived(message) {
             $('#tw2').text(message.payloadString+"º")
             $('#tw2').removeClass("twred")
         }
+    } else if (message.destinationName == "tw3/deg") {
+        tw3deg = parseInt(message.payloadString)
+        if (tw3deg>360) {
+            tw3deg = tw3deg - 360
+            $('#tw3').text(tw3deg+"º")
+            $("#tw3").addClass("twred")
+        } else {
+            $('#tw3').text(tw3deg+"º")
+            $('#tw3').removeClass("twred")
+        }
     } else if (message.destinationName == "tw1/mode") {
         $('#tw1mode').text(message.payloadString.toUpperCase())
         if (message.payloadString.toUpperCase() == "REM") {
@@ -97,10 +98,19 @@ function onMessageArrived(message) {
         } else {
             $("#tw2mode").removeClass("spanitemselected");
         }
+    }  else if (message.destinationName == "tw3/mode") {
+        $('#tw3mode').text(message.payloadString.toUpperCase())
+        if (message.payloadString.toUpperCase() == "REM") {
+            $("#tw3mode").addClass("spanitemselected");
+        } else {
+            $("#tw3mode").removeClass("spanitemselected");
+        }
     } else if (message.destinationName == "tw1/setdeg") {
         $('#tw1set').text(message.payloadString+"º")
     } else if (message.destinationName == "tw2/setdeg") {
         $('#tw2set').text(message.payloadString+"º")
+    } else if (message.destinationName == "tw3/setdeg") {
+        $('#tw3set').text(message.payloadString+"º")
     } else if (message.destinationName == "tw1/nec") {
         if (message.payloadString == "CCW") {
             $('#tw1nec').text("↪️")
@@ -117,14 +127,20 @@ function onMessageArrived(message) {
         } else {
             $('#tw2nec').text("🆗")
         }
-    } else {
+    } else if (message.destinationName == "tw3/nec") {
+        if (message.payloadString == "CCW") {
+            $('#tw3nec').text("↪️")
+        } else if (message.payloadString == "CW") {
+            $('#tw3nec').text("↩️")
+        } else {
+            $('#tw3nec').text("🆗")
+        }
+    } else if (message.destinationName == "pytofront") {
         json = JSON.parse(message.payloadString)
         if (json.stn1 != undefined) {
             json = JSON.parse(message.payloadString)
             bstn1 = "#stn1-b"+json.stn1.band
             bstn2 = "#stn2-b"+json.stn2.band
-
-            console.log(bstn1)
 
             asstn1 = json.stn1.auto
             asstn2 = json.stn2.auto
@@ -157,6 +173,15 @@ function onMessageArrived(message) {
                 $("#tw2stn1").hide()
             }
 
+            // Se pinta la utilización de la TW3 por parte de la STN2
+            if ((json.stacks[json.stn2.band][1]['tw'] == 3 && ststn21 == true) ||
+                (json.stacks[json.stn2.band][2]['tw'] == 3 && ststn22 == true) ||
+                (json.stacks[json.stn2.band][3]['tw'] == 3 && ststn23 == true)) {
+                $("#tw3stn1").show()
+            } else {
+                $("#tw3stn1").hide()
+            }
+
             // Se pinta la utilización de la TW1 por parte de la STN2
             if ((json.stacks[json.stn2.band][1]['tw'] == 1 && ststn21 == true) ||
                 (json.stacks[json.stn2.band][2]['tw'] == 1 && ststn22 == true) ||
@@ -173,6 +198,15 @@ function onMessageArrived(message) {
                 $("#tw2stn2").show()
             } else {
                 $("#tw2stn2").hide()
+            }
+
+            // Se pinta la utilización de la TW3 por parte de la STN2
+            if ((json.stacks[json.stn2.band][1]['tw'] == 3 && ststn21 == true) ||
+                (json.stacks[json.stn2.band][2]['tw'] == 3 && ststn22 == true) ||
+                (json.stacks[json.stn2.band][3]['tw'] == 3 && ststn23 == true)) {
+                $("#tw3stn2").show()
+            } else {
+                $("#tw3stn2").hide()
             }
 
             // Se resetea el estado de banda seleccionada
