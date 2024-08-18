@@ -210,7 +210,7 @@ def change_stack(band, nro):
     config_stack(str(band))
 
 
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, userdata, flags, rc, more):
     print("Conectado a MQTT")
     client.subscribe([
         ("stn1/band", 0),
@@ -302,7 +302,7 @@ def on_message(client, userdata, msg):
     status("pytofront")
 
 
-mqtt_client = mqtt.Client("control")
+mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, clean_session=True)
 mqtt_client.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEP)
 status("pytofront")
 clear_ant()
