@@ -1,7 +1,7 @@
 {
     "1": {
         "0": {
-            "rele": "",
+            "rele": "rele_dummy",
             "multiplex": false
         },
         "160": {
@@ -47,7 +47,7 @@
     },
     "2": {
         "0": {
-            "rele": "",
+            "rele": "rele_dummy",
             "multiplex": false
         },
         "160": {

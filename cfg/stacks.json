@@ -2,23 +2,23 @@
     "0": {
         "salidas": 0,
         "balun": false,
-        "rele": "",
+        "rele": "rele_dummy",
         "1": {
             "estado": false,
             "nombre": "",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         },
         "2": {
             "estado": false,
             "nombre": "",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         },
         "3": {
             "estado": false,
             "nombre": "",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         }
     },
@@ -35,13 +35,13 @@
         "2": {
             "estado": false,
             "nombre": "160-2",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         },
         "3": {
             "estado": false,
             "nombre": "160-3",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         }
     },
@@ -52,26 +52,26 @@
         "1": {
             "estado": true,
             "nombre": "DIP",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         },
         "2": {
             "estado": false,
             "nombre": "80-2",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         },
         "3": {
             "estado": false,
             "nombre": "80-3",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         }
     },
     "60": {
         "salidas": 1,
         "balun": true,
-        "rele": "",
+        "rele": "rele_dummy",
         "1": {
             "estado": true,
             "nombre": "DIP",
@@ -81,13 +81,13 @@
         "2": {
             "estado": false,
             "nombre": "60-2",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         },
         "3": {
             "estado": false,
             "nombre": "60-3",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         }
     },
@@ -127,13 +127,13 @@
         "2": {
             "estado": false,
             "nombre": "30-2",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         },
         "3": {
             "estado": false,
             "nombre": "30-3",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         }
     },
@@ -156,7 +156,7 @@
         "3": {
             "estado": false,
             "nombre": "20-3",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         }
     },
@@ -173,13 +173,13 @@
         "2": {
             "estado": false,
             "nombre": "17-2",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         },
         "3": {
             "estado": false,
             "nombre": "17-3",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         }
     },
@@ -202,7 +202,7 @@
         "3": {
             "estado": false,
             "nombre": "15-3",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         }
     },
@@ -219,13 +219,13 @@
         "2": {
             "estado": false,
             "nombre": "12-2",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         },
         "3": {
             "estado": false,
             "nombre": "12-3",
-            "rele": "",
+            "rele": "rele_dummy",
             "tw": 0
         }
     },
