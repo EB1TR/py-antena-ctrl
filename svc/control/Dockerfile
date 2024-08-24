@@ -13,7 +13,7 @@ RUN apk add --no-cache python3 py-pip                           \
 WORKDIR /app
 COPY . /app
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --ignore-installed -r requirements.txt
 
 ENTRYPOINT ["python3"]
 CMD ["-u", "app.py"]
