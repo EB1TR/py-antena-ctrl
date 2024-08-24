@@ -38,17 +38,15 @@ def nr_ant(stack_band):
     ant_qty = len([e for e in ant_stack if e is True])
     return ant_qty
 
-
+# Aplicar los estados a los relés
 def config_stack(band):
     global STACKS
     global SIXPACK
+
+    # Determinamos el número de antenas en para una determinada banda
     ant_qty = nr_ant(STACKS[str(band)])
 
-    if ant_qty == 1:
-        STACKS[str(band)]['balun'] = False
-    else:
-        STACKS[str(band)]['balun'] = True
-
+    # Si se solicita una banda multiplexada ponemos el resto de bandas multiplexadas a OFF
     if SIXPACK[str("1")][str(band)]['multiplex'] or SIXPACK[str("2")][str(band)]['multiplex']:
         for e in SIXPACK[str("1")]:
             if SIXPACK[str("1")][e]['multiplex']:
@@ -59,6 +57,13 @@ def config_stack(band):
                 topic = STACKS[e]['3']['rele']
                 mqtt_client.publish(topic, str(0))
 
+    # Si hay mas de una antena para una banda activa el balun del Stack Match
+    if ant_qty == 1:
+        STACKS[str(band)]['balun'] = False
+    else:
+        STACKS[str(band)]['balun'] = True
+
+    # Si la antena n de una determinada banda esta en uso activamos el relé
     if not STACKS[str(band)]['1']['estado']:
         topic = STACKS[str(band)]['1']['rele']
         mqtt_client.publish(topic, str(0))
@@ -80,6 +85,7 @@ def config_stack(band):
         topic = STACKS[str(band)]['3']['rele']
         mqtt_client.publish(topic, str(1))
 
+    # Si balun de una determinada banda esta en uso activamos el relé
     if not STACKS[str(band)]['balun']:
         topic = STACKS[str(band)]['rele']
         mqtt_client.publish(topic, str(0))
