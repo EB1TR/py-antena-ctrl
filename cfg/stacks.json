@@ -25,7 +25,7 @@
     "160": {
         "salidas": 1,
         "balun": true,
-        "rele": "",
+        "rele": "rele_dummy",
         "1": {
             "estado": true,
             "nombre": "DIP",
@@ -48,7 +48,7 @@
     "80": {
         "salidas": 1,
         "balun": true,
-        "rele": "",
+        "rele": "rele_dummy",
         "1": {
             "estado": true,
             "nombre": "DIP",
@@ -117,7 +117,7 @@
     "30": {
         "salidas": 1,
         "balun": true,
-        "rele": "",
+        "rele": "rele_dummy",
         "1": {
             "estado": true,
             "nombre": "DIP",
@@ -163,7 +163,7 @@
     "17": {
         "salidas": 1,
         "balun": true,
-        "rele": "",
+        "rele": "rele_dummy",
         "1": {
             "estado": true,
             "nombre": "MB4",
@@ -209,7 +209,7 @@
     "12": {
         "salidas": 1,
         "balun": true,
-        "rele": "",
+        "rele": "rele_dummy",
         "1": {
             "estado": true,
             "nombre": "MB4",
@@ -230,7 +230,7 @@
         }
     },
     "10": {
-        "salidas": 2,
+        "salidas": 3,
         "balun": false,
         "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS12",
         "1": {

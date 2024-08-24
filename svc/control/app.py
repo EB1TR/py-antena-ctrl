@@ -5,7 +5,7 @@ __author__ = 'EB1TR'
 import json
 import paho.mqtt.client as mqtt
 
-MQTT_HOST = "mqtt"
+MQTT_HOST = "192.168.88.10"
 MQTT_PORT = 1883
 MQTT_KEEP = 60
 
@@ -41,48 +41,23 @@ def nr_ant(stack_band):
 
 def config_stack(band):
     global STACKS
+    global SIXPACK
     ant_qty = nr_ant(STACKS[str(band)])
+
     if ant_qty == 1:
         STACKS[str(band)]['balun'] = False
     else:
         STACKS[str(band)]['balun'] = True
 
-    if not STACKS[str(band)]['1']['estado']:
-        topic = STACKS[str(band)]['1']['rele']
-        mqtt_client.publish(topic, str(0))
-    else:
-        topic = STACKS[str(band)]['1']['rele']
-        mqtt_client.publish(topic, str(1))
-
-    if not STACKS[str(band)]['2']['estado']:
-        topic = STACKS[str(band)]['2']['rele']
-        mqtt_client.publish(topic, str(0))
-    else:
-        topic = STACKS[str(band)]['2']['rele']
-        mqtt_client.publish(topic, str(1))
-
-    if not STACKS[str(band)]['3']['estado']:
-        topic = STACKS[str(band)]['3']['rele']
-        mqtt_client.publish(topic, str(0))
-    else:
-        topic = STACKS[str(band)]['3']['rele']
-        mqtt_client.publish(topic, str(1))
-
-    if not STACKS[str(band)]['balun']:
-        topic = STACKS[str(band)]['rele']
-        mqtt_client.publish(topic, str(0))
-    else:
-        topic = STACKS[str(band)]['rele']
-        mqtt_client.publish(topic, str(1))
-
-
-def config_multiplex(band):
-    global STACKS
-    ant_qty = nr_ant(STACKS[str(band)])
-    if ant_qty == 1:
-        STACKS[str(band)]['balun'] = False
-    else:
-        STACKS[str(band)]['balun'] = True
+    if SIXPACK[str("1")][str(band)]['multiplex'] or SIXPACK[str("2")][str(band)]['multiplex']:
+        for e in SIXPACK[str("1")]:
+            if SIXPACK[str("1")][e]['multiplex']:
+                topic = STACKS[e]['1']['rele']
+                mqtt_client.publish(topic, str(0))
+                topic = STACKS[e]['2']['rele']
+                mqtt_client.publish(topic, str(0))
+                topic = STACKS[e]['3']['rele']
+                mqtt_client.publish(topic, str(0))
 
     if not STACKS[str(band)]['1']['estado']:
         topic = STACKS[str(band)]['1']['rele']

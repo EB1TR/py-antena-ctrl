@@ -14,7 +14,7 @@
         },
         "60": {
             "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS1",
-            "multiplex": false
+            "multiplex": true
         },
         "40": {
             "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS3",
@@ -60,7 +60,7 @@
         },
         "60": {
             "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS5",
-            "multiplex": false
+            "multiplex": true
         },
         "40": {
             "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS7",
