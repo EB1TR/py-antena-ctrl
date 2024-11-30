@@ -121,3 +121,5 @@ clublog.xml
 cfg/stn1.json
 cfg/stn2.json
 cfg/stacks.json
+
+.DS_Store

@@ -1,9 +1,6 @@
-FROM alpine:latest
+FROM python:3.12.7-alpine3.20
 
-RUN apk add --no-cache python3 py-pip                           \
-    && pip install --upgrade pip                                \
-    && rm -rf /root/.cache                                      \
-    && rm -rf /var/cache/apk/*                                  \
+RUN rm -rf /root/.cache && rm -rf /var/cache/apk/*              \
     && find /                                                   \
         \( -type d -a -name test -o -name tests \)              \
         -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \)      \
@@ -13,7 +10,7 @@ RUN apk add --no-cache python3 py-pip                           \
 WORKDIR /app
 COPY . /app
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --ignore-installed --no-cache-dir -r requirements.txt
 
 ENTRYPOINT ["python3"]
 CMD ["-u", "app.py"]

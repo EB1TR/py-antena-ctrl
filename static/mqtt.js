@@ -1,5 +1,5 @@
 clientID = "web"
-mqttHOST = "192.168.33.100"
+mqttHOST = "192.168.88.10"
 clientID += new Date().getUTCMilliseconds()
 client = new Paho.MQTT.Client(mqttHOST, Number(9001), clientID);
 
@@ -10,44 +10,35 @@ client.onFailure = onConnectionLost;
 client.connect({
     onSuccess:onConnect,
     onFailure:onConnectionLost
-});s
+});
 
 function onConnect() {
-  console.log("Connectado a MQTT.");
-  $('#contenor').removeClass("FinFout")
-  client.subscribe("pytofront");
-  client.subscribe("stn1/qrg");
-  client.subscribe("stn2/qrg");
-  client.subscribe("stn1/mode");
-  client.subscribe("stn2/mode");
-  client.subscribe("stn1/op");
-  client.subscribe("stn2/op");
-  client.subscribe("tw1/deg");
-  client.subscribe("tw2/deg");
-  client.subscribe("tw1/mode");
-  client.subscribe("tw2/mode");
-  client.subscribe("tw1/setdeg");
-  client.subscribe("tw2/setdeg");
-  client.subscribe("tw1/nec");
-  client.subscribe("tw2/nec");
-  console.log("Suscrito a topics MQTT.");
-  message = new Paho.MQTT.Message('0');
-  message.destinationName = "update";
-  client.send(message);
-  console.log("Información inicial solicitada.")
+    console.log("Connectado a MQTT.");
+    $('#contenor').removeClass("FinFout")
+    client.subscribe("pytofront");
+    client.subscribe("stn1/#");
+    client.subscribe("stn2/#");
+    client.subscribe("tw1/#");
+    client.subscribe("tw2/#");
+    client.subscribe("tw3/#");
+    console.log("Suscrito a topics MQTT.");
+    message = new Paho.MQTT.Message('0');
+    message.destinationName = "update";
+    client.send(message);
+    console.log("Información inicial solicitada.")
 }
 
 function onConnectionLost(responseObject) {
-  if (responseObject.errorCode !== 0) {
-    console.log("Conexión perdida a MQTT:"+responseObject.errorMessage);
-  }
-  $('#contenor').addClass("FinFout")
+    if (responseObject.errorCode !== 0) {
+        console.log("Conexión perdida a MQTT:"+responseObject.errorMessage);
+    }
+    $('#contenor').addClass("FinFout")
 }
 
 function send_command(comm, dato){
-  message = new Paho.MQTT.Message(String(dato));
-  message.destinationName = comm;
-  client.send(message);
+    message = new Paho.MQTT.Message(String(dato));
+    message.destinationName = comm;
+    client.send(message);
 }
 
 function onMessageArrived(message) {
@@ -83,6 +74,16 @@ function onMessageArrived(message) {
             $('#tw2').text(message.payloadString+"º")
             $('#tw2').removeClass("twred")
         }
+    } else if (message.destinationName == "tw3/deg") {
+        tw3deg = parseInt(message.payloadString)
+        if (tw3deg>360) {
+            tw3deg = tw3deg - 360
+            $('#tw3').text(tw3deg+"º")
+            $("#tw3").addClass("twred")
+        } else {
+            $('#tw3').text(tw3deg+"º")
+            $('#tw3').removeClass("twred")
+        }
     } else if (message.destinationName == "tw1/mode") {
         $('#tw1mode').text(message.payloadString.toUpperCase())
         if (message.payloadString.toUpperCase() == "REM") {
@@ -97,10 +98,19 @@ function onMessageArrived(message) {
         } else {
             $("#tw2mode").removeClass("spanitemselected");
         }
+    }  else if (message.destinationName == "tw3/mode") {
+        $('#tw3mode').text(message.payloadString.toUpperCase())
+        if (message.payloadString.toUpperCase() == "REM") {
+            $("#tw3mode").addClass("spanitemselected");
+        } else {
+            $("#tw3mode").removeClass("spanitemselected");
+        }
     } else if (message.destinationName == "tw1/setdeg") {
         $('#tw1set').text(message.payloadString+"º")
     } else if (message.destinationName == "tw2/setdeg") {
         $('#tw2set').text(message.payloadString+"º")
+    } else if (message.destinationName == "tw3/setdeg") {
+        $('#tw3set').text(message.payloadString+"º")
     } else if (message.destinationName == "tw1/nec") {
         if (message.payloadString == "CCW") {
             $('#tw1nec').text("↪️")
@@ -117,7 +127,15 @@ function onMessageArrived(message) {
         } else {
             $('#tw2nec').text("🆗")
         }
-    } else {
+    } else if (message.destinationName == "tw3/nec") {
+        if (message.payloadString == "CCW") {
+            $('#tw3nec').text("↪️")
+        } else if (message.payloadString == "CW") {
+            $('#tw3nec').text("↩️")
+        } else {
+            $('#tw3nec').text("🆗")
+        }
+    } else if (message.destinationName == "pytofront") {
         json = JSON.parse(message.payloadString)
         if (json.stn1 != undefined) {
             json = JSON.parse(message.payloadString)
@@ -139,7 +157,7 @@ function onMessageArrived(message) {
 
             // Se pinta la utilización de la TW1 por parte de la STN1
             if ((json.stacks[json.stn1.band][1]['tw'] == 1 && ststn11 == true) ||
-                (json.stacks[json.stn1.band][2]['tw'] == 1 && ststn12 == true) || 
+                (json.stacks[json.stn1.band][2]['tw'] == 1 && ststn12 == true) ||
                 (json.stacks[json.stn1.band][3]['tw'] == 1 && ststn13 == true)) {
                 $("#tw1stn1").show()
             } else {
@@ -148,16 +166,25 @@ function onMessageArrived(message) {
 
             // Se pinta la utilización de la TW2 por parte de la STN1
             if ((json.stacks[json.stn1.band][1]['tw'] == 2 && ststn11 == true) ||
-                (json.stacks[json.stn1.band][2]['tw'] == 2 && ststn12 == true) || 
+                (json.stacks[json.stn1.band][2]['tw'] == 2 && ststn12 == true) ||
                 (json.stacks[json.stn1.band][3]['tw'] == 2 && ststn13 == true)) {
                 $("#tw2stn1").show()
             } else {
                 $("#tw2stn1").hide()
             }
 
+            // Se pinta la utilización de la TW3 por parte de la STN2
+            if ((json.stacks[json.stn2.band][1]['tw'] == 3 && ststn21 == true) ||
+                (json.stacks[json.stn2.band][2]['tw'] == 3 && ststn22 == true) ||
+                (json.stacks[json.stn2.band][3]['tw'] == 3 && ststn23 == true)) {
+                $("#tw3stn1").show()
+            } else {
+                $("#tw3stn1").hide()
+            }
+
             // Se pinta la utilización de la TW1 por parte de la STN2
             if ((json.stacks[json.stn2.band][1]['tw'] == 1 && ststn21 == true) ||
-                (json.stacks[json.stn2.band][2]['tw'] == 1 && ststn22 == true) || 
+                (json.stacks[json.stn2.band][2]['tw'] == 1 && ststn22 == true) ||
                 (json.stacks[json.stn2.band][3]['tw'] == 1 && ststn23 == true)) {
                 $("#tw1stn2").show()
             } else {
@@ -166,51 +193,33 @@ function onMessageArrived(message) {
 
             // Se pinta la utilización de la TW2 por parte de la STN2
             if ((json.stacks[json.stn2.band][1]['tw'] == 2 && ststn21 == true) ||
-                (json.stacks[json.stn2.band][2]['tw'] == 2 && ststn22 == true) || 
+                (json.stacks[json.stn2.band][2]['tw'] == 2 && ststn22 == true) ||
                 (json.stacks[json.stn2.band][3]['tw'] == 2 && ststn23 == true)) {
                 $("#tw2stn2").show()
             } else {
                 $("#tw2stn2").hide()
             }
 
+            // Se pinta la utilización de la TW3 por parte de la STN2
+            if ((json.stacks[json.stn2.band][1]['tw'] == 3 && ststn21 == true) ||
+                (json.stacks[json.stn2.band][2]['tw'] == 3 && ststn22 == true) ||
+                (json.stacks[json.stn2.band][3]['tw'] == 3 && ststn23 == true)) {
+                $("#tw3stn2").show()
+            } else {
+                $("#tw3stn2").hide()
+            }
+
             // Se resetea el estado de banda seleccionada
             $("[id^=stn1-b]").removeClass("spanitemselected");
             $("[id^=stn2-b]").removeClass("spanitemselected");
 
-            // Se resetea el estado de antena de RX
-            $("[id^=rx]").removeClass("spanitemselected");
+            $(bstn1).addClass("spanitemselected")
+            $(bstn2).addClass("spanitemselected")
+
 
             // Se resetea el estado AUTO ON/OFF de la conmutación
             $("#stn1-as").removeClass("spanitemselected");
             $("#stn2-as").removeClass("spanitemselected");
-
-            // Se pinta el nombre de las antena de RX en la STN1
-            $("#rx101").text(json.rx1[1]['nombre'])
-            $("#rx102").text(json.rx1[2]['nombre'])
-            $("#rx103").text(json.rx1[3]['nombre'])
-            $("#rx104").text(json.rx1[4]['nombre'])
-            $("#rx105").text(json.rx1[5]['nombre'])
-            $("#rx106").text(json.rx1[6]['nombre'])
-
-            // Se pinta el nombre de las antena de RX en la STN2
-            $("#rx201").text(json.rx2[1]['nombre'])
-            $("#rx202").text(json.rx2[2]['nombre'])
-            $("#rx203").text(json.rx2[3]['nombre'])
-            $("#rx204").text(json.rx2[4]['nombre'])
-            $("#rx205").text(json.rx2[5]['nombre'])
-            $("#rx206").text(json.rx2[6]['nombre'])
-
-            // Se colorea segmento de banda en la banda seleccionada en la STN1
-            $("#stn1-segmento").addClass("spanitemnd")
-
-            // Se colorea segmento de banda en la banda seleccionada en la STN2
-            $("#stn2-segmento").addClass("spanitemnd")
-
-            // Se colorea la banda seleccionada en la STN1
-            $(bstn1).addClass("spanitemselected")
-
-            // Se colorea la banda seleccionada en la STN1
-            $(bstn2).addClass("spanitemselected")
 
             // Se colorea AUTO ON/OFF en la STN1
             if (asstn1 == true) $("#stn1-as").addClass("spanitemselected")
@@ -218,9 +227,6 @@ function onMessageArrived(message) {
             // Se colorea AUTO ON/OFF en la STN2
             if (asstn2 == true) $("#stn2-as").addClass("spanitemselected")
 
-            $("#rx10" + json.stn1.rx[json.stn1.band]).addClass("spanitemselected")
-            $("#rx20" + json.stn2.rx[json.stn2.band]).addClass("spanitemselected")
-            
             $('#stn1-n').text(json.stn1.netbios)
             $('#stn2-n').text(json.stn2.netbios)
 
@@ -228,10 +234,12 @@ function onMessageArrived(message) {
             $("#stn1-stack1").addClass("spanitemnd")
             $("#stn1-stack2").addClass("spanitemnd")
             $("#stn1-stack3").addClass("spanitemnd")
+
             // Se pinta el nombre de antena de cada posición Stack en la banda seleccionada en la STN1
             $("#stn1-stack1").text(json.stacks[json.stn1.band][1]['nombre'])
             $("#stn1-stack2").text(json.stacks[json.stn1.band][2]['nombre'])
             $("#stn1-stack3").text(json.stacks[json.stn1.band][3]['nombre'])
+
             // Se colorea la selección del Stack de la STN1
             if (ststn10 == 3) {
                 if (ststn11 == true) $("#stn1-stack1").removeClass("spanitemnd").addClass("spanitemselected")
@@ -253,10 +261,12 @@ function onMessageArrived(message) {
             $("#stn2-stack1").addClass("spanitemnd")
             $("#stn2-stack2").addClass("spanitemnd")
             $("#stn2-stack3").addClass("spanitemnd")
+
             // Se pinta el nombre de antena de cada posición Stack en la banda seleccionada en la STN2
             $("#stn2-stack1").text(json.stacks[json.stn2.band][1]['nombre'])
             $("#stn2-stack2").text(json.stacks[json.stn2.band][2]['nombre'])
             $("#stn2-stack3").text(json.stacks[json.stn2.band][3]['nombre'])
+
             // Se colorea la selección del Stack de la STN1
             if (ststn20 == 3) {
                 if (ststn21 == true) $("#stn2-stack1").removeClass("spanitemnd").addClass("spanitemselected")

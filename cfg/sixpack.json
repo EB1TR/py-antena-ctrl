@@ -1,62 +1,94 @@
 {
     "1": {
         "0": {
-            "tta": "", 
-            "rele": "0"
-        }, 
+            "rele": "rele_dummy",
+            "multiplex": false
+        },
         "160": {
-            "tta": "E8EADA0059F8", 
-            "rele": "1"
-        }, 
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS1",
+            "multiplex": true
+        },
         "80": {
-            "tta": "E8EADA0059F8", 
-            "rele": "2"
-        }, 
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS2",
+            "multiplex": false
+        },
+        "60": {
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS1",
+            "multiplex": true
+        },
         "40": {
-            "tta": "E8EADA0059F8", 
-            "rele": "3"
-        }, 
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS3",
+            "multiplex": false
+        },
+        "30": {
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS1",
+            "multiplex": true
+        },
         "20": {
-            "tta": "E8EADA0059F8", 
-            "rele": "4"
-        }, 
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS4",
+            "multiplex": false
+        },
+        "17": {
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS1",
+            "multiplex": true
+        },
         "15": {
-            "tta": "E8EADA0059F8", 
-            "rele": "10"
-        }, 
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS10",
+            "multiplex": false
+        },
+        "12": {
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS1",
+            "multiplex": true
+        },
         "10": {
-            "tta": "E8EADA0059F8", 
-            "rele": "9"
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS9",
+            "multiplex": false
         }
-    }, 
+    },
     "2": {
         "0": {
-            "tta": "", 
-            "rele": "0"
-        }, 
+            "rele": "rele_dummy",
+            "multiplex": false
+        },
         "160": {
-            "tta": "E8EADA0059F8", 
-            "rele": "5"
-        }, 
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS5",
+            "multiplex": true
+        },
         "80": {
-            "tta": "E8EADA0059F8", 
-            "rele": "6"
-        }, 
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS6",
+            "multiplex": false
+        },
+        "60": {
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS5",
+            "multiplex": true
+        },
         "40": {
-            "tta": "E8EADA0059F8", 
-            "rele": "7"
-        }, 
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS7",
+            "multiplex": false
+        },
+        "30": {
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS5",
+            "multiplex": true
+        },
         "20": {
-            "tta": "E8EADA0059F8", 
-            "rele": "8"
-        }, 
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS8",
+            "multiplex": false
+        },
+        "17": {
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS5",
+            "multiplex": true
+        },
         "15": {
-            "tta": "E8EADA0059F8", 
-            "rele": "16"
-        }, 
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS16",
+            "multiplex": false
+        },
+        "12": {
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS5",
+            "multiplex": true
+        },
         "10": {
-            "tta": "E8EADA0059F8", 
-            "rele": "15"
+            "rele": "SmartDEN_MQTT16R/E8EADA0059F8/Set/RS15",
+            "multiplex": false
         }
     }
 }
