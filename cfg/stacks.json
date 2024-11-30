@@ -99,13 +99,13 @@
             "estado": true,
             "nombre": "DIP",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS13",
-            "tw": 2
+            "tw": 0
         },
         "2": {
             "estado": true,
             "nombre": "ROT",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS14",
-            "tw": 0
+            "tw": 2
         },
         "3": {
             "estado": false,
