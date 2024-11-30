@@ -1,4 +1,3 @@
-
 services:
 
   mqtt:
@@ -29,14 +28,11 @@ services:
       - mqtt
     restart: unless-stopped
 
-  n1:
-    container_name: n1
+  udp-mqtt:
+    container_name: udp-mqtt
     build:
-      context: ./svc/udp
+      context: ./svc/udp-mqtt
       dockerfile: Dockerfile
-    environment:
-      - MQTT_HOST=172.0.33.2
-      - MQTT_PORT=1883
     networks:
       antena:
         ipv4_address: "172.0.33.4"
@@ -53,9 +49,6 @@ services:
     build:
       context: ./svc/control
       dockerfile: Dockerfile
-    environment:
-      - MQTT_HOST=172.0.33.2
-      - MQTT_PORT=1883
     networks:
       antena:
         ipv4_address: "172.0.33.5"

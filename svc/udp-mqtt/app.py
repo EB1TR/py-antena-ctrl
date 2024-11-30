@@ -23,10 +23,10 @@ MQTT_KEEP = 5
 mqtt_flag = True
 
 try:
-    with open('cfg/stn1.json') as json_file:
+    with open('../../cfg/stn1.json') as json_file:
         data = json.load(json_file)
         STN1 = dict(data)
-    with open('cfg/stn2.json') as json_file:
+    with open('../../cfg/stn2.json') as json_file:
         data = json.load(json_file)
         STN2 = dict(data)
 except Exception as e:
@@ -40,7 +40,7 @@ def mqtt_connect():
     while mqtt_flag:
         try:
             print("Intentando conexión MQTT: %s:%s" % (MQTT_HOST, MQTT_PORT))
-            mqtt_c = mqtt.Client("n1")
+            mqtt_c = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, clean_session=True)
             mqtt_c.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEP)
             mqtt_c.loop_start()
             mqtt_flag = False
