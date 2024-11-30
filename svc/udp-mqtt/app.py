@@ -23,10 +23,10 @@ MQTT_KEEP = 5
 mqtt_flag = True
 
 try:
-    with open('../../cfg/stn1.json') as json_file:
+    with open('cfg/stn1.json') as json_file:
         data = json.load(json_file)
         STN1 = dict(data)
-    with open('../../cfg/stn2.json') as json_file:
+    with open('cfg/stn2.json') as json_file:
         data = json.load(json_file)
         STN2 = dict(data)
 except Exception as e:
