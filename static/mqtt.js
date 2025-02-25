@@ -54,6 +54,18 @@ function onMessageArrived(message) {
         $('#stn1-op').text(message.payloadString)
     } else if (message.destinationName == "stn2/op") {
         $('#stn2-op').text(message.payloadString)
+    } else if (message.destinationName == "stn2/tensiona") {
+        $('#stn1-r1-va').text((message.payloadString/1).toFixed(2)+"V")
+    } else if (message.destinationName == "stn2/tensionb") {
+        $('#stn1-r1-vb').text((message.payloadString/1).toFixed(2)+"V")
+    } else if (message.destinationName == "stn2/temp") {
+        $('#stn1-r1-t').text((message.payloadString/1).toFixed(2)+"ºC")
+    } else if (message.destinationName == "stn2/tensiona") {
+        $('#stn2-r1-va').text((message.payloadString/1).toFixed(2)+"V")
+    } else if (message.destinationName == "stn2/tensionb") {
+        $('#stn2-r1-vb').text((message.payloadString/1).toFixed(2)+"V")
+    } else if (message.destinationName == "stn2/temp") {
+        $('#stn2-r1-t').text((message.payloadString/1).toFixed(2)+"ºC")
     } else if (message.destinationName == "tw1/deg") {
         tw1deg = parseInt(message.payloadString)
         if (tw1deg>360) {
