@@ -54,11 +54,11 @@ function onMessageArrived(message) {
         $('#stn1-op').text(message.payloadString)
     } else if (message.destinationName == "stn2/op") {
         $('#stn2-op').text(message.payloadString)
-    } else if (message.destinationName == "stn2/tensiona") {
+    } else if (message.destinationName == "stn1/tensiona") {
         $('#stn1-r1-va').text((message.payloadString/1).toFixed(2)+"V")
-    } else if (message.destinationName == "stn2/tensionb") {
+    } else if (message.destinationName == "stn1/tensionb") {
         $('#stn1-r1-vb').text((message.payloadString/1).toFixed(2)+"V")
-    } else if (message.destinationName == "stn2/temp") {
+    } else if (message.destinationName == "stn1/temp") {
         $('#stn1-r1-t').text((message.payloadString/1).toFixed(2)+"ºC")
     } else if (message.destinationName == "stn2/tensiona") {
         $('#stn2-r1-va').text((message.payloadString/1).toFixed(2)+"V")
