@@ -43,9 +43,9 @@ function send_command(comm, dato){
 
 function onMessageArrived(message) {
     if (message.destinationName == "stn1/qrg") {
-        $('#stn1-r1-qrg').text((message.payloadString/100).toFixed(2))
+        $('#stn1-r1-qrg').text((message.payloadString/100).toFixed(1))
     } else if (message.destinationName == "stn2/qrg") {
-        $('#stn2-r1-qrg').text((message.payloadString/100).toFixed(2))
+        $('#stn2-r1-qrg').text((message.payloadString/100).toFixed(1))
     } else if (message.destinationName == "stn1/mode") {
         $('#stn1-r1-mode').text(message.payloadString)
     } else if (message.destinationName == "stn2/mode") {
@@ -55,17 +55,13 @@ function onMessageArrived(message) {
     } else if (message.destinationName == "stn2/op") {
         $('#stn2-op').text(message.payloadString)
     } else if (message.destinationName == "stn1/tensiona") {
-        $('#stn1-r1-va').text((message.payloadString/1).toFixed(2)+"V")
-    } else if (message.destinationName == "stn1/tensionb") {
-        $('#stn1-r1-vb').text((message.payloadString/1).toFixed(2)+"V")
+        $('#stn1-r1-va').text((message.payloadString/1).toFixed(1)+"V")
     } else if (message.destinationName == "stn1/temp") {
-        $('#stn1-r1-t').text((message.payloadString/1).toFixed(2)+"ºC")
+        $('#stn1-r1-t').text((message.payloadString/1).toFixed(1)+"ºC")
     } else if (message.destinationName == "stn2/tensiona") {
-        $('#stn2-r1-va').text((message.payloadString/1).toFixed(2)+"V")
-    } else if (message.destinationName == "stn2/tensionb") {
-        $('#stn2-r1-vb').text((message.payloadString/1).toFixed(2)+"V")
+        $('#stn2-r1-va').text((message.payloadString/1).toFixed(1)+"V")
     } else if (message.destinationName == "stn2/temp") {
-        $('#stn2-r1-t').text((message.payloadString/1).toFixed(2)+"ºC")
+        $('#stn2-r1-t').text((message.payloadString/1).toFixed(1)+"ºC")
     } else if (message.destinationName == "tw1/deg") {
         tw1deg = parseInt(message.payloadString)
         if (tw1deg>360) {
