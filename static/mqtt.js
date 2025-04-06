@@ -43,7 +43,7 @@ function send_command(comm, dato){
 
 function onMessageArrived(message) {
     if (message.destinationName == "stn1/qrg") {
-        $('#stn1-r1-qrg').text((message.payloadString/100).toFixed(1)+"kHz")
+        $('#stn1-r1-qrg').text((message.payloadString/100).toFixed(1)+" kHz")
     } else if (message.destinationName == "stn1/pwr") {
         $('#stn1-r1-pwr').text((message.payloadString/1).toFixed(1)+"W")
     } else if (message.destinationName == "stn1/swr") {
