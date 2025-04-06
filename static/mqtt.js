@@ -44,24 +44,30 @@ function send_command(comm, dato){
 function onMessageArrived(message) {
     if (message.destinationName == "stn1/qrg") {
         $('#stn1-r1-qrg').text((message.payloadString/100).toFixed(1))
-    } else if (message.destinationName == "stn2/qrg") {
-        $('#stn2-r1-qrg').text((message.payloadString/100).toFixed(1))
-    } else if (message.destinationName == "stn1/mode") {
-        $('#stn1-r1-mode').text(message.payloadString)
-    } else if (message.destinationName == "stn2/mode") {
-        $('#stn2-r1-mode').text(message.payloadString)
-    } else if (message.destinationName == "stn1/op") {
-        $('#stn1-op').text(message.payloadString)
-    } else if (message.destinationName == "stn2/op") {
-        $('#stn2-op').text(message.payloadString)
+    } else if (message.destinationName == "stn1/pwr") {
+        $('#stn1-r1-pwr').text((message.payloadString/1).toFixed(1)+"W")
+    } else if (message.destinationName == "stn1/swr") {
+        $('#stn1-r1-swr').text((message.payloadString/1).toFixed(1)+":1")
     } else if (message.destinationName == "stn1/tensiona") {
         $('#stn1-r1-va').text((message.payloadString/1).toFixed(1)+"V")
     } else if (message.destinationName == "stn1/temp") {
-        $('#stn1-r1-t').text((message.payloadString/1).toFixed(1)+"ºC")
+        $('#stn1-r1-temp').text((message.payloadString/1).toFixed(1)+"ºC")
+    } else if (message.destinationName == "stn1/fun") {
+        $('#stn1-r1-fun').text((message.payloadString)+"rpm")
+
+    } else if (message.destinationName == "stn2/qrg") {
+        $('#stn2-r1-qrg').text((message.payloadString/100).toFixed(1))
+    } else if (message.destinationName == "stn2/pwr") {
+        $('#stn2-r1-pwr').text((message.payloadString/1).toFixed(1)+"W")
+    } else if (message.destinationName == "stn2/swr") {
+        $('#stn2-r1-swr').text((message.payloadString/1).toFixed(1)+":1")
     } else if (message.destinationName == "stn2/tensiona") {
         $('#stn2-r1-va').text((message.payloadString/1).toFixed(1)+"V")
     } else if (message.destinationName == "stn2/temp") {
-        $('#stn2-r1-t').text((message.payloadString/1).toFixed(1)+"ºC")
+        $('#stn2-r1-temp').text((message.payloadString/1).toFixed(1)+"ºC")
+    } else if (message.destinationName == "stn2/fun") {
+        $('#stn2-r1-fun').text((message.payloadString)+"rpm")
+
     } else if (message.destinationName == "tw1/deg") {
         tw1deg = parseInt(message.payloadString)
         if (tw1deg>360) {
