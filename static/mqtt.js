@@ -46,25 +46,73 @@ function onMessageArrived(message) {
         $('#stn1-r1-qrg').text((message.payloadString/100).toFixed(1)+" kHz")
     } else if (message.destinationName == "stn1/pwr") {
         $('#stn1-r1-pwr').text((message.payloadString/1).toFixed(1)+"W")
+        if ((message.payloadString/1)>95) {
+            $("#stn1-r1-pwr").addClass("twred")
+        } else if ((message.payloadString/1)>90) {
+            $('#stn1-r1-pwr').removeClass("twored").addClass("tworange")
+        } else {
+            $('#stn1-r1-pwr').removeClass("twred").removeClass("tworange")
+        }
     } else if (message.destinationName == "stn1/swr") {
         $('#stn1-r1-swr').text((message.payloadString/1).toFixed(1)+":1")
+        if ((message.payloadString/1)>2) {
+            $("#stn1-r1-swr").addClass("twred")
+        } else if ((message.payloadString/1)>1.5) {
+            $('#stn1-r1-swr').removeClass("twored").addClass("tworange")
+        } else {
+            $('#stn1-r1-swr').removeClass("twred").removeClass("tworange")
+        }
     } else if (message.destinationName == "stn1/tensiona") {
         $('#stn1-r1-va').text((message.payloadString/1).toFixed(1)+"V")
+        if ((message.payloadString/1)<13) {
+            $("#stn1-r1-va").addClass("twred")
+        } else {
+            $('#stn1-r1-va').removeClass("twred")
+        }
     } else if (message.destinationName == "stn1/temp") {
         $('#stn1-r1-temp').text((message.payloadString/1).toFixed(1)+"ºC")
+        if ((message.payloadString/1)>40) {
+            $("#stn1-r1-temp").addClass("twred")
+        } else {
+            $('#stn1-r1-temp').removeClass("twred")
+        }
     } else if (message.destinationName == "stn1/fun") {
         $('#stn1-r1-fun').text((message.payloadString)+"rpm")
 
     } else if (message.destinationName == "stn2/qrg") {
-        $('#stn2-r1-qrg').text((message.payloadString/100).toFixed(1)+"kHz")
+        $('#stn2-r1-qrg').text((message.payloadString/100).toFixed(1)+" kHz")
     } else if (message.destinationName == "stn2/pwr") {
         $('#stn2-r1-pwr').text((message.payloadString/1).toFixed(1)+"W")
+        if ((message.payloadString/1)>95) {
+            $("#stn2-r1-pwr").addClass("twred")
+        } else if ((message.payloadString/1)>90) {
+            $('#stn2-r1-pwr').removeClass("twored").addClass("tworange")
+        } else {
+            $('#stn2-r1-pwr').removeClass("twred").removeClass("tworange")
+        }
     } else if (message.destinationName == "stn2/swr") {
         $('#stn2-r1-swr').text((message.payloadString/1).toFixed(1)+":1")
+        if ((message.payloadString/1)>2) {
+            $("#stn2-r1-swr").addClass("twred")
+        } else if ((message.payloadString/1)>1.5) {
+            $('#stn2-r1-swr').removeClass("twored").addClass("tworange")
+        } else {
+            $('#stn2-r1-swr').removeClass("twred").removeClass("tworange")
+        }
     } else if (message.destinationName == "stn2/tensiona") {
         $('#stn2-r1-va').text((message.payloadString/1).toFixed(1)+"V")
+        if ((message.payloadString/1)<13) {
+            $("#stn2-r1-va").addClass("twred")
+        } else {
+            $('#stn2-r1-va').removeClass("twred")
+        }
     } else if (message.destinationName == "stn2/temp") {
         $('#stn2-r1-temp').text((message.payloadString/1).toFixed(1)+"ºC")
+        if ((message.payloadString/1)>40) {
+            $("#stn2-r1-temp").addClass("twred")
+        } else {
+            $('#stn2-r1-temp').removeClass("twred")
+        }
     } else if (message.destinationName == "stn2/fun") {
         $('#stn2-r1-fun').text((message.payloadString)+"rpm")
 
@@ -308,6 +356,7 @@ function onMessageArrived(message) {
             if (json.stn2.segmento != 0 && json.stacks[json.stn2.band][1]['estado']) {
                 $("#stn2-segmento").removeClass("spanitemnd").text(json.stn2.segmento)
             }
+
         }
     }
 }
