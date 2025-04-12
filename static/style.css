@@ -160,6 +160,9 @@ body {
 .tworange {
     color: rgba(255, 143, 39, 0.8);
 }
+.twgreen {
+    color: rgb(0, 95, 40);
+}
 .legendns {
     border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 3px;
