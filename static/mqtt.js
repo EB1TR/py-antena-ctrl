@@ -12,6 +12,45 @@ client.connect({
     onFailure:onConnectionLost
 });
 
+function createAverageCalculator(n) {
+    const values = [];
+    return function (newNumber) {
+      // Añadir nuevo número al array
+      values.push(newNumber);
+      // Si hay más de n elementos, quitar el más antiguo
+      if (values.length > n) {
+        values.shift();
+      }
+      // Calcular el promedio
+      const sum = values.reduce((acc, val) => acc + val, 0);
+      return sum / values.length;
+    };
+  }
+  
+  function createMaxTracker(n) {
+    const values = [];
+    return function (newNumber) {
+      // Añadir nuevo número al array
+      values.push(newNumber);
+      // Si hay más de n elementos, quitar el más antiguo
+      if (values.length > n) {
+        values.shift();
+      }
+      // Calcular el valor máximo
+      return Math.max(...values);
+    };
+  }
+  
+  // Ejemplo de uso:
+  const maxpwrr1 = createMaxTracker(20);
+  const maxpwrr2 = createMaxTracker(20);
+  
+  const avgpwrr1 = createAverageCalculator(8);
+  const avgpwrr2 = createAverageCalculator(8);
+  const avgswrr1 = createAverageCalculator(8);
+  const avgswrr2 = createAverageCalculator(8);
+
+
 function onConnect() {
     console.log("Connectado a MQTT.");
     $('#contenor').removeClass("FinFout")
@@ -45,19 +84,30 @@ function onMessageArrived(message) {
     if (message.destinationName == "stn1/qrg") {
         $('#stn1-r1-qrg').text((message.payloadString/100).toFixed(1)+" kHz")
     } else if (message.destinationName == "stn1/pwr") {
-        $('#stn1-r1-pwr').text((message.payloadString/1).toFixed(1)+"W")
-        if ((message.payloadString/1)>95) {
+        let PWRAR1 = avgpwrr1(message.payloadString/1); // 10.0
+        let PWRPR1 = maxpwrr1(message.payloadString/1)
+        $('#stn1-r1-pwr').text((PWRAR1).toFixed(1)+"Wa")
+        if (PWRAR1>85) {
             $("#stn1-r1-pwr").addClass("twred")
-        } else if ((message.payloadString/1)>90) {
+        } else if (PWRAR1>70) {
             $('#stn1-r1-pwr').removeClass("twored").addClass("tworange")
         } else {
             $('#stn1-r1-pwr').removeClass("twred").removeClass("tworange")
         }
+        $('#stn1-r1-pwrp').text((PWRPR1).toFixed(1)+"Wp")
+        if (PWRPR1>100) {
+            $("#stn1-r1-pwrp").addClass("twred")
+        } else if (PWRPR1>90) {
+            $('#stn1-r1-pwrp').removeClass("twored").addClass("tworange")
+        } else {
+            $('#stn1-r1-pwrp').removeClass("twred").removeClass("tworange")
+        }
     } else if (message.destinationName == "stn1/swr") {
-        $('#stn1-r1-swr').text((message.payloadString/1).toFixed(1)+":1")
-        if ((message.payloadString/1)>2) {
+        let ROER1 = avgswrr1(message.payloadString/1)
+        $('#stn1-r1-swr').text((ROER1).toFixed(1)+":1")
+        if (ROER1>2) {
             $("#stn1-r1-swr").addClass("twred")
-        } else if ((message.payloadString/1)>1.5) {
+        } else if (ROER1>1.5) {
             $('#stn1-r1-swr').removeClass("twored").addClass("tworange")
         } else {
             $('#stn1-r1-swr').removeClass("twred").removeClass("tworange")
@@ -82,19 +132,30 @@ function onMessageArrived(message) {
     } else if (message.destinationName == "stn2/qrg") {
         $('#stn2-r1-qrg').text((message.payloadString/100).toFixed(1)+" kHz")
     } else if (message.destinationName == "stn2/pwr") {
-        $('#stn2-r1-pwr').text((message.payloadString/1).toFixed(1)+"W")
-        if ((message.payloadString/1)>95) {
+        let PWRAR2 = avgpwrr2(message.payloadString/1); // 10.0
+        let PWRPR2 = maxpwrr2(message.payloadString/1)
+        $('#stn2-r1-pwr').text((PWRAR2).toFixed(1)+"Wa")
+        if (PWRAR2>85) {
             $("#stn2-r1-pwr").addClass("twred")
-        } else if ((message.payloadString/1)>90) {
+        } else if (PWRAR2>70) {
             $('#stn2-r1-pwr').removeClass("twored").addClass("tworange")
         } else {
             $('#stn2-r1-pwr').removeClass("twred").removeClass("tworange")
         }
+        $('#stn2-r1-pwrp').text((PWRPR2).toFixed(1)+"Wp")
+        if (PWRPR2>100) {
+            $("#stn2-r1-pwrp").addClass("twred")
+        } else if (PWRPR2>90) {
+            $('#stn2-r1-pwrp').removeClass("twored").addClass("tworange")
+        } else {
+            $('#stn2-r1-pwrp').removeClass("twred").removeClass("tworange")
+        }
     } else if (message.destinationName == "stn2/swr") {
-        $('#stn2-r1-swr').text((message.payloadString/1).toFixed(1)+":1")
-        if ((message.payloadString/1)>2) {
+        let ROER2 = avgswrr1(message.payloadString/1)
+        $('#stn2-r1-swr').text((ROER2).toFixed(1)+":1")
+        if (ROER2>2) {
             $("#stn2-r1-swr").addClass("twred")
-        } else if ((message.payloadString/1)>1.5) {
+        } else if (ROER2>1.5) {
             $('#stn2-r1-swr').removeClass("twored").addClass("tworange")
         } else {
             $('#stn2-r1-swr').removeClass("twred").removeClass("tworange")
