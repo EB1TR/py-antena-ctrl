@@ -87,20 +87,20 @@ function onMessageArrived(message) {
         let PWRAR1 = avgpwrr1(message.payloadString/1); // 10.0
         let PWRPR1 = maxpwrr1(message.payloadString/1)
         $('#stn1-r1-pwr').text((PWRAR1).toFixed(1)+"Wa")
-        if (PWRAR1>85) {
-            $("#stn1-r1-pwr").addClass("twred")
-        } else if (PWRAR1>70) {
-            $('#stn1-r1-pwr').removeClass("twored").addClass("tworange")
+        if (PWRAR1>80) {
+            $("#stn1-r1-pwr").addClass("twgreen")
+        //} else if (PWRAR1>70) {
+        //    $('#stn1-r1-pwr').removeClass("twored").addClass("tworange")
         } else {
-            $('#stn1-r1-pwr').removeClass("twred").removeClass("tworange")
+            $('#stn1-r1-pwr').removeClass("twgreen")
         }
         $('#stn1-r1-pwrp').text((PWRPR1).toFixed(1)+"Wp")
-        if (PWRPR1>100) {
-            $("#stn1-r1-pwrp").addClass("twred")
-        } else if (PWRPR1>90) {
-            $('#stn1-r1-pwrp').removeClass("twored").addClass("tworange")
+        if (PWRPR1>95) {
+            $("#stn1-r1-pwrp").addClass("twgreen")
+        //} else if (PWRPR1>90) {
+        //    $('#stn1-r1-pwrp').removeClass("twored").addClass("tworange")
         } else {
-            $('#stn1-r1-pwrp').removeClass("twred").removeClass("tworange")
+            $('#stn1-r1-pwrp').removeClass("twgreen")
         }
     } else if (message.destinationName == "stn1/swr") {
         let ROER1 = avgswrr1(message.payloadString/1)
@@ -135,23 +135,23 @@ function onMessageArrived(message) {
         let PWRAR2 = avgpwrr2(message.payloadString/1); // 10.0
         let PWRPR2 = maxpwrr2(message.payloadString/1)
         $('#stn2-r1-pwr').text((PWRAR2).toFixed(1)+"Wa")
-        if (PWRAR2>85) {
-            $("#stn2-r1-pwr").addClass("twred")
-        } else if (PWRAR2>70) {
-            $('#stn2-r1-pwr').removeClass("twored").addClass("tworange")
+        if (PWRAR2>80) {
+            $("#stn2-r1-pwr").addClass("twgreen")
+        //} else if (PWRAR2>70) {
+        //    $('#stn2-r1-pwr').removeClass("twored").addClass("tworange")
         } else {
-            $('#stn2-r1-pwr').removeClass("twred").removeClass("tworange")
+            $('#stn2-r1-pwr').removeClass("twgreen")
         }
         $('#stn2-r1-pwrp').text((PWRPR2).toFixed(1)+"Wp")
-        if (PWRPR2>100) {
-            $("#stn2-r1-pwrp").addClass("twred")
-        } else if (PWRPR2>90) {
-            $('#stn2-r1-pwrp').removeClass("twored").addClass("tworange")
+        if (PWRPR2>95) {
+            $("#stn2-r1-pwrp").addClass("twgreen")
+        //} else if (PWRPR2>90) {
+        //    $('#stn2-r1-pwrp').removeClass("twored").addClass("tworange")
         } else {
-            $('#stn2-r1-pwrp').removeClass("twred").removeClass("tworange")
+            $('#stn2-r1-pwrp').removeClass("twgreen")
         }
     } else if (message.destinationName == "stn2/swr") {
-        let ROER2 = avgswrr1(message.payloadString/1)
+        let ROER2 = avgswrr2(message.payloadString/1)
         $('#stn2-r1-swr').text((ROER2).toFixed(1)+":1")
         if (ROER2>2) {
             $("#stn2-r1-swr").addClass("twred")
