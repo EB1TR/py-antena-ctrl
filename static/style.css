@@ -155,13 +155,13 @@ body {
     animation: flickerAnimation 1s infinite;
 }
 .twred {
-    color: rgba(255, 59, 59, 0.8);
+    color: rgba(255, 0, 0, 0.8);
 }
 .tworange {
     color: rgba(255, 143, 39, 0.8);
 }
 .twgreen {
-    color: rgb(0, 95, 40);
+    color: rgba(0, 255, 0, 0.8);
 }
 .legendns {
     border: 1px solid rgba(255, 255, 255, 0.5);

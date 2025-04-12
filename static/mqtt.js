@@ -15,41 +15,39 @@ client.connect({
 function createAverageCalculator(n) {
     const values = [];
     return function (newNumber) {
-      // Añadir nuevo número al array
-      values.push(newNumber);
-      // Si hay más de n elementos, quitar el más antiguo
-      if (values.length > n) {
+        // Añadir nuevo número al array
+        values.push(newNumber);
+        // Si hay más de n elementos, quitar el más antiguo
+        if (values.length > n) {
         values.shift();
-      }
-      // Calcular el promedio
-      const sum = values.reduce((acc, val) => acc + val, 0);
-      return sum / values.length;
+        }
+        // Calcular el promedio
+        const sum = values.reduce((acc, val) => acc + val, 0);
+        return sum / values.length;
     };
-  }
+}
   
-  function createMaxTracker(n) {
+function createMaxTracker(n) {
     const values = [];
     return function (newNumber) {
-      // Añadir nuevo número al array
-      values.push(newNumber);
-      // Si hay más de n elementos, quitar el más antiguo
-      if (values.length > n) {
+        // Añadir nuevo número al array
+        values.push(newNumber);
+        // Si hay más de n elementos, quitar el más antiguo
+        if (values.length > n) {
         values.shift();
-      }
-      // Calcular el valor máximo
-      return Math.max(...values);
+        }
+        // Calcular el valor máximo
+        return Math.max(...values);
     };
-  }
+}
   
-  // Ejemplo de uso:
-  const maxpwrr1 = createMaxTracker(20);
-  const maxpwrr2 = createMaxTracker(20);
+const maxpwrr1 = createMaxTracker(20);
+const maxpwrr2 = createMaxTracker(20);
   
-  const avgpwrr1 = createAverageCalculator(8);
-  const avgpwrr2 = createAverageCalculator(8);
-  const avgswrr1 = createAverageCalculator(8);
-  const avgswrr2 = createAverageCalculator(8);
-
+const avgpwrr1 = createAverageCalculator(8);
+const avgpwrr2 = createAverageCalculator(8);
+const avgswrr1 = createAverageCalculator(8);
+const avgswrr2 = createAverageCalculator(8);
 
 function onConnect() {
     console.log("Connectado a MQTT.");
@@ -84,21 +82,17 @@ function onMessageArrived(message) {
     if (message.destinationName == "stn1/qrg") {
         $('#stn1-r1-qrg').text((message.payloadString/100).toFixed(1)+" kHz")
     } else if (message.destinationName == "stn1/pwr") {
-        let PWRAR1 = avgpwrr1(message.payloadString/1); // 10.0
+        let PWRAR1 = avgpwrr1(message.payloadString/1)
         let PWRPR1 = maxpwrr1(message.payloadString/1)
         $('#stn1-r1-pwr').text((PWRAR1).toFixed(1)+"Wa")
         if (PWRAR1>80) {
             $("#stn1-r1-pwr").addClass("twgreen")
-        //} else if (PWRAR1>70) {
-        //    $('#stn1-r1-pwr').removeClass("twored").addClass("tworange")
         } else {
             $('#stn1-r1-pwr').removeClass("twgreen")
         }
         $('#stn1-r1-pwrp').text((PWRPR1).toFixed(1)+"Wp")
         if (PWRPR1>95) {
             $("#stn1-r1-pwrp").addClass("twgreen")
-        //} else if (PWRPR1>90) {
-        //    $('#stn1-r1-pwrp').removeClass("twored").addClass("tworange")
         } else {
             $('#stn1-r1-pwrp').removeClass("twgreen")
         }
@@ -106,7 +100,7 @@ function onMessageArrived(message) {
         let ROER1 = avgswrr1(message.payloadString/1)
         $('#stn1-r1-swr').text((ROER1).toFixed(1)+":1")
         if (ROER1>2) {
-            $("#stn1-r1-swr").addClass("twred")
+            $("#stn1-r1-swr").addClass("twred").removeClass("tworange")
         } else if (ROER1>1.5) {
             $('#stn1-r1-swr').removeClass("twored").addClass("tworange")
         } else {
@@ -114,10 +108,10 @@ function onMessageArrived(message) {
         }
     } else if (message.destinationName == "stn1/tensiona") {
         $('#stn1-r1-va').text((message.payloadString/1).toFixed(1)+"V")
-        if ((message.payloadString/1)<13) {
-            $("#stn1-r1-va").addClass("twred")
+        if ((message.payloadString/1)<12.8) {
+            $("#stn1-r1-va").addClass("twred").removeClass("twgreen")
         } else {
-            $('#stn1-r1-va').removeClass("twred")
+            $('#stn1-r1-va').removeClass("twred").addClass("twgreen")
         }
     } else if (message.destinationName == "stn1/temp") {
         $('#stn1-r1-temp').text((message.payloadString/1).toFixed(1)+"ºC")
@@ -132,21 +126,17 @@ function onMessageArrived(message) {
     } else if (message.destinationName == "stn2/qrg") {
         $('#stn2-r1-qrg').text((message.payloadString/100).toFixed(1)+" kHz")
     } else if (message.destinationName == "stn2/pwr") {
-        let PWRAR2 = avgpwrr2(message.payloadString/1); // 10.0
+        let PWRAR2 = avgpwrr2(message.payloadString/1)
         let PWRPR2 = maxpwrr2(message.payloadString/1)
         $('#stn2-r1-pwr').text((PWRAR2).toFixed(1)+"Wa")
         if (PWRAR2>80) {
             $("#stn2-r1-pwr").addClass("twgreen")
-        //} else if (PWRAR2>70) {
-        //    $('#stn2-r1-pwr').removeClass("twored").addClass("tworange")
         } else {
             $('#stn2-r1-pwr').removeClass("twgreen")
         }
         $('#stn2-r1-pwrp').text((PWRPR2).toFixed(1)+"Wp")
         if (PWRPR2>95) {
             $("#stn2-r1-pwrp").addClass("twgreen")
-        //} else if (PWRPR2>90) {
-        //    $('#stn2-r1-pwrp').removeClass("twored").addClass("tworange")
         } else {
             $('#stn2-r1-pwrp').removeClass("twgreen")
         }
@@ -154,18 +144,18 @@ function onMessageArrived(message) {
         let ROER2 = avgswrr2(message.payloadString/1)
         $('#stn2-r1-swr').text((ROER2).toFixed(1)+":1")
         if (ROER2>2) {
-            $("#stn2-r1-swr").addClass("twred")
-        } else if (ROER2>1.5) {
+            $("#stn2-r1-swr").addClass("twred").removeClass("tworange")
+        } else if (ROER2>1.5 && ROER2<2) {
             $('#stn2-r1-swr').removeClass("twored").addClass("tworange")
         } else {
             $('#stn2-r1-swr').removeClass("twred").removeClass("tworange")
         }
     } else if (message.destinationName == "stn2/tensiona") {
         $('#stn2-r1-va').text((message.payloadString/1).toFixed(1)+"V")
-        if ((message.payloadString/1)<13) {
-            $("#stn2-r1-va").addClass("twred")
+        if ((message.payloadString/1)<12.8) {
+            $("#stn2-r1-va").addClass("twred").removeClass("twgreen")
         } else {
-            $('#stn2-r1-va').removeClass("twred")
+            $('#stn2-r1-va').removeClass("twred").addClass("twgreen")
         }
     } else if (message.destinationName == "stn2/temp") {
         $('#stn2-r1-temp').text((message.payloadString/1).toFixed(1)+"ºC")
