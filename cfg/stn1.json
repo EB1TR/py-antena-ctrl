@@ -1,5 +1,5 @@
 {
     "netbios": "ED1B-STN1",
-    "auto": false,
+    "auto": true,
     "band": 0
 }
