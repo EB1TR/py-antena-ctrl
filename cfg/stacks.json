@@ -105,7 +105,7 @@
             "estado": true,
             "nombre": "ROT",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS14",
-            "tw": 2
+            "tw": 3
         },
         "3": {
             "estado": false,
@@ -149,9 +149,9 @@
         },
         "2": {
             "estado": true,
-            "nombre": "MB6",
+            "nombre": "C31XR",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS2",
-            "tw": 2
+            "tw": 3
         },
         "3": {
             "estado": false,
@@ -168,7 +168,7 @@
             "estado": true,
             "nombre": "MB4",
             "rele": "dtry/relay14475/in/r4",
-            "tw": 0
+            "tw": 2
         },
         "2": {
             "estado": false,
@@ -195,9 +195,9 @@
         },
         "2": {
             "estado": true,
-            "nombre": "MB6",
+            "nombre": "C31XR",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS6",
-            "tw": 2
+            "tw": 3
         },
         "3": {
             "estado": false,
@@ -214,7 +214,7 @@
             "estado": true,
             "nombre": "MB4",
             "rele": "dtry/relay14475/in/r4",
-            "tw": 0
+            "tw": 2
         },
         "2": {
             "estado": false,
@@ -241,9 +241,9 @@
         },
         "2": {
             "estado": true,
-            "nombre": "MB6",
+            "nombre": "C31XR",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS10",
-            "tw": 2
+            "tw": 3
         },
         "3": {
             "estado": false,
