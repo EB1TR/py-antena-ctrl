@@ -286,10 +286,10 @@ function onMessageArrived(message) {
                 $("#tw2stn1").hide()
             }
 
-            // Se pinta la utilización de la TW3 por parte de la STN2
-            if ((json.stacks[json.stn2.band][1]['tw'] == 3 && ststn21 == true) ||
-                (json.stacks[json.stn2.band][2]['tw'] == 3 && ststn22 == true) ||
-                (json.stacks[json.stn2.band][3]['tw'] == 3 && ststn23 == true)) {
+            // Se pinta la utilización de la TW3 por parte de la STN1
+            if ((json.stacks[json.stn1.band][1]['tw'] == 3 && ststn11 == true) ||
+                (json.stacks[json.stn1.band][2]['tw'] == 3 && ststn12 == true) ||
+                (json.stacks[json.stn1.band][3]['tw'] == 3 && ststn13 == true)) {
                 $("#tw3stn1").show()
             } else {
                 $("#tw3stn1").hide()
