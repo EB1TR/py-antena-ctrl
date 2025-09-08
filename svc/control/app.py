@@ -240,16 +240,10 @@ def on_message(client, userdata, msg):
         assign_stn(2, dato)
 
     elif msg.topic == "set/stn1/antm":
-        if STN1['auto']:
-            STN1['auto'] = False
-        else:
-            STN1['auto'] = True
+        STN1['auto'] ^= True
 
     elif msg.topic == "set/stn2/antm":
-        if STN2['auto']:
-            STN2['auto'] = False
-        else:
-            STN2['auto'] = True
+        STN2['auto'] ^= True
 
     elif msg.topic == "set/stn1/stack" and int(STN1['band']) != 0:
         if int(dato) <= STACKS[str(STN1['band'])]['salidas']:
