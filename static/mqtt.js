@@ -348,10 +348,10 @@ function onMessageArrived(message) {
             $("#stn2-rig").removeClass("spanitemselected");
 
             // Se colorea AUTO ON/OFF en la STN1
-            if (asstn1 == 1) $("#stn1-rig").addClass("spanitemselected")
+            if (rigstn1 == 1) $("#stn1-rig").addClass("spanitemselected")
 
             // Se colorea AUTO ON/OFF en la STN2
-            if (asstn2 == 1) $("#stn2-rig").addClass("spanitemselected")
+            if (rigstn2 == 1) $("#stn2-rig").addClass("spanitemselected")
 
             $('#stn1-n').text(json.stn1.netbios)
             $('#stn2-n').text(json.stn2.netbios)
