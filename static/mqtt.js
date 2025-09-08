@@ -258,6 +258,9 @@ function onMessageArrived(message) {
             asstn1 = json.stn1.auto
             asstn2 = json.stn2.auto
 
+            rigstn1 = json.stn1.rig
+            rigstn2 = json.stn2.rig
+
             ststn10 = json.stacks[json.stn1.band]['salidas']
             ststn11 = json.stacks[json.stn1.band][1]['estado']
             ststn12 = json.stacks[json.stn1.band][2]['estado']
@@ -336,9 +339,21 @@ function onMessageArrived(message) {
 
             // Se colorea AUTO ON/OFF en la STN1
             if (asstn1 == true) $("#stn1-as").addClass("spanitemselected")
-
+            
             // Se colorea AUTO ON/OFF en la STN2
             if (asstn2 == true) $("#stn2-as").addClass("spanitemselected")
+
+            // Se resetea el estado AUTO ON/OFF de la conmutación
+            $("#stn1-rig").removeClass("spanitemselected");
+            $("#stn2-rig").removeClass("spanitemselected");
+
+            // Se colorea AUTO ON/OFF en la STN1
+            if (rigstn1 == 1) $("#stn1-rig").addClass("spanitemselected")
+
+            // Se colorea AUTO ON/OFF en la STN2
+            if (rigstn2 == 1) $("#stn2-rig").addClass("spanitemselected")
+
+            console.log(asstn1, asstn2, rigstn1, rigstn2)
 
             $('#stn1-n').text(json.stn1.netbios)
             $('#stn2-n').text(json.stn2.netbios)

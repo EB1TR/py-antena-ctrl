@@ -1,5 +1,7 @@
 {
     "netbios": "ED1B-STN2",
     "auto": true,
-    "band": 0
+    "band": 0,
+    "rig": 0,
+    "rele": "dtry/relay14475/in/r8"
 }
