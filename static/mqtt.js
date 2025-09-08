@@ -339,7 +339,7 @@ function onMessageArrived(message) {
 
             // Se colorea AUTO ON/OFF en la STN1
             if (asstn1 == true) $("#stn1-as").addClass("spanitemselected")
-
+            
             // Se colorea AUTO ON/OFF en la STN2
             if (asstn2 == true) $("#stn2-as").addClass("spanitemselected")
 
@@ -352,6 +352,8 @@ function onMessageArrived(message) {
 
             // Se colorea AUTO ON/OFF en la STN2
             if (rigstn2 == 1) $("#stn2-rig").addClass("spanitemselected")
+
+            console.log(asstn1, asstn2, rigstn1, rigstn2)
 
             $('#stn1-n').text(json.stn1.netbios)
             $('#stn2-n').text(json.stn2.netbios)
