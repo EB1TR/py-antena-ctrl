@@ -28,6 +28,8 @@ except Exception as e:
     print("Error en los ficheros de configuracion: %s" % e)
     exit(0)
 
+def rig_on_off(topic, value):
+    mqtt_client.publish(topic, value)
 
 def nr_ant(stack_band):
     global STACKS
@@ -221,6 +223,14 @@ def on_message(client, userdata, msg):
             assign_stn(2, dato[0])
 
     # Mensajes recibidos desde FRONT
+    elif msg.topic == "set/stn1/rig":
+        STN1['auto'] ^= 1
+        rig_on_off(STN1['rele'], STN1['auto'])
+
+    elif msg.topic == "set/stn2/rig":
+        STN2['auto'] ^= 1
+        rig_on_off(STN2['rele'], STN2['auto'])
+
     elif not STN1['auto'] and msg.topic == "set/stn1/band":
         dato = int(dato)
         assign_stn(1, dato)
@@ -228,6 +238,7 @@ def on_message(client, userdata, msg):
     elif not STN2['auto'] and msg.topic == "set/stn2/band":
         dato = int(dato)
         assign_stn(2, dato)
+
     elif msg.topic == "set/stn1/antm":
         if STN1['auto']:
             STN1['auto'] = False
