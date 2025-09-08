@@ -213,3 +213,20 @@
                 </div>
         </body>
 </html>
+
+<script>
+  ["tw1", "tw2", "tw3"].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener("click", () => {
+      const current = el.textContent.trim();
+      const nuevo = prompt(`Introduce la dirección para mástil ${id.toUpperCase()}:`, current === "---" ? "" : current);
+
+      if (nuevo !== null && nuevo.trim() !== "" && nuevo >= 0 && nuevo <= 360) {
+        const valor = parseFloat(nuevo);
+        if (!isNaN(valor)) {
+          send_command(`${id}/set/deg`, valor);
+        }
+      }
+    });
+  });
+</script>

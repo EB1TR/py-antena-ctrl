@@ -26,7 +26,7 @@ function createAverageCalculator(n) {
         return sum / values.length;
     };
 }
-  
+
 function createMaxTracker(n) {
     const values = [];
     return function (newNumber) {
@@ -352,8 +352,6 @@ function onMessageArrived(message) {
 
             // Se colorea AUTO ON/OFF en la STN2
             if (rigstn2 == 1) $("#stn2-rig").addClass("spanitemselected")
-
-            console.log(asstn1, asstn2, rigstn1, rigstn2)
 
             $('#stn1-n').text(json.stn1.netbios)
             $('#stn2-n').text(json.stn2.netbios)
