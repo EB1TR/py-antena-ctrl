@@ -423,7 +423,10 @@ function onMessageArrived(message) {
                 $("#stn1-nostack").hide()
                 if (ststn11 == true) $("#stn1-stack1").removeClass("spanitemnd").addClass("spanitemselected")
                 else $("#stn1-stack1").removeClass("spanitemnd").removeClass("spanitemselected")
+            } else {
+                $("#stn1-nostack").hide()
             }
+
             // Se colorea el estado de cada entrada del Stack en la banda seleccionada en la STN2
             $("#stn2-stack1").addClass("spanitemnd")
             $("#stn2-stack2").addClass("spanitemnd")
@@ -452,6 +455,8 @@ function onMessageArrived(message) {
             } else if (ststn20 == 1) {
                 if (ststn21 == true) $("#stn2-stack1").removeClass("spanitemnd").addClass("spanitemselected")
                 else $("#stn2-stack1").removeClass("spanitemnd").removeClass("spanitemselected")
+                $("#stn2-nostack").hide()
+            } else {
                 $("#stn2-nostack").hide()
             }
 
