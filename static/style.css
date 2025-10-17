@@ -42,6 +42,13 @@ body {
     height: 25px;
     border-radius: 3px;
 }
+
+.spanitemtwy {
+    border: 1px solid rgba(255, 128, 0, 0.8);
+    background-color: rgba(255,128,0,0.2);
+    color: rgba(255,128,0,1);
+}
+
 .spanitemselected {
     border: 1px solid rgba(49, 170, 49, 0.8);
     background-color: rgba(49, 170, 49, 0.1);

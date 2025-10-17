@@ -230,7 +230,7 @@
         }
     },
     "10": {
-        "salidas": 3,
+        "salidas": 2,
         "balun": false,
         "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS12",
         "1": {

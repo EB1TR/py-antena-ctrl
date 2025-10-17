@@ -25,7 +25,7 @@
                                         <td class="tdstn"><a href="#"><span onclick="send_command('set/stn1/stack', 1)" class="spanitem" id="stn1-stack1">1</span></a></td>
                                         <td class="tdstn"><a href="#"><span onclick="send_command('set/stn1/stack', 2)" class="spanitem" id="stn1-stack2">2</span></a></td>
                                         <td class="tdstn"><a href="#"><span onclick="send_command('set/stn1/stack', 3)" class="spanitem" id="stn1-stack3">3</span></a></td>
-                                        <td class="tdstn"><a href="#"><span onclick="send_command('set/stn1/nostack', 1)" class="spanitemtw" id="stn1-nostack">SWAP</span></a></td>
+                                        <td class="tdstn"><a href="#"><span onclick="send_command('set/stn1/nostack', 1)" class="spanitemtw spanitemtwy" id="stn1-nostack">SWAP</span></a></td>
                                         <td class="tdstn"></td>
                                         <td class="tdstn"></td>
                                         <td class="tdstn"><a href="#"><span onclick="send_command('set/stn1/antm', 0)" class="spanitem" id="stn1-as">AUTO</span></a></td>
@@ -46,7 +46,7 @@
                                         <td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/stack', 1)" class="spanitem" id="stn2-stack1">1</span></a></td>
                                         <td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/stack', 2)" class="spanitem" id="stn2-stack2">2</span></a></td>
                                         <td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/stack', 3)" class="spanitem" id="stn2-stack3">3</span></a></td>
-                                        <td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/nostack', 1)" class="spanitemtw" id="stn2-nostack">SWAP</span></a></td>
+                                        <td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/nostack', 1)" class="spanitemtw spanitemtwy" id="stn2-nostack">SWAP</span></a></td>
                                         <td class="tdstn"></td>
                                         <td class="tdstn"></td>
                                         <td class="tdstn"><a href="#"><span onclick="send_command('set/stn2/antm', 0)" class="spanitem" id="stn2-as">AUTO</span></a></td>
@@ -56,15 +56,41 @@
                         <table class="tablestn">
                                 <tr>
                                         <td class="colcentered texto-stn" colspan="2"><span style="font-size: 24px;">C31XR</span></td>
+                                        <td class="colcentered texto-stn" colspan="2"><a href="#"><span class="spanitem"  onclick="send_command('tw3/set/mode', 'invert')" style="font-size: 16px;" id="tw3mode">---</span></a></td>
+                                        <td class="colcentered texto-stn"><span style="font-size: 24px;" id="tw3set">---</span></td>
+                                        <td class="colcentered texto-stn" colspan="2"><span style="font-size: 24px;" id="tw3nec">---</span><br></td>
+                                </tr>
+                                <tr>
+                                        <td><span class="spanitem" id="tw3stn1">STN1</span></td>
+                                        <td class="tdstn"><a href="#"><span title="-5° TW3" class="spanitemtw spanitemtwy" id="tw3sp_minus" style="height: 52px; line-height: 52px; font-size: 18px;">−5º</span></a></td>
+                                        <td class="colcentered texto-stn" colspan="3"><span style="font-size: 79px;" id="tw3">---</span></td>
+                                        <td class="tdstn"><a href="#"><span title="+5° TW3" class="spanitemtw spanitemtwy" id="tw3sp_plus" style="height: 52px; line-height: 52px; font-size: 18px;">+5º</span></a></td>
+                                        <td><span class="spanitem" id="tw3stn2">STN2</span></td>
+                                </tr>
+
+                                <tr>
+                                        <td class="tdstn"><a href="#"><span title="SAf" onclick="send_command('tw3/set/deg', 170)" class="spanitemtw" id="tw3sp0">SAf</span></a></td>
+                                        <td class="tdstn"><a href="#"><span title="SAm" onclick="send_command('tw3/set/deg', 225)" class="spanitemtw" id="tw3sp1">SAm</span></a></td>
+                                        <td class="tdstn"><a href="#"><span title="CAm" onclick="send_command('tw3/set/deg', 265)" class="spanitemtw" id="tw3sp2">CAm</span></a></td>
+                                        <td class="tdstn"><a href="#"><span title="NAm" onclick="send_command('tw3/set/deg', 300)" class="spanitemtw" id="tw3sp3">NAm</span></a></td>
+                                        <td class="tdstn"><a href="#"><span title="JA" onclick="send_command('tw3/set/deg', 27)" class="spanitemtw" id="tw3sp4">JA</span></a></td>
+                                        <td class="tdstn"><a href="#"><span title="EU" onclick="send_command('tw3/set/deg', 45)" class="spanitemtw" id="tw3sp5">EU</span></a></td>
+                                        <td class="tdstn"><a href="#"><span title="MEa" onclick="send_command('tw3/set/deg', 80)" class="spanitemtw" id="tw3sp6">MEa</span></a></td>
+                                </tr>
+                        </table>
+                        <br>
+                        <table class="tablestn">
+                                <tr>
+                                        <td class="colcentered texto-stn" colspan="2"><span style="font-size: 24px;">MB7</span></td>
                                         <td class="colcentered texto-stn" colspan="2"><a href="#"><span class="spanitem"  onclick="send_command('tw1/set/mode', 'invert')" style="font-size: 16px;" id="tw1mode">---</span></a></td>
                                         <td class="colcentered texto-stn"><span style="font-size: 24px;" id="tw1set">---</span></td>
                                         <td class="colcentered texto-stn" colspan="2"><span style="font-size: 24px;" id="tw1nec">---</span><br></td>
                                 </tr>
                                 <tr>
                                         <td><span class="spanitem" id="tw1stn1">STN1</span></td>
-                                        <td class="tdstn"><a href="#"><span title="-5° TW1" class="spanitemtw" id="tw1sp_minus" style="height: 52px; line-height: 52px; font-size: 18px;">−5º</span></a></td>
+                                        <td class="tdstn"><a href="#"><span title="-5° TW1" class="spanitemtw spanitemtwy" id="tw1sp_minus" style="height: 52px; line-height: 52px; font-size: 18px;">−5º</span></a></td>
                                         <td class="colcentered texto-stn" colspan="3"><span style="font-size: 79px;" id="tw1">---</span></td>
-                                        <td class="tdstn"><a href="#"><span title="+5° TW1" class="spanitemtw" id="tw1sp_plus" style="height: 52px; line-height: 52px; font-size: 18px;">+5º</span></a></td>
+                                        <td class="tdstn"><a href="#"><span title="+5° TW1" class="spanitemtw spanitemtwy" id="tw1sp_plus" style="height: 52px; line-height: 52px; font-size: 18px;">+5º</span></a></td>
                                         <td><span class="spanitem" id="tw1stn2">STN2</span></td>
                                 </tr>
 
@@ -78,38 +104,12 @@
                                         <td class="tdstn"><a href="#"><span title="MEa" onclick="send_command('tw1/set/deg', 80)" class="spanitemtw" id="tw1sp6">MEa</span></a></td>
                                 </tr>
                         </table>
-                        <br>
-                        <table class="tablestn">
-                                <tr>
-                                        <td class="colcentered texto-stn" colspan="2"><span style="font-size: 24px;">MB-7</span></td>
-                                        <td class="colcentered texto-stn" colspan="2"><a href="#"><span class="spanitem"  onclick="send_command('tw2/set/mode', 'invert')" style="font-size: 16px;" id="tw2mode">---</span></a></td>
-                                        <td class="colcentered texto-stn"><span style="font-size: 24px;" id="tw2set">---</span></td>
-                                        <td class="colcentered texto-stn" colspan="2"><span style="font-size: 24px;" id="tw2nec">---</span><br></td>
-                                </tr>
-                                <tr>
-                                        <td><span class="spanitem" id="tw2stn1">STN1</span></td>
-                                        <td class="tdstn"><a href="#"><span title="-5° TW2" class="spanitemtw" id="tw2sp_minus" style="height: 52px; line-height: 52px; font-size: 18px;">−5º</span></a></td>
-                                        <td class="colcentered texto-stn" colspan="3"><span style="font-size: 79px;" id="tw2">---</span></td>
-                                        <td class="tdstn"><a href="#"><span title="+5° TW2" class="spanitemtw" id="tw2sp_plus" style="height: 52px; line-height: 52px; font-size: 18px;">+5º</span></a></td>
-                                        <td><span class="spanitem" id="tw2stn2">STN2</span></td>
-                                </tr>
-
-                                <tr>
-                                        <td class="tdstn"><a href="#"><span title="SAf" onclick="send_command('tw2/set/deg', 170)" class="spanitemtw" id="tw2sp0">SAf</span></a></td>
-                                        <td class="tdstn"><a href="#"><span title="SAm" onclick="send_command('tw2/set/deg', 225)" class="spanitemtw" id="tw2sp1">SAm</span></a></td>
-                                        <td class="tdstn"><a href="#"><span title="CAm" onclick="send_command('tw2/set/deg', 265)" class="spanitemtw" id="tw2sp2">CAm</span></a></td>
-                                        <td class="tdstn"><a href="#"><span title="NAm" onclick="send_command('tw2/set/deg', 300)" class="spanitemtw" id="tw2sp3">NAm</span></a></td>
-                                        <td class="tdstn"><a href="#"><span title="JA" onclick="send_command('tw2/set/deg', 27)" class="spanitemtw" id="tw2sp4">JA</span></a></td>
-                                        <td class="tdstn"><a href="#"><span title="EU" onclick="send_command('tw2/set/deg', 45)" class="spanitemtw" id="tw2sp5">EU</span></a></td>
-                                        <td class="tdstn"><a href="#"><span title="MEa" onclick="send_command('tw2/set/deg', 80)" class="spanitemtw" id="tw2sp6">MEa</span></a></td>
-                                </tr>
-                        </table>
                 </div>
         </body>
 </html>
 
 <script>
-  ["tw1", "tw2", "tw3"].forEach(id => {
+  ["tw1", "tw3"].forEach(id => {
     const el = document.getElementById(id);
     el.addEventListener("click", () => {
       const current = el.textContent.trim();
@@ -134,12 +134,14 @@ function ajustarTw(twId, delta) {
   const current = parseInt(el.textContent);
   if (isNaN(current)) return;
 
-  const nuevo = current + delta;
+        let nuevo = current + delta;
+        if (nuevo >= 360) nuevo = nuevo - 360;
+        if (nuevo < 0)  nuevo = 360 + delta;
   send_command(`${twId}/set/deg`, nuevo);
 }
 
 // Asignar eventos a todos los botones ±5
-['tw1', 'tw2', 'tw3'].forEach(tw => {
+['tw1', 'tw3'].forEach(tw => {
   document.getElementById(`${tw}sp_plus`).addEventListener('click', () => ajustarTw(tw, +5));
   document.getElementById(`${tw}sp_minus`).addEventListener('click', () => ajustarTw(tw, -5));
 });
