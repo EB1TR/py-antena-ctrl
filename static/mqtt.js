@@ -271,10 +271,19 @@ function onMessageArrived(message) {
             ststn22 = json.stacks[json.stn2.band][2]['estado']
             ststn23 = json.stacks[json.stn2.band][3]['estado']
 
+            stn1_usa1 = false
+            stn1_usa2 = false
+            stn1_usa3 = false
+
+            stn2_usa1 = false
+            stn2_usa2 = false
+            stn2_usa3 = false
+
             // Se pinta la utilización de la TW1 por parte de la STN1
             if ((json.stacks[json.stn1.band][1]['tw'] == 1 && ststn11 == true) ||
                 (json.stacks[json.stn1.band][2]['tw'] == 1 && ststn12 == true) ||
                 (json.stacks[json.stn1.band][3]['tw'] == 1 && ststn13 == true)) {
+                stn1_usa1 = true
                 $("#tw1stn1").show()
             } else {
                 $("#tw1stn1").hide()
@@ -284,6 +293,7 @@ function onMessageArrived(message) {
             if ((json.stacks[json.stn1.band][1]['tw'] == 2 && ststn11 == true) ||
                 (json.stacks[json.stn1.band][2]['tw'] == 2 && ststn12 == true) ||
                 (json.stacks[json.stn1.band][3]['tw'] == 2 && ststn13 == true)) {
+                stn1_usa2 = true
                 $("#tw2stn1").show()
             } else {
                 $("#tw2stn1").hide()
@@ -293,6 +303,7 @@ function onMessageArrived(message) {
             if ((json.stacks[json.stn1.band][1]['tw'] == 3 && ststn11 == true) ||
                 (json.stacks[json.stn1.band][2]['tw'] == 3 && ststn12 == true) ||
                 (json.stacks[json.stn1.band][3]['tw'] == 3 && ststn13 == true)) {
+                stn1_usa3 = true
                 $("#tw3stn1").show()
             } else {
                 $("#tw3stn1").hide()
@@ -302,6 +313,7 @@ function onMessageArrived(message) {
             if ((json.stacks[json.stn2.band][1]['tw'] == 1 && ststn21 == true) ||
                 (json.stacks[json.stn2.band][2]['tw'] == 1 && ststn22 == true) ||
                 (json.stacks[json.stn2.band][3]['tw'] == 1 && ststn23 == true)) {
+                stn2_usa1 = true
                 $("#tw1stn2").show()
             } else {
                 $("#tw1stn2").hide()
@@ -311,6 +323,7 @@ function onMessageArrived(message) {
             if ((json.stacks[json.stn2.band][1]['tw'] == 2 && ststn21 == true) ||
                 (json.stacks[json.stn2.band][2]['tw'] == 2 && ststn22 == true) ||
                 (json.stacks[json.stn2.band][3]['tw'] == 2 && ststn23 == true)) {
+                stn2_usa2 = true
                 $("#tw2stn2").show()
             } else {
                 $("#tw2stn2").hide()
@@ -320,9 +333,34 @@ function onMessageArrived(message) {
             if ((json.stacks[json.stn2.band][1]['tw'] == 3 && ststn21 == true) ||
                 (json.stacks[json.stn2.band][2]['tw'] == 3 && ststn22 == true) ||
                 (json.stacks[json.stn2.band][3]['tw'] == 3 && ststn23 == true)) {
+                stn2_usa3 = true
                 $("#tw3stn2").show()
             } else {
                 $("#tw3stn2").hide()
+            }
+
+            if (stn1_usa1 == true && stn2_usa1 == true) {
+                $("#tw1stn1").addClass("FinFout")
+                $("#tw1stn2").addClass("FinFout")
+            } else {
+                $("#tw1stn1").removeClass("FinFout")
+                $("#tw1stn2").removeClass("FinFout")
+            }
+
+            if (stn1_usa2 == true && stn2_usa2 == true) {
+                $("#tw2stn1").addClass("FinFout")
+                $("#tw2stn2").addClass("FinFout")
+            } else {
+                $("#tw2stn1").removeClass("FinFout")
+                $("#tw2stn2").removeClass("FinFout")
+            }
+
+            if (stn1_usa3 == true && stn2_usa3 == true) {
+                $("#tw3stn1").addClass("FinFout")
+                $("#tw3stn2").addClass("FinFout")
+            } else {
+                $("#tw3stn1").removeClass("FinFout")
+                $("#tw3stn2").removeClass("FinFout")
             }
 
             // Se resetea el estado de banda seleccionada
@@ -374,12 +412,15 @@ function onMessageArrived(message) {
                 else $("#stn1-stack2").removeClass("spanitemnd").removeClass("spanitemselected")
                 if (ststn13 == true) $("#stn1-stack3").removeClass("spanitemnd").addClass("spanitemselected")
                 else $("#stn1-stack3").removeClass("spanitemnd").removeClass("spanitemselected")
+                $("#stn1-nostack").show()
             } else if (ststn10 == 2) {
                 if (ststn11 == true) $("#stn1-stack1").removeClass("spanitemnd").addClass("spanitemselected")
                 else $("#stn1-stack1").removeClass("spanitemnd").removeClass("spanitemselected")
                 if (ststn12 == true) $("#stn1-stack2").removeClass("spanitemnd").addClass("spanitemselected")
                 else $("#stn1-stack2").removeClass("spanitemnd").removeClass("spanitemselected")
+                $("#stn1-nostack").show()
             } else if (ststn10 == 1) {
+                $("#stn1-nostack").hide()
                 if (ststn11 == true) $("#stn1-stack1").removeClass("spanitemnd").addClass("spanitemselected")
                 else $("#stn1-stack1").removeClass("spanitemnd").removeClass("spanitemselected")
             }
@@ -401,14 +442,17 @@ function onMessageArrived(message) {
                 else $("#stn2-stack2").removeClass("spanitemnd").removeClass("spanitemselected")
                 if (ststn23 == true) $("#stn2-stack3").removeClass("spanitemnd").addClass("spanitemselected")
                 else $("#stn2-stack3").removeClass("spanitemnd").removeClass("spanitemselected")
+                $("#stn2-nostack").show()
             } else if (ststn20 == 2) {
                 if (ststn21 == true) $("#stn2-stack1").removeClass("spanitemnd").addClass("spanitemselected")
                 else $("#stn2-stack1").removeClass("spanitemnd").removeClass("spanitemselected")
                 if (ststn22 == true) $("#stn2-stack2").removeClass("spanitemnd").addClass("spanitemselected")
                 else $("#stn2-stack2").removeClass("spanitemnd").removeClass("spanitemselected")
+                $("#stn2-nostack").show()
             } else if (ststn20 == 1) {
                 if (ststn21 == true) $("#stn2-stack1").removeClass("spanitemnd").addClass("spanitemselected")
                 else $("#stn2-stack1").removeClass("spanitemnd").removeClass("spanitemselected")
+                $("#stn2-nostack").hide()
             }
 
             // Se elimina la indicación de segmento de la STN1 si no se está en una banda que los utilice
