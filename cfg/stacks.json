@@ -51,7 +51,7 @@
         "rele": "rele_dummy",
         "1": {
             "estado": true,
-            "nombre": "DIP",
+            "nombre": "△",
             "rele": "rele_dummy",
             "tw": 0
         },
@@ -97,7 +97,7 @@
         "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS16",
         "1": {
             "estado": true,
-            "nombre": "DIP",
+            "nombre": "USA",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS13",
             "tw": 0
         },
@@ -143,13 +143,13 @@
         "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS4",
         "1": {
             "estado": true,
-            "nombre": "MB7",
+            "nombre": "2el",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS1",
             "tw": 1
         },
         "2": {
             "estado": true,
-            "nombre": "C31XR",
+            "nombre": "3el",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS2",
             "tw": 3
         },
@@ -189,13 +189,13 @@
         "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS8",
         "1": {
             "estado": true,
-            "nombre": "MB7",
+            "nombre": "2el",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS5",
             "tw": 1
         },
         "2": {
             "estado": true,
-            "nombre": "C31XR",
+            "nombre": "4el",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS6",
             "tw": 3
         },
@@ -235,13 +235,13 @@
         "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS12",
         "1": {
             "estado": true,
-            "nombre": "MB7",
+            "nombre": "3el",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS9",
             "tw": 1
         },
         "2": {
             "estado": true,
-            "nombre": "C31XR",
+            "nombre": "7el",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS10",
             "tw": 3
         },

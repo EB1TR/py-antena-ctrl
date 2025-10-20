@@ -197,6 +197,27 @@ function onMessageArrived(message) {
             $('#tw3').text(tw3deg+"º")
             $('#tw3').removeClass("twred")
         }
+
+        if ((json.stacks[json.stn1.band][1]['tw'] == 3 && json.stacks[json.stn1.band][1]['nombre'] == "ROT" && ststn11 == true) ||
+            (json.stacks[json.stn1.band][2]['tw'] == 3 && json.stacks[json.stn1.band][2]['nombre'] == "ROT" && ststn12 == true) ||
+            (json.stacks[json.stn1.band][3]['tw'] == 3 && json.stacks[json.stn1.band][3]['nombre'] == "ROT" && ststn13 == true) ||
+            (json.stacks[json.stn2.band][1]['tw'] == 3 && json.stacks[json.stn2.band][1]['nombre'] == "ROT" && ststn21 == true) ||
+            (json.stacks[json.stn2.band][2]['tw'] == 3 && json.stacks[json.stn2.band][2]['nombre'] == "ROT" && ststn22 == true) ||
+            (json.stacks[json.stn2.band][3]['tw'] == 3 && json.stacks[json.stn2.band][3]['nombre'] == "ROT" && ststn23 == true)) {
+                if (tw3deg >= 90 && tw3deg < 270) {
+                    deg_off_p = tw3deg + 90
+                    deg_off_m = tw3deg - 90
+                } else if (tw3deg < 90) {
+                    deg_off_m = tw3deg + 90
+                    deg_off_p = tw3deg + 270
+                } else if (tw3deg < 360) {
+                    deg_off_p = tw3deg - 270
+                    deg_off_m = tw3deg - 90
+                }
+                $('#tw3off').text(deg_off_p+"º/"+deg_off_m+"º")
+            } else {
+                $('#tw3off').text("")
+            }
     } else if (message.destinationName == "tw1/mode") {
         $('#tw1mode').text(message.payloadString.toUpperCase())
         if (message.payloadString.toUpperCase() == "REM") {
