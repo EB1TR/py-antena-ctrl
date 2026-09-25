@@ -4,6 +4,7 @@
 	<title>TukuDeck Telemetría</title>
 	<meta charset="utf-8" />
 	<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+	<link rel="stylesheet" href="inspector.css" />
 </head>
 <body>
 	<sdpi-item label="Estación">
@@ -14,18 +15,18 @@
 	</sdpi-item>
 	<sdpi-item label="Dato">
 		<sdpi-radio setting="metric" default="tensiona" columns="1">
-			<option value="tensiona">Tensión (tensiona)</option>
-			<option value="fun">FUN</option>
+			<option value="tensiona">Tensión</option>
+			<option value="fun">Ventilador</option>
 			<option value="temp">Temperatura</option>
-			<option value="pwr">Potencia AVG</option>
-			<option value="pwrpeak">Potencia PICO</option>
-			<option value="swr">SWR</option>
-			<option value="qrg">QRG</option>
+			<option value="pwr">Potencia media</option>
+			<option value="pwrpeak">Potencia de pico</option>
+			<option value="swr">ROE</option>
+			<option value="qrg">Frecuencia</option>
 			<option value="tx">TX/RX</option>
 			<option value="radioband">Banda de radio</option>
 		</sdpi-radio>
 	</sdpi-item>
-	<sdpi-item label="AVG (PWR/SWR)">
+	<sdpi-item label="Promedio (potencia/ROE)">
 		<sdpi-radio setting="average" default="1" value-type="number" columns="2">
 			<option value="1">Sin promedio</option>
 			<option value="5">5 muestras</option>
@@ -33,8 +34,8 @@
 			<option value="20">20 muestras</option>
 		</sdpi-radio>
 	</sdpi-item>
-	<p>Solo PWR AVG y SWR: actualiza al completar cada grupo de muestras.</p>
-	<p>PWR PICO: máximo de las últimas 20 muestras recibidas mientras la tecla está visible. No aplica AVG.</p>
+	<p>Potencia media y ROE: se actualizan con el promedio de cada grupo de muestras seleccionado.</p>
+	<p>Potencia de pico: valor máximo de las últimas 20 muestras recibidas mientras la tecla está visible. No se aplica el promedio ni representa una medida de PEP.</p>
 	<p>Datos directos de radio: último estado conocido. TX en rojo y RX en verde.</p>
 
 	<sdpi-item label="Mostrar título">

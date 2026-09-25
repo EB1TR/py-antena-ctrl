@@ -18,3 +18,12 @@ que tenga instalada la aplicación Stream Deck; no forma parte de Docker
 Compose.
 
 La conexión MQTT se configura actualmente en `src/mqtt.ts`.
+
+## Acciones
+
+El plugin incluye únicamente las acciones configurables actuales. Se han eliminado
+las acciones antiguas individuales de antena, banda y rotor, PARK y las pruebas.
+Los UUID de las acciones configurables se conservan. Si un perfil todavía usa
+una acción antigua eliminada, sustituye esa tecla por la acción configurable
+correspondiente y selecciona su antena, banda o rotor. Para PARK puedes usar
+Rotor - Preset con la dirección deseada.

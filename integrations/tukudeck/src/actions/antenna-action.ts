@@ -1,3 +1,4 @@
+import { action } from "@elgato/streamdeck";
 import { setKeyImage } from "../key-display";
 import { DidReceiveSettingsEvent, KeyDownEvent, SingletonAction, WillAppearEvent, WillDisappearEvent } from "@elgato/streamdeck";
 import { getPyToFrontState, onPyToFrontState, sendCommand } from "../mqtt";
@@ -5,6 +6,7 @@ import type { AntennaState, PyToFrontState } from "../mqtt";
 
 type AntennaSettings = { antenna?: number | string };
 
+@action({ UUID: "com.eb1tr.tukudeck.antenna1" })
 export class AntennaAction extends SingletonAction<AntennaSettings> {
 	private readonly subscriptions = new Map<string, () => void>();
 	constructor(private readonly antennaNumber: number) { super(); }

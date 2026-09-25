@@ -13,7 +13,7 @@ import type { Station, StationSettings } from "../station";
 type TelemetrySettings = StationSettings & { metric?: TelemetryMetric | "pwrpeak" | "tx" | "radioband"; average?: number | string };
 
 const labels: Record<TelemetryMetric, string> = {
-	tensiona: "TENSIÓN", fun: "FUN", temp: "TEMP", pwr: "PWR", swr: "SWR", qrg: "QRG"
+	tensiona: "TENSIÓN", fun: "VENT.", temp: "TEMP", pwr: "POT. MEDIA", swr: "ROE", qrg: "FREC."
 };
 const decimals: Record<TelemetryMetric, number> = {
 	tensiona: 1, fun: 0, temp: 1, pwr: 0, swr: 1, qrg: 0
@@ -165,7 +165,7 @@ export class Telemetry extends SingletonAction<TelemetrySettings> {
 		const svg = `
 			<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
 				<rect x="2" y="2" width="140" height="140" rx="12" fill="#07111D" stroke="${color}" stroke-width="3"/>
-				<text data-part="title" x="72" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#808080">${peak ? "PWR PICO" : metric === "pwr" ? "PWR AVG" : labels[metric]}</text>
+				<text data-part="title" x="72" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#808080">${peak ? "POT. PICO" : labels[metric]}</text>
 				<text data-part="value" x="72" y="${metric === "qrg" ? 78 : 91}" text-anchor="middle" font-family="Arial, sans-serif" font-size="${fontSize}" font-weight="bold" fill="${color}">${text}</text>
 				${metric === "qrg" ? `<text data-part="value" x="72" y="101" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#808080">kHz</text>` : ""}
 				<text data-part="station" x="72" y="124" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#808080">${station.toUpperCase()}</text>

@@ -1,3 +1,4 @@
+import { action } from "@elgato/streamdeck";
 import { setKeyImage } from "../key-display";
 import {
 	DidReceiveSettingsEvent,
@@ -34,6 +35,7 @@ function getEffect(value: RotorEffect | undefined, fallback: RotorEffect): boole
 	return effect === "none" ? false : effect === "blink1hz" ? true : effect as "fade" | "blink2hz";
 }
 
+@action({ UUID: "com.eb1tr.tukudeck.tw1" })
 export class RotorAction extends SingletonAction<RotorSettings> {
 
 	private readonly rotor: RotorNumber;

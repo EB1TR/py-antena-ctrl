@@ -259,27 +259,6 @@ function processRotorMessage(
 
 
 /*
- * Compatibilidad temporal con tuku-test.ts
- */
-
-export function getTw1State():
-	RotorState {
-
-	return getRotorState(1);
-}
-
-export function onTw1State(
-	listener: (state: RotorState) => void
-): () => void {
-
-	return onRotorState(
-		1,
-		listener
-	);
-}
-
-
-/*
  * PYTOFRONT
  */
 

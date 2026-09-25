@@ -1,3 +1,4 @@
+import { action } from "@elgato/streamdeck";
 import { setKeyImage } from "../key-display";
 import {
 	DidReceiveSettingsEvent,
@@ -21,6 +22,7 @@ import { getStation, Station, StationSettings } from "../station";
 
 type BandSettings = StationSettings & { band?: number | string };
 
+@action({ UUID: "com.eb1tr.tukudeck.band0" })
 export class BandAction extends SingletonAction<BandSettings> {
 
 	private readonly instances = new Map<string, {
