@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<title>TukuDeck MQTT</title>
+	<meta charset="utf-8" />
+	<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+</head>
+<body>
+	<sdpi-item label="Al arrancar">
+		<sdpi-radio setting="mqttStartup" global default="connected" columns="1">
+			<option value="connected">Conectar MQTT</option>
+			<option value="disconnected">Dejar MQTT desconectado</option>
+		</sdpi-radio>
+	</sdpi-item>
+	<p>Se aplica al próximo inicio del plugin y afecta a todas las teclas. Pulsa MQTT/PKT para conectar o desconectar ahora.</p>
+
+	<sdpi-item label="Mostrar título">
+		<sdpi-radio setting="showTitle" default="show" columns="2">
+			<option value="show">Sí</option><option value="hide">No</option>
+		</sdpi-radio>
+	</sdpi-item>
+	<sdpi-item label="Mostrar dato">
+		<sdpi-radio setting="showValue" default="show" columns="2">
+			<option value="show">Sí</option><option value="hide">No</option>
+		</sdpi-radio>
+	</sdpi-item>
+	<sdpi-item label="Mostrar STN">
+		<sdpi-radio setting="showStation" default="show" columns="2">
+			<option value="show">Sí</option><option value="hide">No</option>
+		</sdpi-radio>
+	</sdpi-item>
+	<p>Opciones independientes para esta tecla. Se aplican a los elementos que tenga el botón; STN también controla los indicadores de uso de los rotores.</p>
+</body>
+</html>

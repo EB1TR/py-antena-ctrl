@@ -40,5 +40,11 @@ FlexRadio. Sus direcciones y puertos se configuran en los servicios
 Cada servicio publica el estado real de transmisión como `stnN/tx`: `1` cuando
 el estado global de FlexRadio es TX y `0` cuando vuelve a RX.
 
+### TukuDeck
+
+El código fuente del plugin de Stream Deck forma parte de este repositorio en
+`integrations/tukudeck`. Se construye e instala en el ordenador que ejecuta
+Stream Deck y se comunica directamente con el broker MQTT del stack.
+
 ### Reboot
 sudo shutdown -r now<br>

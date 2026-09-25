@@ -1,0 +1,565 @@
+{
+	"Name": "TukuDeck",
+	"Version": "1.0.0.0",
+	"Author": "EB1TR",
+	"Actions": [
+		{
+			"Name": "TukuDeck Test",
+			"UUID": "com.eb1tr.tukudeck.test",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Prueba de funcionamiento de TukuDeck.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"PropertyInspectorPath": "ui/display.html",
+			"VisibleInActionsList": false
+		},
+		{
+			"Name": "Antena",
+			"UUID": "com.eb1tr.tukudeck.antenna1",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Selecciona ANT1, ANT2 o ANT3 de STN2.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"PropertyInspectorPath": "ui/antenna.html",
+			"VisibleInActionsList": true
+		},
+		{
+			"Name": "ANT2",
+			"UUID": "com.eb1tr.tukudeck.antenna2",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Antena 2 de STN2.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"PropertyInspectorPath": "ui/antenna.html",
+			"VisibleInActionsList": false
+		},
+		{
+			"Name": "ANT3",
+			"UUID": "com.eb1tr.tukudeck.antenna3",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Antena 3 de STN2.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"PropertyInspectorPath": "ui/antenna.html",
+			"VisibleInActionsList": false
+		},
+		{
+			"Name": "SWAP",
+			"UUID": "com.eb1tr.tukudeck.swap",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Cambio de antena de STN2.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"PropertyInspectorPath": "ui/display.html"
+		},
+		{
+			"Name": "RIG",
+			"UUID": "com.eb1tr.tukudeck.rig",
+			"PropertyInspectorPath": "ui/station.html",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Encendido y apagado del equipo de radio de la estación seleccionada.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "Banda",
+			"UUID": "com.eb1tr.tukudeck.band0",
+			"PropertyInspectorPath": "ui/band-select.html",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Seleccionar e indicar una banda de STN1 o STN2.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "160 m",
+			"UUID": "com.eb1tr.tukudeck.band160",
+			"PropertyInspectorPath": "ui/band-select.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Banda de 160 m.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "80 m",
+			"UUID": "com.eb1tr.tukudeck.band80",
+			"PropertyInspectorPath": "ui/band-select.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Banda de 80 m.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "60 m",
+			"UUID": "com.eb1tr.tukudeck.band60",
+			"PropertyInspectorPath": "ui/band-select.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Banda de 60 m.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "40 m",
+			"UUID": "com.eb1tr.tukudeck.band40",
+			"PropertyInspectorPath": "ui/band-select.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Banda de 40 m.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "30 m",
+			"UUID": "com.eb1tr.tukudeck.band30",
+			"PropertyInspectorPath": "ui/band-select.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Banda de 30 m.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "AUTO",
+			"UUID": "com.eb1tr.tukudeck.bandauto",
+			"PropertyInspectorPath": "ui/station.html",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Modo automático de antenas de la estación seleccionada.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "20 m",
+			"UUID": "com.eb1tr.tukudeck.band20",
+			"PropertyInspectorPath": "ui/band-select.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Banda de 20 m.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "17 m",
+			"UUID": "com.eb1tr.tukudeck.band17",
+			"PropertyInspectorPath": "ui/band-select.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Banda de 17 m.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "15 m",
+			"UUID": "com.eb1tr.tukudeck.band15",
+			"PropertyInspectorPath": "ui/band-select.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Banda de 15 m.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "12 m",
+			"UUID": "com.eb1tr.tukudeck.band12",
+			"PropertyInspectorPath": "ui/band-select.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Banda de 12 m.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "10 m",
+			"UUID": "com.eb1tr.tukudeck.band10",
+			"PropertyInspectorPath": "ui/band-select.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Banda de 10 m.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "Rotor",
+			"UUID": "com.eb1tr.tukudeck.tw1",
+			"PropertyInspectorPath": "ui/rotor.html",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Control del rotor seleccionado: TW1, TW2 o TW3.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "TW2",
+			"UUID": "com.eb1tr.tukudeck.tw2",
+			"PropertyInspectorPath": "ui/rotor.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Control del rotor TW2.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "TW3",
+			"UUID": "com.eb1tr.tukudeck.tw3",
+			"PropertyInspectorPath": "ui/rotor.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Control del rotor TW3.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "Rotor PARK",
+			"UUID": "com.eb1tr.tukudeck.tw1park",
+			"PropertyInspectorPath": "ui/rotor-select.html",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Aparcar el rotor seleccionado en 275 grados.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "Rotor -5",
+			"UUID": "com.eb1tr.tukudeck.tw1minus5",
+			"PropertyInspectorPath": "ui/rotor-step.html",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Reducir 5 grados la consigna del rotor seleccionado.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"VisibleInActionsList": false
+		},
+		{
+			"Name": "Rotor paso",
+			"UUID": "com.eb1tr.tukudeck.tw1plus5",
+			"PropertyInspectorPath": "ui/rotor-step.html",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Mueve el rotor con sentido y grados configurables.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"VisibleInActionsList": true
+		},
+		{
+			"Name": "TW2 PARK",
+			"UUID": "com.eb1tr.tukudeck.tw2park",
+			"PropertyInspectorPath": "ui/rotor-select.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Aparcar TW2 en 275 grados.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "TW2 -5",
+			"UUID": "com.eb1tr.tukudeck.tw2minus5",
+			"PropertyInspectorPath": "ui/rotor-step.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Reducir 5 grados la consigna de TW2.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "TW2 +5",
+			"UUID": "com.eb1tr.tukudeck.tw2plus5",
+			"PropertyInspectorPath": "ui/rotor-step.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Aumentar 5 grados la consigna de TW2.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "TW3 PARK",
+			"UUID": "com.eb1tr.tukudeck.tw3park",
+			"PropertyInspectorPath": "ui/rotor-select.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Aparcar TW3 en 275 grados.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "TW3 -5",
+			"UUID": "com.eb1tr.tukudeck.tw3minus5",
+			"PropertyInspectorPath": "ui/rotor-step.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Reducir 5 grados la consigna de TW3.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "TW3 +5",
+			"UUID": "com.eb1tr.tukudeck.tw3plus5",
+			"PropertyInspectorPath": "ui/rotor-step.html",
+			"VisibleInActionsList": false,
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Aumentar 5 grados la consigna de TW3.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "Rotor Preset",
+			"UUID": "com.eb1tr.tukudeck.rotorpreset",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Posición predefinida de rotor.",
+			"Controllers": [
+				"Keypad"
+			],
+			"PropertyInspectorPath": "ui/rotor-preset.html",
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "Banda Actual",
+			"UUID": "com.eb1tr.tukudeck.currentband",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Muestra la banda actualmente seleccionada.",
+			"PropertyInspectorPath": "ui/station.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "Telemetría",
+			"UUID": "com.eb1tr.tukudeck.telemetry",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Muestra un dato del equipo de la estación seleccionada.",
+			"PropertyInspectorPath": "ui/telemetry.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "Conexión MQTT",
+			"UUID": "com.eb1tr.tukudeck.connection",
+			"PropertyInspectorPath": "ui/connection.html",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Conecta o desconecta MQTT al pulsar. Indica conexión y recepción de datos.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		}
+	],
+	"Category": "TukuDeck",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Compatibilidad StreamDeck para el TukuTuku",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "7.1"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "24",
+		"Debug": "enabled"
+	},
+	"UUID": "com.eb1tr.tukudeck"
+}

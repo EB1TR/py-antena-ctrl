@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head lang="es">
+	<title>TukuDeck Estación</title>
+	<meta charset="utf-8" />
+	<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+</head>
+<body>
+	<sdpi-item label="Estación">
+		<sdpi-radio setting="station" default="stn2" columns="2">
+			<option value="stn1">STN1</option>
+			<option value="stn2">STN2</option>
+		</sdpi-radio>
+	</sdpi-item>
+
+	<sdpi-item label="Mostrar título">
+		<sdpi-radio setting="showTitle" default="show" columns="2">
+			<option value="show">Sí</option><option value="hide">No</option>
+		</sdpi-radio>
+	</sdpi-item>
+	<sdpi-item label="Mostrar dato">
+		<sdpi-radio setting="showValue" default="show" columns="2">
+			<option value="show">Sí</option><option value="hide">No</option>
+		</sdpi-radio>
+	</sdpi-item>
+	<sdpi-item label="Mostrar STN">
+		<sdpi-radio setting="showStation" default="show" columns="2">
+			<option value="show">Sí</option><option value="hide">No</option>
+		</sdpi-radio>
+	</sdpi-item>
+	<p>Opciones independientes para esta tecla. Se aplican a los elementos que tenga el botón; STN también controla los indicadores de uso de los rotores.</p>
+</body>
+</html>

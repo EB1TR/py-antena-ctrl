@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head lang="es">
+	<title>TukuDeck Telemetría</title>
+	<meta charset="utf-8" />
+	<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+</head>
+<body>
+	<sdpi-item label="Estación">
+		<sdpi-radio setting="station" default="stn2" columns="2">
+			<option value="stn1">STN1</option>
+			<option value="stn2">STN2</option>
+		</sdpi-radio>
+	</sdpi-item>
+	<sdpi-item label="Dato">
+		<sdpi-radio setting="metric" default="tensiona" columns="1">
+			<option value="tensiona">Tensión (tensiona)</option>
+			<option value="fun">FUN</option>
+			<option value="temp">Temperatura</option>
+			<option value="pwr">Potencia AVG</option>
+			<option value="pwrpeak">Potencia PICO</option>
+			<option value="swr">SWR</option>
+			<option value="qrg">QRG</option>
+			<option value="tx">TX/RX</option>
+			<option value="radioband">Banda de radio</option>
+		</sdpi-radio>
+	</sdpi-item>
+	<sdpi-item label="AVG (PWR/SWR)">
+		<sdpi-radio setting="average" default="1" value-type="number" columns="2">
+			<option value="1">Sin promedio</option>
+			<option value="5">5 muestras</option>
+			<option value="10">10 muestras</option>
+			<option value="20">20 muestras</option>
+		</sdpi-radio>
+	</sdpi-item>
+	<p>Solo PWR AVG y SWR: actualiza al completar cada grupo de muestras.</p>
+	<p>PWR PICO: máximo de las últimas 20 muestras recibidas mientras la tecla está visible. No aplica AVG.</p>
+	<p>Datos directos de radio: último estado conocido. TX en rojo y RX en verde.</p>
+
+	<sdpi-item label="Mostrar título">
+		<sdpi-radio setting="showTitle" default="show" columns="2">
+			<option value="show">Sí</option><option value="hide">No</option>
+		</sdpi-radio>
+	</sdpi-item>
+	<sdpi-item label="Mostrar dato">
+		<sdpi-radio setting="showValue" default="show" columns="2">
+			<option value="show">Sí</option><option value="hide">No</option>
+		</sdpi-radio>
+	</sdpi-item>
+	<sdpi-item label="Mostrar STN">
+		<sdpi-radio setting="showStation" default="show" columns="2">
+			<option value="show">Sí</option><option value="hide">No</option>
+		</sdpi-radio>
+	</sdpi-item>
+	<p>Opciones independientes para esta tecla. Se aplican a los elementos que tenga el botón; STN también controla los indicadores de uso de los rotores.</p>
+</body>
+</html>
