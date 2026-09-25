@@ -27,6 +27,7 @@ UDP_TIMEOUT_SECONDS = 20
 ACTIVE_SLICE = 0
 LAST_QRG = 0
 LAST_BAND = "[0, 0]"
+LAST_TRANSMITTING = None
 
 SUBSCRIBE_MESSAGES = [
     f"C0|client init PYAPP{STN}\n",
@@ -37,6 +38,13 @@ SUBSCRIBE_MESSAGES = [
     "C5|sub meter 10\n",
     "C6|sub meter 11\n",
     f"C7|client udpport {UDP_PORT}\n",
+    "C8|sub tx all\n",
+    "C9|sub transmit all\n",
+    "C10|sub interlock all\n",
+    "C11|sub radio all\n",
+    "C12|transmit\n",
+    "C13|interlock\n",
+    "C14|radio\n",
 ]
 
 
@@ -58,6 +66,70 @@ mqtt_client.on_connect = on_connect
 mqtt_client.on_disconnect = on_disconnect
 mqtt_client.connect_async(MQTT_BROKER, MQTT_PORT, 60)
 mqtt_client.loop_start()
+
+
+def parse_key_values(text):
+    """Parse the key=value fields in a FlexRadio status line."""
+    values = {}
+    for part in str(text or "").split():
+        if "=" not in part:
+            continue
+        key, value = part.split("=", 1)
+        values[key.strip().lower()] = value.strip()
+    return values
+
+
+def normalize_tx_state(value):
+    """Convert known FlexRadio transmit states to a boolean."""
+    text = str(value or "").strip().lower()
+    if text in ("1", "true", "tx", "transmit", "transmitting", "on", "xmit"):
+        return True
+    if text in (
+        "0",
+        "false",
+        "rx",
+        "receive",
+        "receiving",
+        "off",
+        "unkeyed",
+        "ready",
+        "none",
+    ):
+        return False
+    return None
+
+
+def update_transmit_state(line):
+    """Publish an MQTT update when the radio changes between RX and TX."""
+    global LAST_TRANSMITTING
+
+    match = re.match(r"^[SR][^|]*\|(?:transmit|interlock|radio)\s+(.+)$", line)
+    if not match:
+        match = re.match(r"^[SR][^|]*\|(.+)$", line)
+        if not match:
+            return
+
+    values = parse_key_values(match.group(1))
+    for key in (
+        "tx",
+        "mox",
+        "ptt",
+        "transmit",
+        "transmitting",
+        "rfpower",
+        "rf_power",
+        "tx_on",
+        "xmit",
+        "state",
+    ):
+        if key not in values:
+            continue
+        transmitting = normalize_tx_state(values[key])
+        if transmitting is None or transmitting == LAST_TRANSMITTING:
+            continue
+        LAST_TRANSMITTING = transmitting
+        mqtt_client.publish(f"{STN}/tx", "1" if transmitting else "0", retain=True)
+        print(f"FlexRadio {STN}: {'TX' if transmitting else 'RX'}")
 
 
 def telnet_listener():
@@ -87,6 +159,7 @@ def telnet_listener():
                     continue
 
                 line = data.decode("utf-8", errors="ignore").strip()
+                update_transmit_state(line)
 
                 if line.startswith("R999|0|"):
                     if line == "R999|0|" and ACTIVE_SLICE != 9:

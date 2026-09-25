@@ -37,6 +37,9 @@ La integración activa usa la API TCP y el stream VITA-49 UDP de dos equipos
 FlexRadio. Sus direcciones y puertos se configuran en los servicios
 `flex-stn1` y `flex-stn2` de `docker-compose.yaml`.
 
+Cada servicio publica el estado real de transmisión como `stnN/tx`: `1` cuando
+el estado global de FlexRadio es TX y `0` cuando vuelve a RX.
+
 El antiguo traductor UDP de N1MM permanece en `svc/udp-mqtt` únicamente como
 código legado y ya no forma parte del stack de Docker Compose.
 
