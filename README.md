@@ -40,8 +40,5 @@ FlexRadio. Sus direcciones y puertos se configuran en los servicios
 Cada servicio publica el estado real de transmisión como `stnN/tx`: `1` cuando
 el estado global de FlexRadio es TX y `0` cuando vuelve a RX.
 
-El antiguo traductor UDP de N1MM permanece en `svc/udp-mqtt` únicamente como
-código legado y ya no forma parte del stack de Docker Compose.
-
 ### Reboot
 sudo shutdown -r now<br>

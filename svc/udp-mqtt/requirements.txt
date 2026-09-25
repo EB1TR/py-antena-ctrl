@@ -1,6 +1,0 @@
-environs==11.2.1
-marshmallow==3.23.1
-packaging==24.2
-paho-mqtt==2.1.0
-python-dotenv==1.0.1
-xmltodict==0.14.2
