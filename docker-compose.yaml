@@ -28,18 +28,44 @@ services:
       - mqtt
     restart: unless-stopped
 
-  udp-mqtt:
-    container_name: udp-mqtt
+  flex-stn1:
+    container_name: flex-stn1
     build:
-      context: ./svc/udp-mqtt
+      context: ./svc/flex-mqtt
       dockerfile: Dockerfile
     networks:
       antena:
         ipv4_address: "172.0.33.4"
     ports:
-      - "12060:12060/udp"
-    volumes:
-      - "./cfg:/app/cfg"
+      - "5051:5051/udp"
+    environment:
+      UDPPORT: "5051"
+      FLEXIP: "192.168.88.51"
+      FLEXPORT: "4992"
+      STN: "stn1"
+      MQTT_HOST: "mqtt"
+      MQTT_PORT: "1883"
+    depends_on:
+      - mqtt
+    restart: unless-stopped
+
+  flex-stn2:
+    container_name: flex-stn2
+    build:
+      context: ./svc/flex-mqtt
+      dockerfile: Dockerfile
+    networks:
+      antena:
+        ipv4_address: "172.0.33.6"
+    ports:
+      - "5052:5052/udp"
+    environment:
+      UDPPORT: "5052"
+      FLEXIP: "192.168.88.52"
+      FLEXPORT: "4992"
+      STN: "stn2"
+      MQTT_HOST: "mqtt"
+      MQTT_PORT: "1883"
     depends_on:
       - mqtt
     restart: unless-stopped

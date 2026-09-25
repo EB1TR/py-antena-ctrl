@@ -31,5 +31,14 @@ cd /home/pi/py-antena-ctrl<br>
 docker-compose build<br>
 docker-compose up -d<br>
 
+### Fuente de datos de las estaciones
+
+La integración activa usa la API TCP y el stream VITA-49 UDP de dos equipos
+FlexRadio. Sus direcciones y puertos se configuran en los servicios
+`flex-stn1` y `flex-stn2` de `docker-compose.yaml`.
+
+El antiguo traductor UDP de N1MM permanece en `svc/udp-mqtt` únicamente como
+código legado y ya no forma parte del stack de Docker Compose.
+
 ### Reboot
 sudo shutdown -r now<br>

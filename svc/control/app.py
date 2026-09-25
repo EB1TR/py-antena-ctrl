@@ -211,7 +211,7 @@ def on_message(client, userdata, msg):
 
     dato = msg.payload.decode('utf-8')
 
-    # Mensajes recibidos desde UDP
+    # Mensajes de banda recibidos desde los servicios FlexRadio a través de MQTT
     if msg.topic == "stn1/band":
         if STN1['auto']:
             dato = json.loads(dato)
