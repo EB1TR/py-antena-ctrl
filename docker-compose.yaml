@@ -2,9 +2,9 @@ services:
 
   mqtt:
     container_name: mqtt
-    image: eclipse-mosquitto
+    image: eclipse-mosquitto:2.1.2-alpine
     volumes:
-      - "./svc/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf"
+      - "./cfg/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro"
     networks:
       antena:
         ipv4_address: "172.0.33.2"
@@ -15,7 +15,7 @@ services:
 
   nginx:
     container_name: nginx
-    image: nginx:alpine
+    image: nginx:1.30.5-alpine3.24-slim
     networks:
       antena:
         ipv4_address: "172.0.33.3"
@@ -23,7 +23,7 @@ services:
       - "80:80"
     volumes:
       - "./static:/usr/share/nginx/html:ro"
-      - "./svc/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro"
+      - "./cfg/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro"
     depends_on:
       - mqtt
     restart: unless-stopped
@@ -38,13 +38,8 @@ services:
         ipv4_address: "172.0.33.4"
     ports:
       - "5051:5051/udp"
-    environment:
-      UDPPORT: "5051"
-      FLEXIP: "192.168.88.51"
-      FLEXPORT: "4992"
-      STN: "stn1"
-      MQTT_HOST: "mqtt"
-      MQTT_PORT: "1883"
+    volumes:
+      - "./cfg/flex-stn1.json:/app/config.json:ro"
     depends_on:
       - mqtt
     restart: unless-stopped
@@ -59,13 +54,8 @@ services:
         ipv4_address: "172.0.33.6"
     ports:
       - "5052:5052/udp"
-    environment:
-      UDPPORT: "5052"
-      FLEXIP: "192.168.88.52"
-      FLEXPORT: "4992"
-      STN: "stn2"
-      MQTT_HOST: "mqtt"
-      MQTT_PORT: "1883"
+    volumes:
+      - "./cfg/flex-stn2.json:/app/config.json:ro"
     depends_on:
       - mqtt
     restart: unless-stopped
@@ -79,7 +69,7 @@ services:
       antena:
         ipv4_address: "172.0.33.5"
     volumes:
-      - "./cfg:/app/cfg"
+      - "./cfg:/app/cfg:ro"
     depends_on:
       - mqtt
     restart: unless-stopped

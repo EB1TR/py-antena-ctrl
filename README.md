@@ -35,7 +35,14 @@ docker-compose up -d<br>
 
 La integración activa usa la API TCP y el stream VITA-49 UDP de dos equipos
 FlexRadio. Sus direcciones y puertos se configuran en los servicios
-`flex-stn1` y `flex-stn2` de `docker-compose.yaml`.
+`flex-stn1` y `flex-stn2` mediante `cfg/flex-stn1.json` y
+`cfg/flex-stn2.json`, respectivamente. La conexión MQTT del servicio de
+control se configura en `cfg/control.json`.
+
+Los archivos de configuración técnica se montan en modo de solo lectura. Los
+JSON existentes de estaciones, stacks y sixpack continúan separados de esta
+configuración. Las configuraciones de los servicios auxiliares están en
+`cfg/mosquitto/mosquitto.conf` y `cfg/nginx/default.conf`.
 
 Cada servicio publica el estado real de transmisión como `stnN/tx`: `1` cuando
 el estado global de FlexRadio es TX y `0` cuando vuelve a RX.

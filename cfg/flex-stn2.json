@@ -1,0 +1,8 @@
+{
+    "station": "stn2",
+    "flex_host": "192.168.88.52",
+    "flex_port": 4992,
+    "udp_port": 5052,
+    "mqtt_host": "mqtt",
+    "mqtt_port": 1883
+}

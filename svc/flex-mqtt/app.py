@@ -5,7 +5,6 @@ import re
 import socket
 import struct
 import sys
-import telnetlib
 import threading
 import time
 
@@ -14,13 +13,14 @@ import paho.mqtt.client as mqtt
 import settings
 
 
+CONFIG = settings.load_config()
 UDP_IP = "0.0.0.0"
-UDP_PORT = int(settings.Config.UDPPORT)
-TELNET_HOST = settings.Config.FLEXIP
-TELNET_PORT = int(settings.Config.FLEXPORT)
-STN = settings.Config.STN
-MQTT_BROKER = settings.Config.MQTT_HOST
-MQTT_PORT = int(settings.Config.MQTT_PORT)
+UDP_PORT = CONFIG.udp_port
+TELNET_HOST = CONFIG.flex_host
+TELNET_PORT = CONFIG.flex_port
+STN = CONFIG.station
+MQTT_BROKER = CONFIG.mqtt_host
+MQTT_PORT = CONFIG.mqtt_port
 
 TELNET_TIMEOUT = 10
 UDP_TIMEOUT_SECONDS = 20
@@ -46,6 +46,42 @@ SUBSCRIBE_MESSAGES = [
     "C13|interlock\n",
     "C14|radio\n",
 ]
+
+
+class FlexConnection:
+    """Small line-oriented TCP client replacing the removed telnetlib module."""
+
+    def __init__(self, host, port, timeout):
+        self.socket = socket.create_connection((host, port), timeout=timeout)
+        self.buffer = b""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, _exc_type, _exc_value, _traceback):
+        self.socket.close()
+
+    def write(self, data):
+        self.socket.sendall(data)
+
+    def read_until(self, separator, timeout):
+        deadline = time.monotonic() + timeout
+        while separator not in self.buffer:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return b""
+            self.socket.settimeout(remaining)
+            try:
+                chunk = self.socket.recv(4096)
+            except TimeoutError:
+                return b""
+            if not chunk:
+                raise ConnectionError("FlexRadio cerró la conexión TCP")
+            self.buffer += chunk
+
+        end = self.buffer.index(separator) + len(separator)
+        result, self.buffer = self.buffer[:end], self.buffer[end:]
+        return result
 
 
 def on_connect(client, userdata, flags, reason_code, properties=None):
@@ -138,59 +174,55 @@ def telnet_listener():
 
     while True:
         try:
-            tn = telnetlib.Telnet(TELNET_HOST, TELNET_PORT, TELNET_TIMEOUT)
+            with FlexConnection(TELNET_HOST, TELNET_PORT, TELNET_TIMEOUT) as tn:
+                for msg in SUBSCRIBE_MESSAGES:
+                    tn.write(msg.encode("ascii"))
+                    time.sleep(0.5)
 
-            for msg in SUBSCRIBE_MESSAGES:
-                tn.write(msg.encode("ascii"))
-                time.sleep(0.5)
-
-            def list_slices():
+                next_slice_query = 0
                 while True:
-                    tn.write(b"C999|slice list\n")
-                    time.sleep(2)
+                    if time.monotonic() >= next_slice_query:
+                        tn.write(b"C999|slice list\n")
+                        next_slice_query = time.monotonic() + 2
 
-            thread_slice = threading.Thread(target=list_slices, daemon=True)
-            thread_slice.start()
+                    data = tn.read_until(b"\n", timeout=1)
 
-            while True:
-                data = tn.read_until(b"\n", timeout=1)
+                    if not data:
+                        continue
 
-                if not data:
-                    continue
+                    line = data.decode("utf-8", errors="ignore").strip()
+                    update_transmit_state(line)
 
-                line = data.decode("utf-8", errors="ignore").strip()
-                update_transmit_state(line)
+                    if line.startswith("R999|0|"):
+                        if line == "R999|0|" and ACTIVE_SLICE != 9:
+                            tn.write(b"C1000|unsub slice all\n")
+                            ACTIVE_SLICE = 9
+                        elif line == "R999|0|0" and ACTIVE_SLICE != 0:
+                            tn.write(b"C1001|sub slice 0\n")
+                            ACTIVE_SLICE = 0
+                        elif line == "R999|0|1" and ACTIVE_SLICE != 1:
+                            tn.write(b"C1002|sub slice 1\n")
+                            ACTIVE_SLICE = 1
+                        elif line == "R999|0|0 1" and ACTIVE_SLICE != 0:
+                            tn.write(b"C1003|sub slice 0\n")
+                            ACTIVE_SLICE = 0
 
-                if line.startswith("R999|0|"):
-                    if line == "R999|0|" and ACTIVE_SLICE != 9:
-                        tn.write(b"C1000|unsub slice all\n")
-                        ACTIVE_SLICE = 9
-                    elif line == "R999|0|0" and ACTIVE_SLICE != 0:
-                        tn.write(b"C1001|sub slice 0\n")
-                        ACTIVE_SLICE = 0
-                    elif line == "R999|0|1" and ACTIVE_SLICE != 1:
-                        tn.write(b"C1002|sub slice 1\n")
-                        ACTIVE_SLICE = 1
-                    elif line == "R999|0|0 1" and ACTIVE_SLICE != 0:
-                        tn.write(b"C1003|sub slice 0\n")
-                        ACTIVE_SLICE = 0
+                    if ACTIVE_SLICE == 9:
+                        mqtt_client.publish(f"{STN}/band", "[0, 0]")
+                        mqtt_client.publish(f"{STN}/qrg", "0")
+                    else:
+                        mqtt_client.publish(f"{STN}/band", LAST_BAND)
+                        mqtt_client.publish(f"{STN}/qrg", LAST_QRG)
 
-                if ACTIVE_SLICE == 9:
-                    mqtt_client.publish(f"{STN}/band", "[0, 0]")
-                    mqtt_client.publish(f"{STN}/qrg", "0")
-                else:
-                    mqtt_client.publish(f"{STN}/band", LAST_BAND)
-                    mqtt_client.publish(f"{STN}/qrg", LAST_QRG)
+                    match_qrg = re.search(r"RF_frequency=([0-9.]+)", line)
+                    if match_qrg:
+                        frequency = float(match_qrg.group(1))
+                        LAST_QRG = frequency * 100000
+                        mqtt_client.publish(f"{STN}/qrg", LAST_QRG)
 
-                match_qrg = re.search(r"RF_frequency=([0-9.]+)", line)
-                if match_qrg:
-                    frequency = float(match_qrg.group(1))
-                    LAST_QRG = frequency * 100000
-                    mqtt_client.publish(f"{STN}/qrg", LAST_QRG)
-
-                    band = obtain_band(frequency)
-                    LAST_BAND = str([band, 0])
-                    mqtt_client.publish(f"{STN}/band", LAST_BAND)
+                        band = obtain_band(frequency)
+                        LAST_BAND = str([band, 0])
+                        mqtt_client.publish(f"{STN}/band", LAST_BAND)
 
         except Exception as exc:
             print(f"[TELNET] Error or disconnected: {exc}")

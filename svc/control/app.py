@@ -3,30 +3,20 @@
 __author__ = 'EB1TR'
 
 import json
+
 import paho.mqtt.client as mqtt
 
-MQTT_HOST = "mqtt"
-MQTT_PORT = 1883
-MQTT_KEEP = 60
+import settings
 
-
-try:
-    with open('cfg/stacks.json') as json_file:
-        data = json.load(json_file)
-        STACKS = dict(data)
-    with open('cfg/sixpack.json') as json_file:
-        data = json.load(json_file)
-        SIXPACK = dict(data)
-    with open('cfg/stn1.json') as json_file:
-        data = json.load(json_file)
-        STN1 = dict(data)
-    with open('cfg/stn2.json') as json_file:
-        data = json.load(json_file)
-        STN2 = dict(data)
-        print("Datos de STNs cargados desde fichero...")
-except Exception as e:
-    print("Error en los ficheros de configuracion: %s" % e)
-    exit(0)
+CONFIG = settings.load_config()
+MQTT_HOST = CONFIG.mqtt_host
+MQTT_PORT = CONFIG.mqtt_port
+MQTT_KEEP = CONFIG.mqtt_keepalive
+STACKS = CONFIG.stacks
+SIXPACK = CONFIG.sixpack
+STN1 = CONFIG.stn1
+STN2 = CONFIG.stn2
+print("Configuración de control cargada desde JSON")
 
 def rig_on_off(topic, value):
     mqtt_client.publish(topic, value)
