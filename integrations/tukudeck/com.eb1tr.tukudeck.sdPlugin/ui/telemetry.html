@@ -26,7 +26,7 @@
 			<option value="radioband">Banda de radio</option>
 		</sdpi-radio>
 	</sdpi-item>
-	<sdpi-item label="Promedio (potencia/ROE)">
+	<sdpi-item label="Promedio">
 		<sdpi-radio setting="average" default="1" value-type="number" columns="2">
 			<option value="1">Sin promedio</option>
 			<option value="5">5 muestras</option>
@@ -34,9 +34,12 @@
 			<option value="20">20 muestras</option>
 		</sdpi-radio>
 	</sdpi-item>
-	<p>Potencia media y ROE: se actualizan con el promedio de cada grupo de muestras seleccionado.</p>
-	<p>Potencia de pico: valor máximo de las últimas 20 muestras recibidas mientras la tecla está visible. No se aplica el promedio ni representa una medida de PEP.</p>
-	<p>Datos directos de radio: último estado conocido. TX en rojo y RX en verde.</p>
+	<sdpi-item label="Color">
+		<sdpi-color global setting="telemetryNormalColor" default="#00AEEF"></sdpi-color>
+	</sdpi-item>
+	<p>El promedio suaviza la potencia y la ROE.</p>
+	<p>Potencia de pico muestra el máximo de las últimas 20 lecturas.</p>
+	<p>El color es común para toda la telemetría. TX es rojo y RX verde.</p>
 
 	<sdpi-item label="Mostrar título">
 		<sdpi-radio setting="showTitle" default="show" columns="2">
@@ -53,6 +56,6 @@
 			<option value="show">Sí</option><option value="hide">No</option>
 		</sdpi-radio>
 	</sdpi-item>
-	<p>Opciones independientes para esta tecla. Se aplican a los elementos que tenga el botón; STN también controla los indicadores de uso de los rotores.</p>
+	<p>Estas opciones solo afectan a esta tecla.</p>
 </body>
 </html>

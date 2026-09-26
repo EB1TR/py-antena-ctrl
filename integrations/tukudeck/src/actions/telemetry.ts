@@ -3,6 +3,7 @@ import {
 	action, DidReceiveSettingsEvent, SingletonAction,
 	WillAppearEvent, WillDisappearEvent
 } from "@elgato/streamdeck";
+import streamDeck from "@elgato/streamdeck";
 import { getRadioState, onRadioState } from "../radio-state";
 import type { RadioState } from "../radio-state";
 import { getTelemetryState, onTelemetryState } from "../mqtt";
@@ -10,7 +11,21 @@ import type { TelemetryMetric, TelemetryState } from "../mqtt";
 import { getStation } from "../station";
 import type { Station, StationSettings } from "../station";
 
-type TelemetrySettings = StationSettings & { metric?: TelemetryMetric | "pwrpeak" | "tx" | "radioband"; average?: number | string };
+type TelemetrySettings = StationSettings & {
+	metric?: TelemetryMetric | "pwrpeak" | "tx" | "radioband";
+	average?: number | string;
+};
+type TelemetryGlobalSettings = { telemetryNormalColor?: string };
+type ImageAction = { id: string; setImage(image: string): Promise<void> };
+
+const DEFAULT_NORMAL_COLOR = "#00AEEF";
+let normalColor = DEFAULT_NORMAL_COLOR;
+
+function getNormalColor(value: unknown): string {
+	return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value)
+		? value
+		: DEFAULT_NORMAL_COLOR;
+}
 
 const labels: Record<TelemetryMetric, string> = {
 	tensiona: "TENSIÓN", fun: "VENT.", temp: "TEMP", pwr: "POT. MEDIA", swr: "ROE", qrg: "FREC."
@@ -26,14 +41,29 @@ const units: Record<TelemetryMetric, string> = {
 @action({ UUID: "com.eb1tr.tukudeck.telemetry" })
 export class Telemetry extends SingletonAction<TelemetrySettings> {
 	private readonly subscriptions = new Map<string, () => void>();
+	private readonly instances = new Map<string, { action: ImageAction; settings: TelemetrySettings }>();
+
+	constructor() {
+		super();
+		streamDeck.settings.onDidReceiveGlobalSettings<TelemetryGlobalSettings>((ev) => {
+			const nextColor = getNormalColor(ev.settings.telemetryNormalColor);
+			if (nextColor === normalColor) return;
+			normalColor = nextColor;
+			for (const instance of [...this.instances.values()]) {
+				this.subscribe(instance.action, instance.settings);
+			}
+		});
+	}
 
 	override onWillAppear(ev: WillAppearEvent<TelemetrySettings>): void {
+		this.instances.set(ev.action.id, { action: ev.action, settings: ev.payload.settings });
 		this.subscribe(ev.action, ev.payload.settings);
 	}
 
 	override onDidReceiveSettings(ev: DidReceiveSettingsEvent<TelemetrySettings>): void {
 		// Only visible instances need a listener; onWillAppear reads saved settings.
 		if (this.subscriptions.has(ev.action.id)) {
+			this.instances.set(ev.action.id, { action: ev.action, settings: ev.payload.settings });
 			this.subscribe(ev.action, ev.payload.settings);
 		}
 	}
@@ -41,10 +71,11 @@ export class Telemetry extends SingletonAction<TelemetrySettings> {
 	override onWillDisappear(ev: WillDisappearEvent<TelemetrySettings>): void {
 		this.subscriptions.get(ev.action.id)?.();
 		this.subscriptions.delete(ev.action.id);
+		this.instances.delete(ev.action.id);
 	}
 
 	private subscribe(
-		actionInstance: { id: string; setImage(image: string): Promise<void> },
+		actionInstance: ImageAction,
 		settings: TelemetrySettings
 	): void {
 		this.subscriptions.get(actionInstance.id)?.();
@@ -54,7 +85,7 @@ export class Telemetry extends SingletonAction<TelemetrySettings> {
 			let lastImage: string | undefined;
 			this.subscriptions.set(actionInstance.id, onRadioState(station, (state, field) => {
 				if (field !== undefined && (metric === "tx" ? field !== "tx" && field !== "available" : field !== "band")) return;
-				const image = this.makeRadioImage(station, metric, state);
+				const image = this.makeRadioImage(station, metric, state, normalColor);
 				if (image === lastImage) return;
 				lastImage = image;
 				void setKeyImage(actionInstance, image);
@@ -69,7 +100,7 @@ export class Telemetry extends SingletonAction<TelemetrySettings> {
 			let lastImage: string | undefined;
 			this.subscriptions.set(actionInstance.id, onRadioState(station, (_state, field) => {
 				if (field !== undefined && field !== "qrg" && field !== "tx") return;
-				const image = this.makeImage(station, metric, getTelemetryState(station), false);
+				const image = this.makeImage(station, metric, getTelemetryState(station), false, normalColor);
 				if (image === lastImage) return;
 				lastImage = image;
 				void setKeyImage(actionInstance, image);
@@ -84,7 +115,7 @@ export class Telemetry extends SingletonAction<TelemetrySettings> {
 		let count = 0;
 		let lastImage: string | undefined;
 		const render = (state: TelemetryState): void => {
-			const image = this.makeImage(station, metric, state, peak);
+			const image = this.makeImage(station, metric, state, peak, normalColor);
 			if (image !== lastImage) {
 				lastImage = image;
 				void setKeyImage(actionInstance, image);
@@ -126,12 +157,17 @@ export class Telemetry extends SingletonAction<TelemetrySettings> {
 		}));
 	}
 
-	private makeRadioImage(station: Station, metric: "tx" | "radioband", state: RadioState): string {
+	private makeRadioImage(
+		station: Station,
+		metric: "tx" | "radioband",
+		state: RadioState,
+		normalColor: string
+	): string {
 		const status = state.transmitting === null ? "--" : state.transmitting ? "TX" : "RX";
 		const text = metric === "radioband"
 			? state.band === null ? "--" : state.band === 0 ? "N/A" : `${state.band}m`
 			: status;
-		const color = metric === "radioband" ? state.band === null ? "#808080" : "#31AA31"
+		const color = metric === "radioband" ? state.band === null ? "#808080" : normalColor
 			: state.transmitting === null ? "#808080" : state.transmitting ? "#FF3B3B" : "#31AA31";
 		const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
 			<rect x="2" y="2" width="140" height="140" rx="12" fill="#07111D" stroke="${color}" stroke-width="3"/>
@@ -142,12 +178,18 @@ export class Telemetry extends SingletonAction<TelemetrySettings> {
 		return `data:image/svg+xml;charset=utf8,${encodeURIComponent(svg)}`;
 	}
 
-	private makeImage(station: Station, metric: TelemetryMetric, state: TelemetryState, peak: boolean): string {
+	private makeImage(
+		station: Station,
+		metric: TelemetryMetric,
+		state: TelemetryState,
+		peak: boolean,
+		normalColor: string
+	): string {
 		const value = state[metric];
 		// QRG uses the same scale as the web: received value / 100 = kHz.
 		const displayValue = metric === "qrg" && value !== undefined ? value / 100 : value;
 		const text = displayValue === undefined ? "--" : `${displayValue.toFixed(decimals[metric])}${metric === "qrg" ? "" : units[metric]}`;
-		let color = "#31AA31";
+		let color = normalColor;
 		if (value === undefined) {
 			color = "#808080";
 		} else if (
