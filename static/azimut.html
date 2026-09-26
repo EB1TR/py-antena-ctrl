@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Antenna Control · Mapa azimutal</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+  <script src="mqtt.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; padding: 0; }
+    #contenor { width: 100%; }
+    .az-maps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
+    .rotor-map { width: 100%; }
+    .antenna-name { margin: 0; padding: 8px 0 4px; text-align: center; font: bold 22px sans-serif; }
+    .az-map { display: block; width: 100%; height: auto; cursor: crosshair; }
+    .sphere { fill: #07131d; stroke: #9a8264; stroke-width: 1.5; }
+    .graticule { fill: none; stroke: #385064; stroke-width: .65; stroke-opacity: .8; }
+    .land { fill: #26382f; stroke: #64806d; stroke-width: .45; }
+    .az-ring { fill: none; stroke: #7790a0; stroke-width: .7; stroke-dasharray: 3 4; opacity: .75; }
+    .az-label { fill: #b9aa93; font: 12px sans-serif; text-anchor: middle; dominant-baseline: middle; }
+    .rotor-line { stroke-width: 4; stroke-linecap: round; filter: drop-shadow(0 0 3px currentColor); }
+    .rotor-tip { stroke: #050505; stroke-width: 1; }
+    .mqtt-values { display: none; }
+  </style>
+</head>
+<body>
+  <div id="contenor">
+    <div class="az-maps" id="az-maps"></div>
+    <div class="mqtt-values" aria-hidden="true"><span id="tw1"></span><span id="tw2"></span><span id="tw3"></span></div>
+  </div>
+
+  <script>
+    const CENTER = [-5, 43.5];
+    const ROTORS = [
+      { id: 'tw3', name: 'C31XR', color: '#ffb000' },
+      { id: 'tw1', name: 'MB7', color: '#00c8ff' },
+      { id: 'tw2', name: 'MB4', color: '#ff4f87' }
+    ];
+    const projection = d3.geoAzimuthalEquidistant().rotate([-CENTER[0], -CENTER[1]]).translate([360, 360]).scale(112).clipAngle(179.9);
+    const path = d3.geoPath(projection);
+    function send(rotor, degrees) {
+      if (typeof send_command === 'function') {
+        send_command(`${rotor}/set/deg`, degrees);
+      }
+    }
+
+    function updateRay(id, degrees) {
+      if (!Number.isFinite(degrees)) return;
+      const angle = (degrees - 90) * Math.PI / 180;
+      const x = 360 + Math.cos(angle) * 270;
+      const y = 360 + Math.sin(angle) * 270;
+      const map = d3.select(`#${id}-map`);
+      map.select('.rotor-line').attr('x2', x).attr('y2', y);
+      map.select('.rotor-tip').attr('cx', x).attr('cy', y);
+      document.getElementById(id).dataset.degrees = degrees;
+    }
+
+    const maps = document.getElementById('az-maps');
+    ROTORS.forEach(rotor => {
+      const box = document.createElement('div');
+      box.className = 'rotor-map';
+      box.innerHTML = `<div class="antenna-name" style="color:${rotor.color}">${rotor.name}</div>
+        <svg class="az-map" id="${rotor.id}-map" viewBox="0 0 720 720" role="img" aria-label="Mapa azimutal de ${rotor.name}"></svg>`;
+      maps.appendChild(box);
+
+      const svg = d3.select(`#${rotor.id}-map`);
+      svg.append('path').datum({type: 'Sphere'}).attr('class', 'sphere').attr('d', path);
+      svg.append('path').datum(d3.geoGraticule10()).attr('class', 'graticule').attr('d', path);
+      svg.append('g').attr('class', 'land-layer');
+      [30, 60, 90, 120, 150].forEach(distance => {
+        const radius = projection([CENTER[0], CENTER[1] + Math.min(distance, 89)])[1];
+        svg.append('circle').attr('class', 'az-ring').attr('cx', 360).attr('cy', 360).attr('r', Math.abs(radius - 360));
+      });
+      for (let az = 0; az < 360; az += 30) {
+        const angle = (az - 90) * Math.PI / 180;
+        svg.append('text').attr('class', 'az-label').attr('x', 360 + Math.cos(angle) * 342)
+          .attr('y', 360 + Math.sin(angle) * 342).text(`${az}°`);
+      }
+      svg.append('line').attr('class', 'rotor-line').attr('x1', 360).attr('y1', 360)
+        .attr('x2', 360).attr('y2', 90).attr('stroke', rotor.color);
+      svg.append('circle').attr('class', 'rotor-tip').attr('cx', 360).attr('cy', 90).attr('r', 7).attr('fill', rotor.color);
+      svg.append('circle').attr('cx', 360).attr('cy', 360).attr('r', 7).attr('fill', '#f3e3c5');
+      svg.on('click', event => {
+        const [x, y] = d3.pointer(event);
+        const degrees = (Math.atan2(y - 360, x - 360) * 180 / Math.PI + 450) % 360;
+        send(rotor.id, Math.round(degrees));
+      });
+    });
+
+    fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+      .then(response => response.json())
+      .then(world => ROTORS.forEach(rotor => d3.select(`#${rotor.id}-map .land-layer`)
+        .append('path').datum(topojson.feature(world, world.objects.land)).attr('class', 'land').attr('d', path)))
+      .catch(() => {});
+
+    ROTORS.forEach(rotor => {
+      const source = document.getElementById(rotor.id);
+      const sync = () => updateRay(rotor.id, parseFloat(source.textContent));
+      new MutationObserver(sync).observe(source, { childList: true, characterData: true, subtree: true });
+    });
+  </script>
+</body>
+</html>
