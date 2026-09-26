@@ -27,6 +27,35 @@ const numericFields = {
 	qrg: "frequencyKhz", pwr: "powerWatts", swr: "swr", tensiona: "voltage",
 	temp: "temperatureCelsius", fun: "fanRpm"
 } as const;
+const TELEMETRY_TIMEOUT_MS = 5000;
+type TimedRadioField = keyof typeof numericFields | "band";
+const telemetryTimeouts: Record<Station, Partial<Record<TimedRadioField, ReturnType<typeof setTimeout>>>> = {
+	stn1: {}, stn2: {}
+};
+
+function notifyRadioState(station: Station, field: RadioField): void {
+	for (const listener of listeners[station]) listener(getRadioState(station), field);
+}
+
+function clearTimedField(station: Station, field: TimedRadioField): void {
+	const state = states[station];
+	if (field === "band") {
+		state.band = null;
+		state.segment = null;
+	} else {
+		state[numericFields[field]] = null;
+	}
+	notifyRadioState(station, field);
+}
+
+function refreshTelemetryTimeout(station: Station, field: TimedRadioField): void {
+	const current = telemetryTimeouts[station][field];
+	if (current !== undefined) clearTimeout(current);
+	telemetryTimeouts[station][field] = setTimeout(() => {
+		delete telemetryTimeouts[station][field];
+		clearTimedField(station, field);
+	}, TELEMETRY_TIMEOUT_MS);
+}
 
 export function getRadioState(station: Station): RadioState {
 	return { ...states[station] };
@@ -54,16 +83,21 @@ export function processRadioMessage(topic: string, payload: string): void {
 				!value.every(item => typeof item === "number" && Number.isFinite(item) && Number.isInteger(item) && item >= 0)) {
 				throw new Error("se esperaba [banda, segmento] con enteros no negativos");
 			}
-			[state.band, state.segment] = value;
+			const [band, segment] = value;
+			state.band = band === 0 ? null : band;
+			state.segment = band === 0 ? null : segment;
 		} else {
 			const number = Number(payload);
 			if (payload.trim() === "" || !Number.isFinite(number)) throw new Error("se esperaba un número finito");
 			const key = numericFields[field as keyof typeof numericFields];
-			state[key] = field === "qrg" ? number / 100 : number;
+			state[key] = field === "qrg" ? (number === 0 ? null : number / 100) : number;
 		}
 	} catch (error) {
 		streamDeck.logger.warn(`MQTT ${topic}: payload inválido ${JSON.stringify(payload)}: ${String(error)}`);
 		return;
 	}
-	for (const listener of listeners[station]) listener(getRadioState(station), field as RadioField);
+	if (field === "band" || Object.hasOwn(numericFields, field)) {
+		refreshTelemetryTimeout(station, field as TimedRadioField);
+	}
+	notifyRadioState(station, field as RadioField);
 }
