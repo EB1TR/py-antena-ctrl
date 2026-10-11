@@ -1,15 +1,25 @@
-clientID = "web"
-mqttHOST = "192.168.88.10"
-clientID += new Date().getUTCMilliseconds()
-client = new Paho.MQTT.Client(mqttHOST, Number(9001), clientID);
+const mqttHOST = "192.168.88.10";
+const mqttPORT = 9001;
+const clientID = `web-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+const MQTT_RECONNECT_MIN_MS = 1000;
+const MQTT_RECONNECT_MAX_MS = 30000;
+
+let reconnectTimer = null;
+let reconnectAttempts = 0;
+let connecting = false;
+const client = new Paho.MQTT.Client(mqttHOST, mqttPORT, clientID);
 
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
-client.onFailure = onConnectionLost;
 
-client.connect({
-    onSuccess:onConnect,
-    onFailure:onConnectionLost
+connectMqtt();
+
+window.addEventListener("online", () => {
+    if (reconnectTimer !== null) {
+        clearTimeout(reconnectTimer);
+        reconnectTimer = null;
+    }
+    connectMqtt();
 });
 
 function createAverageCalculator(n) {
@@ -49,9 +59,59 @@ const avgpwrr2 = createAverageCalculator(8);
 const avgswrr1 = createAverageCalculator(8);
 const avgswrr2 = createAverageCalculator(8);
 
+function setConnectionVisual(connected) {
+    const container = document.getElementById("contenor");
+    if (container) container.classList.toggle("FinFout", !connected);
+}
+
+function connectMqtt() {
+    if (connecting || client.isConnected()) return;
+
+    connecting = true;
+    setConnectionVisual(false);
+
+    try {
+        client.connect({
+            timeout: 10,
+            keepAliveInterval: 10,
+            cleanSession: true,
+            onSuccess: onConnect,
+            onFailure: onConnectionLost
+        });
+    } catch (error) {
+        connecting = false;
+        console.log("Error iniciando la conexión MQTT:", error);
+        scheduleReconnect();
+    }
+}
+
+function scheduleReconnect() {
+    if (reconnectTimer !== null || client.isConnected()) return;
+
+    const baseDelay = Math.min(
+        MQTT_RECONNECT_MIN_MS * (2 ** reconnectAttempts),
+        MQTT_RECONNECT_MAX_MS
+    );
+    const jitter = Math.floor(Math.random() * Math.min(1000, baseDelay / 4));
+    const delay = baseDelay + jitter;
+    reconnectAttempts += 1;
+
+    console.log(`Reconexión MQTT en ${delay} ms.`);
+    reconnectTimer = setTimeout(() => {
+        reconnectTimer = null;
+        connectMqtt();
+    }, delay);
+}
+
 function onConnect() {
+    connecting = false;
+    reconnectAttempts = 0;
+    if (reconnectTimer !== null) {
+        clearTimeout(reconnectTimer);
+        reconnectTimer = null;
+    }
     console.log("Connectado a MQTT.");
-    $('#contenor').removeClass("FinFout")
+    setConnectionVisual(true);
     client.subscribe("pytofront");
     client.subscribe("stn1/#");
     client.subscribe("stn2/#");
@@ -59,23 +119,33 @@ function onConnect() {
     client.subscribe("tw2/#");
     client.subscribe("tw3/#");
     console.log("Suscrito a topics MQTT.");
-    message = new Paho.MQTT.Message('0');
+    const message = new Paho.MQTT.Message('0');
     message.destinationName = "update";
     client.send(message);
     console.log("Información inicial solicitada.")
 }
 
 function onConnectionLost(responseObject) {
+    connecting = false;
     if (responseObject.errorCode !== 0) {
         console.log("Conexión perdida a MQTT:"+responseObject.errorMessage);
     }
-    $('#contenor').addClass("FinFout")
+    setConnectionVisual(false);
+    scheduleReconnect();
 }
 
 function send_command(comm, dato){
-    message = new Paho.MQTT.Message(String(dato));
+    if (!client.isConnected()) {
+        console.log(`MQTT desconectado; no se envía ${comm}=${dato}.`);
+        setConnectionVisual(false);
+        scheduleReconnect();
+        return false;
+    }
+
+    const message = new Paho.MQTT.Message(String(dato));
     message.destinationName = comm;
     client.send(message);
+    return true;
 }
 
 function onMessageArrived(message) {

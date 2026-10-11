@@ -1,6 +1,7 @@
 import { setKeyImage } from "../key-display";
 import {
 	action,
+	DidReceiveSettingsEvent,
 	KeyDownEvent,
 	SingletonAction,
 	WillAppearEvent
@@ -9,30 +10,38 @@ import {
 import {
 	sendCommand
 } from "../mqtt";
+import { getStation } from "../station";
+import type { Station, StationSettings } from "../station";
 
 @action({ UUID: "com.eb1tr.tukudeck.swap" })
-export class Swap extends SingletonAction {
+export class Swap extends SingletonAction<StationSettings> {
 
 	override async onWillAppear(
-		ev: WillAppearEvent
+		ev: WillAppearEvent<StationSettings>
 	): Promise<void> {
 
 		await setKeyImage(ev.action, 
-			this.makeImage()
+			this.makeImage(getStation(ev.payload.settings))
 		);
 	}
 
+	override async onDidReceiveSettings(
+		ev: DidReceiveSettingsEvent<StationSettings>
+	): Promise<void> {
+		await setKeyImage(ev.action, this.makeImage(getStation(ev.payload.settings)));
+	}
+
 	override async onKeyDown(
-		_ev: KeyDownEvent
+		ev: KeyDownEvent<StationSettings>
 	): Promise<void> {
 
 		sendCommand(
-			"set/stn2/nostack",
+			`set/${getStation(ev.payload.settings)}/nostack`,
 			1
 		);
 	}
 
-	private makeImage(): string {
+	private makeImage(station: Station): string {
 
 		const svg = `
 			<svg
@@ -61,6 +70,16 @@ export class Swap extends SingletonAction {
 					font-weight="bold"
 					fill="#FF8000"
 				>SWAP</text>
+
+				<text data-part="station"
+					x="72"
+					y="124"
+					text-anchor="middle"
+					font-family="Arial, sans-serif"
+					font-size="15"
+					font-weight="bold"
+					fill="#808080"
+				>${station.toUpperCase()}</text>
 			</svg>
 		`;
 

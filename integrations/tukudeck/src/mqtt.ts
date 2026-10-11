@@ -24,6 +24,7 @@ export type RotorState = {
 	setdeg?: number;
 	nec?: string;
 	mode?: RotorMode;
+	positionStale?: boolean;
 };
 
 export type RotorNumber = 1 | 2 | 3;
@@ -151,6 +152,9 @@ const rotorListeners: Record<
 	3: new Set()
 };
 
+const ROTOR_POSITION_TIMEOUT_MS = 10000;
+const rotorPositionTimeouts: Partial<Record<RotorNumber, ReturnType<typeof setTimeout>>> = {};
+
 export function getRotorState(
 	rotor: RotorNumber
 ): RotorState {
@@ -191,6 +195,22 @@ function notifyRotor(
 	}
 }
 
+function armRotorPositionTimeout(rotor: RotorNumber): void {
+	const current = rotorPositionTimeouts[rotor];
+	if (current !== undefined) clearTimeout(current);
+	rotorPositionTimeouts[rotor] = setTimeout(() => {
+		delete rotorPositionTimeouts[rotor];
+		const state = rotorStates[rotor];
+		state.deg = undefined;
+		state.positionStale = true;
+		notifyRotor(rotor);
+	}, ROTOR_POSITION_TIMEOUT_MS);
+}
+
+function armAllRotorPositionTimeouts(): void {
+	for (const rotor of [1, 2, 3] as const) armRotorPositionTimeout(rotor);
+}
+
 function processRotorMessage(
 	rotor: RotorNumber,
 	topic: string,
@@ -217,6 +237,8 @@ function processRotorMessage(
 				Number.isFinite(deg)
 			) {
 				state.deg = deg;
+				state.positionStale = false;
+				armRotorPositionTimeout(rotor);
 			}
 
 			break;
@@ -497,6 +519,7 @@ export function connectMqtt():
 		() => {
 			if (client !== activeClient) return;
 			setMqttConnected(true);
+			armAllRotorPositionTimeouts();
 
 			streamDeck.logger.info(
 				"MQTT: conectado"

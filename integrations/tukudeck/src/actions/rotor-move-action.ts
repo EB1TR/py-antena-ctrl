@@ -4,7 +4,8 @@ import {
 	DidReceiveSettingsEvent,
 	KeyDownEvent,
 	SingletonAction,
-	WillAppearEvent
+	WillAppearEvent,
+	WillDisappearEvent
 } from "@elgato/streamdeck";
 
 import {
@@ -15,24 +16,46 @@ import {
 import type {
 	RotorNumber
 } from "../mqtt";
+import { getRotorColor, onRotorColorChange } from "../rotor-colors";
 
 type RotorMoveSettings = { rotor?: number | string; direction?: string; step?: number | string };
 
 @action({ UUID: "com.eb1tr.tukudeck.tw1plus5" })
 export class RotorMoveAction extends SingletonAction<RotorMoveSettings> {
+	private readonly cleanups = new Map<string, () => void>();
 
 	override async onWillAppear(
 		ev: WillAppearEvent<RotorMoveSettings>
 	): Promise<void> {
 
-		const rotor = this.getRotor(ev.payload.settings);
-		await setKeyImage(ev.action, this.makeImage(rotor, ev.payload.settings));
+		this.subscribe(ev.action, ev.payload.settings);
 	}
 
 	override async onDidReceiveSettings(
 		ev: DidReceiveSettingsEvent<RotorMoveSettings>
 	): Promise<void> {
-		await setKeyImage(ev.action, this.makeImage(this.getRotor(ev.payload.settings), ev.payload.settings));
+		if (this.cleanups.has(ev.action.id)) this.subscribe(ev.action, ev.payload.settings);
+	}
+
+	override onWillDisappear(ev: WillDisappearEvent<RotorMoveSettings>): void {
+		this.cleanups.get(ev.action.id)?.();
+		this.cleanups.delete(ev.action.id);
+	}
+
+	private subscribe(
+		actionInstance: { id: string; setImage(image: string): Promise<void> },
+		settings: RotorMoveSettings
+	): void {
+		this.cleanups.get(actionInstance.id)?.();
+		const rotor = this.getRotor(settings);
+		const render = (): void => {
+			void setKeyImage(actionInstance, this.makeImage(rotor, settings, getRotorColor(rotor)));
+		};
+		const offColor = onRotorColorChange((changedRotor) => {
+			if (changedRotor === rotor) render();
+		});
+		this.cleanups.set(actionInstance.id, offColor);
+		render();
 	}
 
 	private getRotor(settings: RotorMoveSettings): RotorNumber {
@@ -68,7 +91,7 @@ export class RotorMoveAction extends SingletonAction<RotorMoveSettings> {
 		return Number.isFinite(step) && step > 0 && step <= 359 ? Math.max(1, Math.round(step)) : 5;
 	}
 
-	private makeImage(rotor: RotorNumber, settings: RotorMoveSettings): string {
+	private makeImage(rotor: RotorNumber, settings: RotorMoveSettings, color: string): string {
 
 		const label = `${this.getDirection(settings) === "minus" ? "−" : "+"}${this.getStep(settings)}°`;
 
@@ -86,7 +109,7 @@ export class RotorMoveAction extends SingletonAction<RotorMoveSettings> {
 					height="140"
 					rx="12"
 					fill="#07111D"
-					stroke="#006CFF"
+					stroke="${color}"
 					stroke-width="3"
 				/>
 
@@ -97,7 +120,7 @@ export class RotorMoveAction extends SingletonAction<RotorMoveSettings> {
 					font-family="Arial, sans-serif"
 					font-size="18"
 					font-weight="bold"
-					fill="#006CFF"
+					fill="${color}"
 				>TW${rotor}</text>
 
 				<text data-part="value"
@@ -107,7 +130,7 @@ export class RotorMoveAction extends SingletonAction<RotorMoveSettings> {
 					font-family="Arial, sans-serif"
 					font-size="30"
 					font-weight="bold"
-					fill="#006CFF"
+					fill="${color}"
 				>${label}</text>
 
 			</svg>

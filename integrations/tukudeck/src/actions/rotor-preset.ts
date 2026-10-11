@@ -4,12 +4,14 @@ import {
 	DidReceiveSettingsEvent,
 	KeyDownEvent,
 	SingletonAction,
-	WillAppearEvent
+	WillAppearEvent,
+	WillDisappearEvent
 } from "@elgato/streamdeck";
 
 import {
 	sendCommand
 } from "../mqtt";
+import { getRotorColor, onRotorColorChange } from "../rotor-colors";
 
 type RotorPresetSettings = {
 	rotor?: string;
@@ -18,25 +20,25 @@ type RotorPresetSettings = {
 
 @action({ UUID: "com.eb1tr.tukudeck.rotorpreset" })
 export class RotorPreset extends SingletonAction<RotorPresetSettings> {
+	private readonly cleanups = new Map<string, () => void>();
 
 	override async onWillAppear(
 		ev: WillAppearEvent<RotorPresetSettings>
 	): Promise<void> {
 
-		await this.render(
-			ev.action,
-			ev.payload.settings
-		);
+		this.subscribe(ev.action, ev.payload.settings);
 	}
 
 	override async onDidReceiveSettings(
 		ev: DidReceiveSettingsEvent<RotorPresetSettings>
 	): Promise<void> {
 
-		await this.render(
-			ev.action,
-			ev.payload.settings
-		);
+		if (this.cleanups.has(ev.action.id)) this.subscribe(ev.action, ev.payload.settings);
+	}
+
+	override onWillDisappear(ev: WillDisappearEvent<RotorPresetSettings>): void {
+		this.cleanups.get(ev.action.id)?.();
+		this.cleanups.delete(ev.action.id);
 	}
 
 	override async onKeyDown(
@@ -92,21 +94,24 @@ export class RotorPreset extends SingletonAction<RotorPresetSettings> {
 		);
 	}
 
-	private async render(
+	private subscribe(
 		actionInstance: {
 			id: string;
 			setImage(image: string): Promise<void>;
 		},
 		settings: RotorPresetSettings
-	): Promise<void> {
+	): void {
+		this.cleanups.get(actionInstance.id)?.();
 
 		const rotor =
 			this.getRotor(settings);
 
 		const degrees =
 			this.getDegrees(settings);
+		const render = (): void => {
+			const color = getRotorColor(rotor);
 
-		const svg = `
+			const svg = `
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="144"
@@ -120,7 +125,7 @@ export class RotorPreset extends SingletonAction<RotorPresetSettings> {
 					height="140"
 					rx="12"
 					fill="#07111D"
-					stroke="#006CFF"
+					stroke="${color}"
 					stroke-width="3"
 				/>
 
@@ -131,7 +136,7 @@ export class RotorPreset extends SingletonAction<RotorPresetSettings> {
 					font-family="Arial, sans-serif"
 					font-size="18"
 					font-weight="bold"
-					fill="#006CFF"
+					fill="${color}"
 				>TW${rotor}</text>
 
 				<text data-part="value"
@@ -141,13 +146,19 @@ export class RotorPreset extends SingletonAction<RotorPresetSettings> {
 					font-family="Arial, sans-serif"
 					font-size="36"
 					font-weight="bold"
-					fill="#006CFF"
+					fill="${color}"
 				>${degrees}°</text>
 			</svg>
 		`;
 
-		await setKeyImage(actionInstance, 
-			`data:image/svg+xml;charset=utf8,${encodeURIComponent(svg)}`
-		);
+			void setKeyImage(actionInstance,
+				`data:image/svg+xml;charset=utf8,${encodeURIComponent(svg)}`
+			);
+		};
+		const offColor = onRotorColorChange((changedRotor) => {
+			if (changedRotor === rotor) render();
+		});
+		this.cleanups.set(actionInstance.id, offColor);
+		render();
 	}
 }

@@ -3,12 +3,17 @@
 <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
 	<link rel="stylesheet" href="inspector.css" />
 </head><body>
+<sdpi-item label="Estación">
+ <sdpi-radio setting="station" default="stn2" columns="2">
+  <option value="stn1">STN1</option><option value="stn2">STN2</option>
+ </sdpi-radio>
+</sdpi-item>
 <sdpi-item label="Antena">
  <sdpi-radio setting="antenna" default="1" value-type="number" columns="3">
   <option value="1">ANT1</option><option value="2">ANT2</option><option value="3">ANT3</option>
  </sdpi-radio>
 </sdpi-item>
-<p>Selecciona la salida de antena de STN2.</p>
+<p>Selecciona una salida del stack correspondiente a la banda activa de la estación elegida.</p>
 
 	<sdpi-item label="Mostrar título">
 		<sdpi-radio setting="showTitle" default="show" columns="2">

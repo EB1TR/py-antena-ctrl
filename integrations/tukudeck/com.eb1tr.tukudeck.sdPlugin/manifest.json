@@ -1,13 +1,13 @@
 {
 	"Name": "TukuDeck",
-	"Version": "1.1.2.0",
+	"Version": "1.1.5.0",
 	"Author": "EB1TR",
 	"Actions": [
 		{
 			"Name": "Stack - Antena",
 			"UUID": "com.eb1tr.tukudeck.antenna1",
 			"Icon": "imgs/actions/counter/icon",
-			"Tooltip": "Selecciona ANT1, ANT2 o ANT3 de STN2.",
+			"Tooltip": "Selecciona ANT1, ANT2 o ANT3 para la banda activa de STN1 o STN2.",
 			"Controllers": [
 				"Keypad"
 			],
@@ -22,7 +22,7 @@
 			"Name": "Stack -Swap",
 			"UUID": "com.eb1tr.tukudeck.swap",
 			"Icon": "imgs/actions/counter/icon",
-			"Tooltip": "Cambio de antena de STN2.",
+			"Tooltip": "Cambia la antena del stack para la banda activa de STN1 o STN2.",
 			"Controllers": [
 				"Keypad"
 			],
@@ -31,7 +31,7 @@
 					"Image": "imgs/actions/counter/key"
 				}
 			],
-			"PropertyInspectorPath": "ui/display.html"
+			"PropertyInspectorPath": "ui/station.html"
 		},
 		{
 			"Name": "TRX - ON/OFF",

@@ -23,9 +23,12 @@ import { CurrentBand } from "./actions/current-band";
 import { initializeKeyDisplay } from "./key-display";
 
 import { initializeMqtt } from "./mqtt";
+import { applyRotorColorSettings, initializeRotorColors } from "./rotor-colors";
+import type { RotorColorGlobalSettings } from "./rotor-colors";
 
 streamDeck.logger.setLevel("trace");
 initializeKeyDisplay();
+initializeRotorColors();
 
 streamDeck.actions.registerAction(new AntennaAction(1));
 streamDeck.actions.registerAction(new Swap());
@@ -47,7 +50,8 @@ streamDeck.actions.registerAction(new Connection());
 
 async function startPlugin(): Promise<void> {
 	await streamDeck.connect();
-	const settings = await streamDeck.settings.getGlobalSettings<{ mqttStartup?: string }>();
+	const settings = await streamDeck.settings.getGlobalSettings<{ mqttStartup?: string } & RotorColorGlobalSettings>();
+	applyRotorColorSettings(settings);
 	initializeMqtt(settings.mqttStartup !== "disconnected");
 }
 

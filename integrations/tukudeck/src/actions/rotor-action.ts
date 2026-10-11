@@ -22,6 +22,7 @@ import type {
 } from "../mqtt";
 
 import { getRotorAntennaNames, stationUsesRotor } from "../rotor-usage";
+import { getRotorColor, onRotorColorChange } from "../rotor-colors";
 
 type RotorEffect = "none" | "fade" | "blink1hz" | "blink2hz";
 type RotorSettings = {
@@ -81,14 +82,18 @@ export class RotorAction extends SingletonAction<RotorSettings> {
 		let label = `TW${rotor}`;
 		let blinkOn = true;
 		let timer: ReturnType<typeof setInterval> | undefined;
+		let positionAlarmRed = false;
+		let positionAlarmTimer: ReturnType<typeof setInterval> | undefined;
 		let lastImage: string | undefined;
 		const render = async (): Promise<void> => {
-			const image = this.makeImage(label, rotorState, usage, blinkOn);
+			const configuredColor = getRotorColor(rotor);
+			const rotorColor = rotorState.positionStale && positionAlarmRed ? "#FF3B3B" : configuredColor;
+			const image = this.makeImage(label, rotorState, usage, blinkOn, rotorColor);
 			if (image === lastImage) return;
 			lastImage = image;
 			const moving = rotorState.nec === "CW" || rotorState.nec === "CCW";
 			await setKeyImage(actionInstance, image,
-				moving ? getEffect(settings.movementEffect, "blink2hz") :
+				rotorState.positionStale ? false : moving ? getEffect(settings.movementEffect, "blink2hz") :
 					rotorState.mode?.toLowerCase() === "loc" ? getEffect(settings.locEffect, "fade") : false);
 		};
 		const updateUsage = (state = getPyToFrontState()): void => {
@@ -114,13 +119,31 @@ export class RotorAction extends SingletonAction<RotorSettings> {
 		};
 		const offRotor = onRotorState(rotor, (state) => {
 			rotorState = state;
+			if (state.positionStale) {
+				if (positionAlarmTimer === undefined) {
+					positionAlarmRed = true;
+					positionAlarmTimer = setInterval(() => {
+						positionAlarmRed = !positionAlarmRed;
+						void render();
+					}, 1000);
+				}
+			} else {
+				if (positionAlarmTimer !== undefined) clearInterval(positionAlarmTimer);
+				positionAlarmTimer = undefined;
+				positionAlarmRed = false;
+			}
 			void render();
 		});
 		const offStation = onPyToFrontState(updateUsage);
+		const offColor = onRotorColorChange((changedRotor) => {
+			if (changedRotor === rotor) void render();
+		});
 		this.cleanups.set(actionInstance.id, () => {
 			offRotor();
 			offStation();
+			offColor();
 			if (timer !== undefined) clearInterval(timer);
+			if (positionAlarmTimer !== undefined) clearInterval(positionAlarmTimer);
 		});
 		updateUsage();
 		await render();
@@ -145,7 +168,8 @@ export class RotorAction extends SingletonAction<RotorSettings> {
 		label: string,
 		state: RotorState,
 		usage: [boolean, boolean],
-		blinkOn: boolean
+		blinkOn: boolean,
+		rotorColor: string
 	): string {
 		const title = label.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 		const titleSize = Math.max(10, Math.min(18, Math.floor(190 / label.length)));
@@ -162,7 +186,7 @@ export class RotorAction extends SingletonAction<RotorSettings> {
 
 		const deg =
 			rawDeg === undefined
-				? "---"
+				? "--"
 				: Math.round(
 					overflow
 						? rawDeg - 360
@@ -189,7 +213,7 @@ export class RotorAction extends SingletonAction<RotorSettings> {
 		const degColor =
 			overflow
 				? "#FF3B3B"
-				: "#FFFFFF";
+				: rotorColor;
 
 		const movement =
 			state.nec === "CW"
@@ -217,7 +241,7 @@ export class RotorAction extends SingletonAction<RotorSettings> {
 					height="140"
 					rx="12"
 					fill="#07111D"
-					stroke="#006CFF"
+					stroke="${rotorColor}"
 					stroke-width="3"
 				/>
 
@@ -229,7 +253,7 @@ export class RotorAction extends SingletonAction<RotorSettings> {
 					font-size="${titleSize}"
 					${titleFit}
 					font-weight="bold"
-					fill="#006CFF"
+					fill="${rotorColor}"
 				>${title}</text>
 
 

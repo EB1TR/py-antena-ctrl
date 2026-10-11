@@ -3,8 +3,10 @@ import { setKeyImage } from "../key-display";
 import { DidReceiveSettingsEvent, KeyDownEvent, SingletonAction, WillAppearEvent, WillDisappearEvent } from "@elgato/streamdeck";
 import { getPyToFrontState, onPyToFrontState, sendCommand } from "../mqtt";
 import type { AntennaState, PyToFrontState } from "../mqtt";
+import { getStation } from "../station";
+import type { Station, StationSettings } from "../station";
 
-type AntennaSettings = { antenna?: number | string };
+type AntennaSettings = StationSettings & { antenna?: number | string };
 
 @action({ UUID: "com.eb1tr.tukudeck.antenna1" })
 export class AntennaAction extends SingletonAction<AntennaSettings> {
@@ -35,18 +37,19 @@ export class AntennaAction extends SingletonAction<AntennaSettings> {
 	private subscribe(action: { id: string; setImage(image: string): Promise<void> }, settings: AntennaSettings): void {
 		this.subscriptions.get(action.id)?.();
 		const number = this.getAntenna(settings);
+		const station = getStation(settings);
 		const render = (state?: PyToFrontState): void => {
-			const antenna = this.getAntennaState(number, state);
+			const antenna = this.getAntennaState(number, station, state);
 			void setKeyImage(action, antenna
-				? this.makeAntennaImage(number, antenna.nombre ?? `ANT${number}`, antenna.estado === true, antenna.tw)
+				? this.makeAntennaImage(number, antenna.nombre ?? `ANT${number}`, antenna.estado === true, station, antenna.tw)
 				: this.makeUnavailableImage());
 		};
 		this.subscriptions.set(action.id, onPyToFrontState(render));
 		render(getPyToFrontState());
 	}
 
-	private getAntennaState(number: number, state?: PyToFrontState): AntennaState | undefined {
-		const band = state?.stn2?.band;
+	private getAntennaState(number: number, station: Station, state?: PyToFrontState): AntennaState | undefined {
+		const band = state?.[station]?.band;
 		if (band === undefined) return undefined;
 		const stack = state?.stacks?.[String(band)];
 		if (!stack || (stack.salidas ?? 0) < number) return undefined;
@@ -55,7 +58,8 @@ export class AntennaAction extends SingletonAction<AntennaSettings> {
 
 	override async onKeyDown(ev: KeyDownEvent<AntennaSettings>): Promise<void> {
 		const number = this.getAntenna(ev.payload.settings);
-		if (this.getAntennaState(number, getPyToFrontState())) sendCommand("set/stn2/stack", number);
+		const station = getStation(ev.payload.settings);
+		if (this.getAntennaState(number, station, getPyToFrontState())) sendCommand(`set/${station}/stack`, number);
 	}
 
 	private makeUnavailableImage(): string {
@@ -87,6 +91,7 @@ export class AntennaAction extends SingletonAction<AntennaSettings> {
 		antennaNumber: number,
 		name: string,
 		active: boolean,
+		station: Station,
 		tw?: number
 	): string {
 
@@ -143,13 +148,23 @@ export class AntennaAction extends SingletonAction<AntennaSettings> {
 
 				<text data-part="value"
 					x="72"
-					y="119"
+					y="112"
 					text-anchor="middle"
 					font-family="Arial, sans-serif"
 					font-size="16"
 					font-weight="bold"
 					fill="#006CFF"
 				>${rotor}</text>
+
+				<text data-part="station"
+					x="72"
+					y="135"
+					text-anchor="middle"
+					font-family="Arial, sans-serif"
+					font-size="13"
+					font-weight="bold"
+					fill="#808080"
+				>${station.toUpperCase()}</text>
 			</svg>
 		`;
 

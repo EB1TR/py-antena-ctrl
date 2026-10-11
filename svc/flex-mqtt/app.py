@@ -24,10 +24,19 @@ MQTT_PORT = CONFIG.mqtt_port
 
 TELNET_TIMEOUT = 10
 UDP_TIMEOUT_SECONDS = 20
+TX_QUERY_INTERVAL_SECONDS = 2
+TX_HEARTBEAT_INTERVAL_SECONDS = 2
 ACTIVE_SLICE = 0
 LAST_QRG = 0
 LAST_BAND = "[0, 0]"
 LAST_TRANSMITTING = None
+LAST_TX_PUBLISH_TIME = 0.0
+
+TX_QUERY_MESSAGES = (
+    b"C12|transmit\n",
+    b"C13|interlock\n",
+    b"C14|radio\n",
+)
 
 SUBSCRIBE_MESSAGES = [
     f"C0|client init PYAPP{STN}\n",
@@ -86,8 +95,15 @@ class FlexConnection:
 
 def on_connect(client, userdata, flags, reason_code, properties=None):
     """Log the MQTT connection result."""
+    global LAST_TX_PUBLISH_TIME
+
     if reason_code == 0:
         print(f"Conectado al broker {MQTT_BROKER} por el puerto {MQTT_PORT}")
+        if LAST_TRANSMITTING is not None:
+            LAST_TX_PUBLISH_TIME = time.monotonic()
+            client.publish(
+                f"{STN}/tx", "1" if LAST_TRANSMITTING else "0", retain=True
+            )
     else:
         print(f"Fallo al conectar, código: {reason_code}")
 
@@ -135,9 +151,25 @@ def normalize_tx_state(value):
     return None
 
 
+def publish_transmit_state(transmitting):
+    """Publish TX/RX immediately on change and periodically as a heartbeat."""
+    global LAST_TRANSMITTING, LAST_TX_PUBLISH_TIME
+
+    now = time.monotonic()
+    changed = transmitting != LAST_TRANSMITTING
+    if not changed:
+        if now - LAST_TX_PUBLISH_TIME < TX_HEARTBEAT_INTERVAL_SECONDS:
+            return
+
+    LAST_TRANSMITTING = transmitting
+    LAST_TX_PUBLISH_TIME = now
+    mqtt_client.publish(f"{STN}/tx", "1" if transmitting else "0", retain=True)
+    if changed:
+        print(f"FlexRadio {STN}: {'TX' if transmitting else 'RX'}")
+
+
 def update_transmit_state(line):
-    """Publish an MQTT update when the radio changes between RX and TX."""
-    global LAST_TRANSMITTING
+    """Extract and publish the current FlexRadio TX/RX state."""
 
     match = re.match(r"^[SR][^|]*\|(?:transmit|interlock|radio)\s+(.+)$", line)
     if not match:
@@ -161,11 +193,9 @@ def update_transmit_state(line):
         if key not in values:
             continue
         transmitting = normalize_tx_state(values[key])
-        if transmitting is None or transmitting == LAST_TRANSMITTING:
+        if transmitting is None:
             continue
-        LAST_TRANSMITTING = transmitting
-        mqtt_client.publish(f"{STN}/tx", "1" if transmitting else "0", retain=True)
-        print(f"FlexRadio {STN}: {'TX' if transmitting else 'RX'}")
+        publish_transmit_state(transmitting)
 
 
 def telnet_listener():
@@ -180,10 +210,17 @@ def telnet_listener():
                     time.sleep(0.5)
 
                 next_slice_query = 0
+                next_tx_query = time.monotonic() + TX_QUERY_INTERVAL_SECONDS
                 while True:
-                    if time.monotonic() >= next_slice_query:
+                    now = time.monotonic()
+                    if now >= next_slice_query:
                         tn.write(b"C999|slice list\n")
-                        next_slice_query = time.monotonic() + 2
+                        next_slice_query = now + 2
+
+                    if now >= next_tx_query:
+                        for message in TX_QUERY_MESSAGES:
+                            tn.write(message)
+                        next_tx_query = now + TX_QUERY_INTERVAL_SECONDS
 
                     data = tn.read_until(b"\n", timeout=1)
 
