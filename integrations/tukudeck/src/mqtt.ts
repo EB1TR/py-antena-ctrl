@@ -5,6 +5,7 @@ import { getRadioState, onRadioState, processRadioMessage } from "./radio-state"
 import type { RadioState } from "./radio-state";
 
 import type { Station } from "./station";
+import { processWeatherMessage, WEATHER_TOPIC } from "./weather-state";
 
 const MQTT_URL = "mqtt://192.168.88.10:1883";
 
@@ -14,7 +15,8 @@ const TOPICS = [
 	"stn2/#",
 	"tw1/#",
 	"tw2/#",
-	"tw3/#"
+	"tw3/#",
+	WEATHER_TOPIC
 ];
 
 export type RotorMode = "rem" | "loc" | string;
@@ -557,6 +559,10 @@ export function connectMqtt():
 				payload.toString();
 
 			processRadioMessage(topic, value);
+			if (topic === WEATHER_TOPIC) {
+				processWeatherMessage(value);
+				return;
+			}
 
 			const match =
 				topic.match(

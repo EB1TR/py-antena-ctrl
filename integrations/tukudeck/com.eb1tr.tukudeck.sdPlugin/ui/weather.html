@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TukuDeck · Meteo</title>
+<link rel="stylesheet" href="inspector.css">
+<style>
+body{margin:12px;background:#252525}h2{font-size:14px;margin:0 0 10px}p{margin:10px 0;color:#aaa}.metric-row{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid #ffffff10}.metric-row label{flex:1;display:flex;align-items:center;gap:7px}.metric-row button{background:#383838;color:#ddd;border:1px solid #555;border-radius:4px;width:27px;height:25px;cursor:pointer}.metric-row button:disabled{opacity:.3;cursor:default}.field{display:flex;align-items:center;justify-content:space-between;margin-top:14px;gap:10px}input[type=number]{width:70px;background:#383838;color:#fff;border:1px solid #555;border-radius:4px;padding:5px}input[type=color]{width:70px;height:29px;border:1px solid #555;background:#383838}input:focus-visible,button:focus-visible{outline:2px solid #25c6e8}
+</style>
+</head>
+<body>
+<h2>Datos y orden de rotación</h2>
+<div id="metrics"></div>
+<label class="field">Intervalo (segundos)<input id="interval" type="number" min="1" max="60" step="1" value="5"></label>
+<label class="field">Color de esta tecla<input id="color" type="color" value="#25c6e8"></label>
+<p>Marca los datos que quieras mostrar y ordénalos con ↑ y ↓. Pulsar la tecla avanza al siguiente dato y reinicia el intervalo.</p>
+<p>Sin datos recientes (cinco minutos), aparece --. Con un solo dato seleccionado, no hay rotación.</p>
+<script>
+'use strict';
+const choices=[['temp_out_c','Temperatura exterior'],['humidity_out_pct','Humedad exterior'],['wind_speed_kmh','Velocidad del viento'],['wind_dir_deg','Dirección del viento'],['wind_gust_kmh','Racha actual'],['max_daily_gust_kmh','Racha máxima de hoy'],['rain_rate_mm_h','Ritmo de lluvia'],['daily_rain_mm','Lluvia acumulada hoy']];
+const defaults=['temp_out_c','humidity_out_pct','wind_speed_kmh','wind_gust_kmh','daily_rain_mm'];
+let settings={},selected=[...defaults],order=choices.map(([key])=>key),socket,context,actionContext,actionUUID,edited=false;
+function load(next){
+  settings=next||{};
+  selected=Array.isArray(settings.metrics)?[...new Set(settings.metrics.filter(key=>choices.some(([id])=>id===key)))]:[...defaults];
+  const savedOrder=Array.isArray(settings.metricOrder)?settings.metricOrder:selected;
+  order=[...new Set(savedOrder.filter(key=>choices.some(([id])=>id===key))),...choices.map(([key])=>key).filter(key=>!savedOrder.includes(key))];
+  const seconds=Number(settings.interval??5);document.getElementById('interval').value=Number.isFinite(seconds)?Math.max(1,Math.min(60,seconds)):5;
+  document.getElementById('color').value=typeof settings.color==='string'&&/^#[0-9a-f]{6}$/i.test(settings.color)?settings.color:'#25c6e8';
+  render();
+}
+function render(){
+  const list=document.getElementById('metrics');list.replaceChildren();
+  order.forEach((key,index)=>{
+    const row=document.createElement('div');row.className='metric-row';
+    const label=document.createElement('label'),checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=selected.includes(key);
+    checkbox.addEventListener('change',()=>{selected=order.filter(id=>id===key?checkbox.checked:selected.includes(id));save()});
+    label.append(checkbox,document.createTextNode(choices.find(([id])=>id===key)[1]));row.append(label);
+    for(const [offset,symbol,description] of [[-1,'↑','Subir'],[1,'↓','Bajar']]){
+      const button=document.createElement('button');button.type='button';button.textContent=symbol;button.setAttribute('aria-label',description+' '+choices.find(([id])=>id===key)[1]);button.disabled=index+offset<0||index+offset>=order.length;
+      button.addEventListener('click',()=>{[order[index],order[index+offset]]=[order[index+offset],order[index]];selected=order.filter(id=>selected.includes(id));render();save()});row.append(button);
+    }
+    list.append(row);
+  });
+}
+function save(){
+  const input=document.getElementById('interval');if(!input.checkValidity())return;
+  edited=true;
+  settings={...settings,metrics:[...selected],metricOrder:[...order],interval:Number(input.value),color:document.getElementById('color').value};
+  if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({event:'setSettings',action:actionUUID,context,payload:settings}));
+}
+document.getElementById('interval').addEventListener('change',save);
+document.getElementById('color').addEventListener('change',save);
+window.connectElgatoStreamDeckSocket=(port,uuid,event,info,actionInfo)=>{
+  const data=JSON.parse(actionInfo);context=uuid;actionContext=data.context;actionUUID=data.action;edited=false;load(data.payload?.settings);
+  socket=new WebSocket('ws://127.0.0.1:'+port);
+  socket.onopen=()=>{socket.send(JSON.stringify({event,uuid}));if(edited)save()};
+  // Registration already contains saved settings. Delayed echoes must not undo
+  // local edits or move a checkbox underneath the pointer while it is clicked.
+  socket.onmessage=message=>{const data=JSON.parse(message.data);if(data.event==='didReceiveSettings'&&(data.context===context||data.context===actionContext)&&!edited)load(data.payload.settings)};
+};
+load({});
+</script>
+</body>
+</html>

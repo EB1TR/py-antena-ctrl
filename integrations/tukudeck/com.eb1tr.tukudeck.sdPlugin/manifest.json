@@ -1,6 +1,6 @@
 {
 	"Name": "TukuDeck",
-	"Version": "1.1.5.0",
+	"Version": "1.2.0.0",
 	"Author": "EB1TR",
 	"Actions": [
 		{
@@ -144,6 +144,21 @@
 			"Icon": "imgs/actions/counter/icon",
 			"Tooltip": "Muestra un dato del equipo de la estación seleccionada.",
 			"PropertyInspectorPath": "ui/telemetry.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			]
+		},
+		{
+			"Name": "Meteo - Datos",
+			"UUID": "com.eb1tr.tukudeck.weather",
+			"PropertyInspectorPath": "ui/weather.html",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Alterna los datos meteorológicos seleccionados. Pulsa para avanzar.",
 			"Controllers": [
 				"Keypad"
 			],

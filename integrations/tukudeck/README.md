@@ -38,3 +38,25 @@ aplica automáticamente a sus teclas de posición, paso y preset.
 Si un rotor deja de publicar su posición durante 10 segundos, su tecla de
 posición muestra `--°` y alterna cada segundo entre rojo y el color configurado
 hasta que vuelve a recibirse una posición válida.
+
+### Meteo - Datos
+
+Nueva tecla que recibe las mediciones retenidas de `meteo/tuku` (proyecto
+`meteo-tuku`). Permite seleccionar y ordenar temperatura exterior, humedad,
+velocidad y dirección del viento, racha actual y máxima diaria, ritmo de
+lluvia y acumulado de hoy. Cada tecla tiene selección, intervalo y color propios.
+
+El intervalo es configurable entre 1 y 60 segundos (por defecto, 5). Pulsar
+avanza al siguiente dato y reinicia el intervalo; seleccionar solo un dato
+lo mantiene fijo. Desmarcar todos muestra `SIN SELECCIÓN`.
+
+Los datos ausentes o con más de cinco minutos de antigüedad muestran `--`
+en gris. Se comprueba la fecha del paquete retenido, no solo la hora de
+recepción MQTT. Las teclas ocultas liberan sus temporizadores y suscripciones.
+El botón es informativo: no envía órdenes ni cambia antenas o rotores.
+
+Pruebas automatizadas de la meteorología y el guardado de los selectores:
+
+```bash
+node --test tests/weather.test.mjs
+```

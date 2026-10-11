@@ -113,9 +113,10 @@
       color: #aaa096;
       line-height: 1.45;
     }
-    .open-view,
-    .variant {
-      display: inline-block;
+    .view-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       position: relative;
       z-index: 1;
       border: 1px solid color-mix(in srgb, var(--accent) 65%, transparent);
@@ -124,23 +125,19 @@
       text-decoration: none;
       transition: color .15s ease, background .15s ease;
     }
-    .open-view { padding: 10px 17px; font-weight: bold; }
-    .variant { padding: 5px 8px; font-size: 12px; }
-    .open-view:hover,
-    .open-view:focus-visible,
-    .variant:hover,
-    .variant:focus-visible {
+    .view-option { padding: 12px 15px; font-size: 14px; font-weight: bold; }
+    .view-option::after { content: '→'; margin-left: 12px; }
+    .view-option:hover,
+    .view-option:focus-visible {
       background: var(--accent);
       color: #07100c;
       outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
-    .variants {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 6px;
-      margin-top: 10px;
+    .view-options {
+      display: grid;
+      gap: 8px;
+      margin-top: 0;
     }
     @media (max-width: 820px) {
       .views { grid-template-columns: 1fr; }
@@ -161,7 +158,10 @@
         <span class="view-label">Operación completa</span>
         <h2>Control de bandas y stacks</h2>
         <p>Control conjunto de estaciones, bandas, antenas y rotores.</p>
-        <a class="open-view" href="stack.html">Entrar →</a>
+        <div class="view-options" aria-label="Vistas del control de bandas y stacks">
+          <a class="view-option" href="stack.html">Interfaz clásica</a>
+          <a class="view-option" href="stack-v2.html">Nueva interfaz</a>
+        </div>
       </section>
       <section class="view azimut">
         <div class="icon" aria-hidden="true">
@@ -170,9 +170,9 @@
         <span class="view-label">Orientación</span>
         <h2>Mapas azimutales</h2>
         <p>Orientación visual independiente de los tres rotores.</p>
-        <a class="open-view" href="azimut.html">Entrar →</a>
-        <div class="variants" aria-label="Variantes de mapas azimutales">
-          <a class="variant" href="azimut-contest.html">Concurso TW1 + TW3</a>
+        <div class="view-options" aria-label="Vistas de mapas azimutales">
+          <a class="view-option" href="azimut.html">Tres rotores</a>
+          <a class="view-option" href="azimut-contest.html">Concurso · TW1 + TW3</a>
         </div>
       </section>
       <section class="view contest">
@@ -182,11 +182,11 @@
         <span class="view-label">Competición</span>
         <h2>Concurso</h2>
         <p>Operación y seguimiento durante concurso.</p>
-        <a class="open-view" href="contest.html">Vista general →</a>
-        <div class="variants" aria-label="Variantes de la vista de concurso">
-          <a class="variant" href="contest-h.html">Horizontal</a>
-          <a class="variant" href="contest-stn1.html">Estación 1</a>
-          <a class="variant" href="contest-stn2.html">Estación 2</a>
+        <div class="view-options" aria-label="Vistas de concurso">
+          <a class="view-option" href="contest.html">Vista general</a>
+          <a class="view-option" href="contest-h.html">Horizontal</a>
+          <a class="view-option" href="contest-stn1.html">Estación 1</a>
+          <a class="view-option" href="contest-stn2.html">Estación 2</a>
         </div>
       </section>
     </nav>

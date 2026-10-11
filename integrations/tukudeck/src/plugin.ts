@@ -17,6 +17,7 @@ import { RotorPreset } from "./actions/rotor-preset";
 import { Connection } from "./actions/connection";
 
 import { Telemetry } from "./actions/telemetry";
+import { Weather } from "./actions/weather";
 
 import { CurrentBand } from "./actions/current-band";
 
@@ -46,6 +47,7 @@ streamDeck.actions.registerAction(new RotorPreset());
 
 streamDeck.actions.registerAction(new CurrentBand());
 streamDeck.actions.registerAction(new Telemetry());
+streamDeck.actions.registerAction(new Weather());
 streamDeck.actions.registerAction(new Connection());
 
 async function startPlugin(): Promise<void> {
