@@ -117,7 +117,7 @@
     const direction = defs.append('radialGradient').attr('id', ids.direction)
       .attr('gradientUnits', 'userSpaceOnUse').attr('cx', MID).attr('cy', MID).attr('r', DIRECTION_ARC_LENGTH);
     [0, .1, .25, .5, .75, 1].forEach(position => {
-      const alpha = .03 + .47 * (1 - Math.log1p(position * 9) / Math.log(10));
+      const alpha = .03 + .57 * (1 - Math.log1p(position * 9) / Math.log(10));
       direction.append('stop').attr('offset', `${position * 100}%`)
         .attr('stop-color', rotorColor).attr('stop-opacity', alpha);
     });
