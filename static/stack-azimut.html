@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ED1B · Control de bandas, stacks y mapas</title>
+<link rel="stylesheet" href="azimut.css">
+<style>
+.solar-status{margin-left:auto;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px 14px;font-variant-numeric:tabular-nums}.solar-status time{color:var(--text)}
+.connection{position:relative}.service-clock{position:absolute;left:50%;transform:translateX(-50%);color:var(--text);font-variant-numeric:tabular-nums;font-weight:700}
+@media(max-width:620px){.connection{flex-wrap:wrap;padding-bottom:26px}.service-clock{bottom:4px}}
+:root{color-scheme:dark;--bg:#05090e;--panel:#0b141d;--line:#233342;--text:#dce7ee;--muted:#7990a1;--cyan:#25c6e8;--blue:#2987ff;--green:#3ddc84;--orange:#ff9f43;--red:#ff5364}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.35 system-ui,-apple-system,sans-serif}button{font:inherit}
+.shell{width:min(1500px,100%);margin:auto;padding:12px}.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.topbar h1{margin:0;font-size:clamp(18px,2vw,27px)}
+.connection{display:flex;align-items:center;gap:8px;min-height:28px;margin-bottom:6px;padding:4px 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--muted);font-size:12px}.dot{width:8px;height:8px;flex:none;border-radius:50%;background:var(--orange)}.online .dot{background:var(--green)}.offline .dot{background:var(--red)}.connecting .dot{background:var(--orange)}
+.weather-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 24px;margin-bottom:6px;padding:5px 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}.weather-bar>span{white-space:nowrap}.weather-bar .weather-value{color:var(--text)}
+.stations,.rotors{display:grid;gap:6px}.stations{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:6px}.rotors{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{min-width:0;border:1px solid var(--line);border-radius:14px;background:var(--panel);box-shadow:0 12px 30px rgba(0,0,0,.24);overflow:hidden}.card-head{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;border-bottom:1px solid var(--line)}.card-head h2{margin:0;font-size:18px;letter-spacing:.04em}.telemetry{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:5px}.metric{min-width:62px;padding:4px 6px;border:1px solid #263a4b;border-radius:6px;background:#071019;text-align:center;font-variant-numeric:tabular-nums;color:#b9cad5}.metric.good{color:var(--green)}.metric.warn{color:var(--orange)}.metric.bad{color:var(--red)}
+.section{padding:9px 12px}.section+.section{border-top:1px solid rgba(35,51,66,.65)}.label{margin:0 0 7px;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}.controls{display:grid;grid-template-columns:repeat(11,minmax(42px,1fr));gap:5px}
+.btn{min-width:0;min-height:36px;padding:5px 7px;border:1px solid #334758;border-radius:7px;background:#111d27;color:#9fb2bf;font-weight:750;cursor:pointer;transition:background .1s,border-color .1s,color .1s,transform .1s}.btn:hover{border-color:#638096;color:#fff}.btn:active{transform:translateY(1px)}.btn.active{border-color:var(--green);background:rgba(61,220,132,.12);color:var(--green)}.btn.action{border-color:#815b2b;color:var(--orange);background:rgba(255,159,67,.08)}.btn:disabled,.btn.hidden{display:none}
+.station-actions{display:flex;gap:5px;margin-left:auto}.station-actions .btn{min-width:62px}.stack-controls{display:flex;gap:5px;align-items:stretch}.stack-controls .btn{flex:1}.stack-controls .swap{flex:0 0 70px}
+.rotor-head{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}.rotor-head h2{margin:0;font-size:20px}.rotor-head .target{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}.mode{justify-self:center;min-width:62px}
+.rotor-main{display:grid;grid-template-columns:64px 46px 1fr 46px 64px;grid-template-areas:"one minus position plus two";align-items:center;gap:7px;padding:10px 12px}.owner{min-height:38px;display:grid;place-items:center;border:1px solid #435566;border-radius:7px;color:#8fa2af;font-weight:800;visibility:hidden}.owner:first-child{grid-area:one}.owner:last-child{grid-area:two}.owner.show{visibility:visible}.owner.conflict{border-color:var(--red);color:#fff;background:rgba(255,83,100,.25);animation:pulse 1s steps(2,end) infinite}.step{font-size:23px}.step[data-step="-5"]{grid-area:minus}.step[data-step="5"]{grid-area:plus}.position{grid-area:position;border:0;background:none;color:#f0f8fc;font-size:clamp(48px,6vw,78px);font-weight:300;text-align:center;font-variant-numeric:tabular-nums;cursor:pointer}.position.over{color:var(--red)}
+.movement{display:inline-block;min-width:20px;margin-left:5px;font-size:20px;vertical-align:middle;color:var(--text)}.presets{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;padding:10px 12px;border-top:1px solid var(--line)}.presets .park{color:var(--orange);border-color:#815b2b}
+.toast{position:fixed;left:50%;bottom:20px;translate:-50% 20px;padding:9px 14px;border:1px solid var(--red);border-radius:8px;background:#180b0d;color:#ffdce0;opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1;translate:-50% 0}
+.direction-dialog{width:min(390px,calc(100% - 28px));padding:24px;border:1px solid #3b586e;border-radius:16px;background:#0b1722;color:var(--text);box-shadow:0 25px 90px #0009}.direction-dialog::backdrop{background:#02070bbd}.direction-dialog h2{margin:0 0 5px;font-size:23px}.direction-dialog p{margin:0 0 22px;color:var(--muted)}.direction-dialog label{display:block;margin-bottom:8px;font-weight:700}.degree-field{display:flex;align-items:center;gap:10px}.degree-field input{width:100%;min-width:0;padding:12px;border:1px solid #46647b;border-radius:9px;background:#050e17;color:#fff;font:500 36px system-ui;font-variant-numeric:tabular-nums}.degree-field input:focus{outline:2px solid var(--cyan);outline-offset:2px}.degree-field span{font-size:32px;color:var(--muted)}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:24px}.dialog-actions .btn{padding:10px 18px}.dialog-actions .confirm{background:var(--cyan);border-color:var(--cyan);color:#041016}
+.theme-toggle{margin-left:8px;padding:2px 5px;border:0;border-radius:4px;background:transparent;color:var(--muted);cursor:pointer;font-size:14px}.theme-toggle:hover{color:var(--text);background:#ffffff0c}.theme-toggle:focus-visible{outline:2px solid var(--cyan)}
+html[data-theme="graphite"]{--bg:#111113;--panel:#1c1c20;--line:#343439;--text:#eeece6;--muted:#94949c;--cyan:#c4b5fd;--blue:#a99cf5;--green:#8cdbb1;--orange:#e9b477;--red:#f07886}
+html[data-theme="graphite"] body{background:var(--bg)}
+html[data-theme="graphite"] .card{background:#1c1c20;border-radius:9px;box-shadow:0 4px 16px #0002}
+html[data-theme="graphite"] .metric{background:#161619;border-color:#37373d;color:#c7c5cd;border-radius:4px}
+html[data-theme="graphite"] .metric.good{color:var(--green)}html[data-theme="graphite"] .metric.warn{color:var(--orange)}html[data-theme="graphite"] .metric.bad{color:var(--red)}
+html[data-theme="graphite"] .section+.section{border-color:var(--line)}
+html[data-theme="graphite"] .btn{background:#28282d;border-color:#414147;color:#bebcc7;border-radius:4px}
+html[data-theme="graphite"] .btn:hover{background:#323239;border-color:#777280;color:var(--text)}
+html[data-theme="graphite"] .btn.active{background:#8cdbb118;border-color:var(--green);color:var(--green);box-shadow:inset 0 -2px var(--green)}
+html[data-theme="graphite"] .btn.action,html[data-theme="graphite"] .presets .park{background:#e9b4770a;border-color:#78634c;color:var(--orange)}
+html[data-theme="graphite"] .position{color:var(--text);font-weight:400}html[data-theme="graphite"] .position.over{color:var(--red)}
+html[data-theme="graphite"] .owner{border-color:#49494f;color:#aaa7b4}
+html[data-theme="graphite"] .owner.conflict{border-color:var(--red);color:var(--text);background:#f0788633}
+html[data-theme="graphite"] .direction-dialog{background:#222226;border-color:#49464f;border-radius:9px}
+html[data-theme="graphite"] .degree-field input{background:#151518;border-color:#56525f}
+html[data-theme="graphite"] .dialog-actions .confirm{background:var(--cyan);border-color:var(--cyan);color:#211b32}
+@keyframes pulse{50%{opacity:.35}}@media(max-width:1050px){.rotors{grid-template-columns:1fr}.position{font-size:64px}}@media(max-width:760px){.stations{grid-template-columns:1fr}.controls{grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(2,1fr);grid-auto-flow:row}.controls .btn:first-child{grid-row:1 / 3}.card-head{align-items:flex-start;gap:8px}.telemetry{font-size:11px}.shell{padding:7px}.rotor-main{grid-template-columns:46px minmax(100px,1fr) 46px;grid-template-areas:"minus position plus" "one position two"}.owner{min-height:26px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Combined view: the map and controls belong to the same rotor card. */
+.shell{width:min(1800px,100%)}
+.map-slot{position:relative;min-height:120px;border-bottom:1px solid var(--line)}
+.map-slot>.rotor-map{border:0;border-radius:0;background:var(--panel);box-shadow:none}
+.map-slot .az-map{margin:0}
+.map-slot .map-heading{display:none}
+.map-warning{padding:16px;color:var(--muted);text-align:center}
+.rotor-head h2{color:var(--rotor-color)}
+#tw3-card{--rotor-color:#ffb000}#tw1-card{--rotor-color:#a3e635}#tw2-card{--rotor-color:#ff4f87}
+.rotor-main{grid-template-columns:46px 38px minmax(0,1fr) 38px 46px;padding:6px 10px;gap:5px}
+.owner{min-height:28px;font-size:10px}
+.position{font-size:44px}
+@media(min-width:1051px){.rotors{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1050px) and (min-width:761px){
+  .rotors{grid-template-columns:1fr}
+  .rotors>.card{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.7fr)}
+  .rotor-head{grid-column:1/-1}
+  .map-slot{grid-column:1;grid-row:2/4;border-bottom:0;border-right:1px solid var(--line)}
+  .rotor-main{grid-column:2;grid-row:2;grid-template-columns:46px minmax(100px,1fr) 46px;grid-template-areas:"minus position plus" "one position two"}
+  .presets{grid-column:2;grid-row:3;align-self:end}
+}
+@media(max-width:760px){
+  .rotor-main{grid-template-columns:46px minmax(100px,1fr) 46px;grid-template-areas:"minus position plus" "one position two"}
+  .position{font-size:48px}
+}
+</style>
+</head>
+<body>
+<main class="shell">
+  <div id="connection" class="connection offline"><span class="dot" aria-hidden="true"></span><span role="status">MQTT · <span id="connectionText">Desconectado</span></span><time id="serviceClock" class="service-clock" title="Hora local de España">--:--:--</time><span class="solar-status"><span title="Amanecer en IN73 · hora local de España"><span role="img" aria-label="Amanecer">☀️</span> <time id="sunrise">--:--</time></span><span title="Ocaso en IN73 · hora local de España"><span role="img" aria-label="Ocaso">🌙</span> <time id="sunset">--:--</time></span></span></div>
+  <section id="weatherStatus" class="weather-bar" aria-label="Meteorología actual" title="Sin datos meteorológicos recientes">
+    <span title="Temperatura exterior"><span role="img" aria-label="Temperatura exterior">🌡️</span> <span id="weatherTemperature" class="weather-value">--</span></span>
+    <span title="Humedad exterior"><span role="img" aria-label="Humedad exterior">💧</span> <span id="weatherHumidity" class="weather-value">--</span></span>
+    <span title="Velocidad y dirección de procedencia del viento"><span role="img" aria-label="Viento">💨</span> <span id="weatherWind" class="weather-value">--</span></span>
+    <span id="weatherGustDetail" title="Racha actual y máxima diaria">Racha <span id="weatherGust" class="weather-value">--</span></span>
+    <span id="weatherRainDetail" title="Lluvia: ritmo actual / acumulado de hoy"><span role="img" aria-label="Lluvia: ritmo actual y acumulado de hoy">🌧️</span> <span id="weatherRainRate" class="weather-value">--</span> / <span id="weatherRain" class="weather-value">--</span></span>
+  </section>
+  <section id="stations" class="stations" aria-label="Estaciones"></section>
+  <section id="rotors" class="rotors" aria-label="Rotores"></section>
+</main>
+<div id="toast" class="toast" role="status"></div>
+<dialog id="directionDialog" class="direction-dialog" aria-labelledby="directionTitle">
+  <form id="directionForm">
+    <h2 id="directionTitle">Apuntar antena</h2>
+    <p id="directionCurrent">Posición actual: —</p>
+    <label for="directionInput">Dirección objetivo</label>
+    <div class="degree-field"><input id="directionInput" type="number" min="0" max="360" step="any" inputmode="decimal" required autofocus><span aria-hidden="true">°</span></div>
+    <div class="dialog-actions"><button type="button" class="btn" id="directionCancel">Cancelar</button><button type="submit" class="btn confirm">Apuntar</button></div>
+  </form>
+</dialog>
+<script>
+'use strict';
+const MQTT_URL='ws://192.168.88.10:9001/mqtt';
+const METEO_TOPIC='meteo/tuku',WEATHER_MAX_AGE=5*60*1000;
+const BANDS=[0,160,80,60,40,30,20,17,15,12,10];
+const PRESETS=[10,25,45,60,87,125,205,220,270,290,310,340];
+const ROTORS=[{id:'tw3',name:'C31XR',number:3},{id:'tw1',name:'MB7',number:1},{id:'tw2',name:'MB4',number:2}];
+const $=id=>document.getElementById(id);
+let weatherReading=null;
+function weatherMessage(payload){
+  try{const data=JSON.parse(payload),fields=data?.fields,time=Date.parse(data?.received_at);
+    weatherReading=fields&&typeof fields==='object'&&!Array.isArray(fields)&&Number.isFinite(time)?{fields,time}:null;
+  }catch(e){weatherReading=null}
+  renderWeather();
+}
+function renderWeather(now=Date.now()){
+  const age=weatherReading?now-weatherReading.time:Infinity,fresh=age>=-60000&&age<=WEATHER_MAX_AGE;
+  const fields=fresh?weatherReading.fields:{},valid=value=>typeof value==='number'&&Number.isFinite(value);
+  const format=(value,unit,digits=1)=>valid(value)?value.toLocaleString('es-ES',{minimumFractionDigits:digits,maximumFractionDigits:digits})+unit:'--';
+  $('weatherTemperature').textContent=format(fields.temp_out_c,' °C');
+  $('weatherHumidity').textContent=format(fields.humidity_out_pct,' %',0);
+  const direction=valid(fields.wind_dir_deg)?((fields.wind_dir_deg%360)+360)%360:null;
+  const cardinal=direction===null?'':['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'][Math.round(direction/22.5)%16];
+  $('weatherWind').textContent=format(fields.wind_speed_kmh,' km/h')+(cardinal?' · '+cardinal+' ('+Math.round(direction)%360+'°)':'');
+  $('weatherGust').textContent=format(fields.wind_gust_kmh,' km/h');
+  $('weatherGustDetail').title='Racha actual · máxima de hoy: '+format(fields.max_daily_gust_kmh,' km/h');
+  $('weatherRain').textContent=format(fields.daily_rain_mm,' mm');
+  $('weatherRainRate').textContent=format(fields.rain_rate_mm_h,' mm/h');
+  $('weatherRainDetail').title='Lluvia: ritmo actual / acumulado de hoy';
+  $('weatherStatus').title=fresh?'Meteorología · recibida '+new Date(weatherReading.time).toLocaleTimeString('es-ES',{timeZone:'Europe/Madrid'}):'Sin datos meteorológicos recientes';
+}
+setInterval(renderWeather,10000);
+const clockFormat=new Intl.DateTimeFormat('es-ES',{timeZone:'Europe/Madrid',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
+function updateClock(){const now=new Date();$('serviceClock').textContent=clockFormat.format(now);$('serviceClock').dateTime=now.toISOString()}
+updateClock();setInterval(updateClock,1000);
+// NOAA fractional-year approximation; apparent solar horizon at 90.833°.
+function updateSolarTimes(now=new Date()){
+  const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
+  const get=key=>Number(parts.find(p=>p.type===key).value),year=get('year'),month=get('month'),day=get('day');
+  const midnight=Date.UTC(year,month-1,day),days=(Date.UTC(year+1,0,1)-Date.UTC(year,0,1))/86400000;
+  const n=(midnight-Date.UTC(year,0,1))/86400000+1,g=2*Math.PI/days*(n-1);
+  const eq=229.18*(0.000075+0.001868*Math.cos(g)-0.032077*Math.sin(g)-0.014615*Math.cos(2*g)-0.040849*Math.sin(2*g));
+  const dec=0.006918-0.399912*Math.cos(g)+0.070257*Math.sin(g)-0.006758*Math.cos(2*g)+0.000907*Math.sin(2*g)-0.002697*Math.cos(3*g)+0.00148*Math.sin(3*g);
+  const rad=Math.PI/180,lat=43.5*rad,cosH=(Math.cos(90.833*rad)-Math.sin(lat)*Math.sin(dec))/(Math.cos(lat)*Math.cos(dec));
+  if(Math.abs(cosH)>1){$('sunrise').textContent=$('sunset').textContent='—';return}
+  const h=Math.acos(cosH)/rad,noon=720-4*(-5)-eq;
+  const fmt=new Intl.DateTimeFormat('es-ES',{timeZone:'Europe/Madrid',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
+  for(const [id,minutes] of [['sunrise',noon-4*h],['sunset',noon+4*h]]){const date=new Date(midnight+Math.round(minutes)*60000);$(id).textContent=fmt.format(date);$(id).dateTime=date.toISOString()}
+}
+updateSolarTimes();setInterval(updateSolarTimes,60000);
+const state={config:null,stations:{stn1:{},stn2:{}},rotors:{tw1:{},tw2:{},tw3:{}}};
+
+function stationMarkup(id,label){
+  const metrics=[['qrg','----.--'],['pwr','---'],['pwrp','---'],['swr','---'],['va','---'],['temp','---'],['fun','---']];
+  return `<article class="card" id="${id}-card"><header class="card-head"><h2>${label}</h2><div class="telemetry">${metrics.map(([k,v])=>`<span class="metric" id="${id}-${k}">${v}</span>`).join('')}</div></header><div class="section"><p class="label">Banda</p><div class="controls">${BANDS.map(b=>`<button class="btn" id="${id}-b${b}" data-topic="set/${id}/band" data-value="${b}">${b?b+'m':'N/A'}</button>`).join('')}</div></div><div class="section"><p class="label">Antena</p><div class="stack-controls"><button class="btn" id="${id}-stack1" data-topic="set/${id}/stack" data-value="1">1</button><button class="btn" id="${id}-stack2" data-topic="set/${id}/stack" data-value="2">2</button><button class="btn" id="${id}-stack3" data-topic="set/${id}/stack" data-value="3">3</button><button class="btn action swap" id="${id}-swap" data-topic="set/${id}/nostack" data-value="1">SWAP</button><span class="station-actions"><button class="btn" id="${id}-rig" data-topic="set/${id}/rig" data-value="0">RIG</button><button class="btn" id="${id}-auto" data-topic="set/${id}/antm" data-value="0">AUTO</button></span></div></div></article>`;
+}
+function rotorMarkup(r){
+  const presetButtons=PRESETS.map(v=>`<button class="btn" data-topic="${r.id}/set/deg" data-value="${v}">${v}°</button>`).join('');
+  return `<article class="card" id="${r.id}-card"><header class="rotor-head"><h2>${r.name}</h2><button class="btn mode" id="${r.id}-mode" data-topic="${r.id}/set/mode" data-value="invert">---</button><span class="target">SET <b id="${r.id}-set">---</b><span class="movement" id="${r.id}-nec" aria-label="Movimiento" title="Movimiento">—</span></span></header><div class="map-slot" id="${r.id}-map-slot" data-map-slot></div><div class="rotor-main"><span class="owner" id="${r.id}-stn1">STN1</span><button class="btn action step" data-step="-5" data-rotor="${r.id}">−</button><button class="position" id="${r.id}-position" data-direct="${r.id}">---</button><button class="btn action step" data-step="5" data-rotor="${r.id}">+</button><span class="owner" id="${r.id}-stn2">STN2</span></div><div class="presets">${presetButtons}</div></article>`;
+}
+$('stations').innerHTML=stationMarkup('stn1','STN1')+stationMarkup('stn2','STN2');
+$('rotors').innerHTML=ROTORS.map(rotorMarkup).join('');
+
+function toast(text){const el=$('toast');el.textContent=text;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2200)}
+let directionRotor=null;
+function openDirection(id){directionRotor=id;const rotor=ROTORS.find(r=>r.id===id),current=state.rotors[id].deg; $('directionTitle').textContent=`Apuntar ${rotor.name} · ${id.toUpperCase()}`;$('directionCurrent').textContent=`Posición actual: ${Number.isFinite(current)?current+'°':'sin datos'}`;$('directionInput').value=Number.isFinite(current)?current:'';$('directionDialog').showModal();$('directionInput').focus();$('directionInput').select()}
+$('directionCancel').addEventListener('click',()=>$('directionDialog').close());
+$('directionForm').addEventListener('submit',event=>{event.preventDefault();if(!$('directionForm').reportValidity())return;const value=$('directionInput').valueAsNumber;if(Number.isFinite(value)&&value>=0&&value<=360&&mqtt.publish(`${directionRotor}/set/deg`,value))$('directionDialog').close()});
+document.addEventListener('click',event=>{
+  const control=event.target.closest('[data-topic],[data-step],[data-direct]');if(!control)return;
+  if(control.dataset.topic){mqtt.publish(control.dataset.topic,control.dataset.value);return}
+  if(control.dataset.step){const r=state.rotors[control.dataset.rotor];if(!Number.isFinite(r.set)){toast('Sin posición objetivo');return}mqtt.publish(`${control.dataset.rotor}/set/deg`,(r.set+Number(control.dataset.step)+360)%360);return}
+  if(control.dataset.direct)openDirection(control.dataset.direct);
+});
+
+function rolling(size,mode='avg'){const values=[];return value=>{values.push(value);if(values.length>size)values.shift();return mode==='max'?Math.max(...values):values.reduce((a,b)=>a+b,0)/values.length}}
+const filters={stn1:{pwr:rolling(8),peak:rolling(20,'max'),swr:rolling(8)},stn2:{pwr:rolling(8),peak:rolling(20,'max'),swr:rolling(8)}};
+function setMetric(id,text,status=''){const el=$(id);if(!el)return;el.textContent=text;el.className=`metric ${status}`}
+function telemetry(stn,key,payload){const n=Number(payload),f=filters[stn];switch(key){case'qrg':setMetric(`${stn}-qrg`,`${(n/100).toFixed(1)} kHz`);break;case'pwr':{const avg=f.pwr(n),peak=f.peak(n);setMetric(`${stn}-pwr`,`${avg.toFixed(1)} Wa`,avg>80?'good':'');setMetric(`${stn}-pwrp`,`${peak.toFixed(1)} Wp`,peak>95?'good':'');break}case'swr':{const v=f.swr(n);setMetric(`${stn}-swr`,`${v.toFixed(1)}:1`,v>2?'bad':v>1.5?'warn':'');break}case'tensiona':setMetric(`${stn}-va`,`${n.toFixed(1)} V`,n<12.8?'bad':'good');break;case'temp':setMetric(`${stn}-temp`,`${n.toFixed(1)}°C`,n>40?'bad':'');break;case'fun':setMetric(`${stn}-fun`,`${payload} rpm`);break}}
+function rotorMessage(id,key,payload){const r=state.rotors[id];if(key==='deg'){let v=parseInt(payload,10);const over=v>360;if(over)v-=360;r.deg=v;const el=$(`${id}-position`);el.textContent=`${v}°`;el.classList.toggle('over',over)}else if(key==='mode'){r.mode=payload.toUpperCase();const el=$(`${id}-mode`);el.textContent=r.mode;el.classList.toggle('active',r.mode==='REM')}else if(key==='setdeg'){r.set=Number(payload);$(`${id}-set`).textContent=`${payload}°`}else if(key==='nec'){$(`${id}-nec`).textContent=payload==='CCW'?'↪':payload==='CW'?'↩':'✓'}}
+function entry(band,index){return band?.[index]||band?.[String(index)]||{}}
+function usesRotor(stn,tw){const cfg=state.config,s=cfg?.[stn],band=cfg?.stacks?.[s?.band];if(!band)return false;return[1,2,3].some(i=>{const e=entry(band,i);return e.tw===tw&&e.estado===true})}
+function renderConfig(cfg){state.config=cfg;for(const stn of['stn1','stn2']){const s=cfg[stn];if(!s)continue;state.stations[stn]=s;BANDS.forEach(b=>$(`${stn}-b${b}`).classList.toggle('active',Number(s.band)===b));$(`${stn}-auto`).classList.toggle('active',s.auto===true);$(`${stn}-rig`).classList.toggle('active',Number(s.rig)===1);const band=cfg.stacks?.[s.band],outputs=Number(band?.salidas||0);for(let i=1;i<=3;i++){const e=entry(band,i),button=$(`${stn}-stack${i}`);button.textContent=e.nombre||String(i);button.classList.toggle('hidden',i>outputs);button.classList.toggle('active',i<=outputs&&e.estado===true)}$(`${stn}-swap`).classList.toggle('hidden',outputs<2)}for(const rotor of ROTORS){const one=usesRotor('stn1',rotor.number),two=usesRotor('stn2',rotor.number);const e1=$(`${rotor.id}-stn1`),e2=$(`${rotor.id}-stn2`);e1.classList.toggle('show',one);e2.classList.toggle('show',two);e1.classList.toggle('conflict',one&&two);e2.classList.toggle('conflict',one&&two)}}
+function onMessage(topic,payload){if(topic===METEO_TOPIC){weatherMessage(payload);return}if(topic==='pytofront'){try{const cfg=JSON.parse(payload);if(cfg.stn1)renderConfig(cfg)}catch(e){console.error('Estado inválido',e)}return}const parts=topic.split('/');if((parts[0]==='stn1'||parts[0]==='stn2')&&parts.length===2){telemetry(parts[0],parts[1],payload);return}if(state.rotors[parts[0]]&&parts.length===2)rotorMessage(parts[0],parts[1],payload)}
+
+class TinyMqtt{
+  constructor(url){this.url=url;this.ws=null;this.connected=false;this.retry=0;this.timer=0;this.packetId=1;this.ping=0}
+  bytesString(text){const b=new TextEncoder().encode(text);return new Uint8Array([b.length>>8,b.length&255,...b])}
+  remaining(n){const out=[];do{let d=n%128;n=Math.floor(n/128);if(n)d|=128;out.push(d)}while(n);return out}
+  packet(type,body){return new Uint8Array([type,...this.remaining(body.length),...body])}
+  connect(){clearTimeout(this.timer);if(this.ws&&this.ws.readyState<2)return;setConnection(false,'Conectando…');try{const ws=this.ws=new WebSocket(this.url,'mqtt');ws.binaryType='arraybuffer';ws.onopen=()=>{const protocol=this.bytesString('MQTT'),id=this.bytesString(`web-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`);const body=new Uint8Array([...protocol,4,2,0,10,...id]);ws.send(this.packet(0x10,body))};ws.onmessage=e=>this.read(new Uint8Array(e.data));ws.onerror=()=>ws.close();ws.onclose=()=>this.lost()}catch(e){this.lost()}}
+  read(data){let p=0;while(p<data.length){const type=data[p++]>>4;let mul=1,len=0,d;do{d=data[p++];len+=(d&127)*mul;mul*=128}while(d&128);const end=p+len;if(type===2&&data[p+1]===0)this.ready();else if(type===3){const size=data[p]*256+data[p+1];p+=2;const topic=new TextDecoder().decode(data.slice(p,p+size));p+=size;const payload=new TextDecoder().decode(data.slice(p,end));onMessage(topic,payload)}p=end}}
+  ready(){this.connected=true;this.retry=0;setConnection(true,'Conectado');['pytofront','stn1/#','stn2/#','tw1/#','tw2/#','tw3/#',METEO_TOPIC].forEach(t=>this.subscribe(t));this.publish('update','0');clearInterval(this.ping);this.ping=setInterval(()=>{if(this.connected)this.ws.send(new Uint8Array([0xc0,0]))},8000)}
+  subscribe(topic){const id=this.packetId++&65535,t=this.bytesString(topic),body=new Uint8Array([id>>8,id&255,...t,0]);this.ws.send(this.packet(0x82,body))}
+  publish(topic,value){if(!this.connected){toast('MQTT desconectado');return false}const body=new Uint8Array([...this.bytesString(topic),...new TextEncoder().encode(String(value))]);this.ws.send(this.packet(0x30,body));return true}
+  lost(){if(this.connected||!this.timer)setConnection(false,'Desconectado');this.connected=false;clearInterval(this.ping);const delay=Math.min(30000,1000*2**this.retry++)+Math.random()*500;clearTimeout(this.timer);this.timer=setTimeout(()=>{this.timer=0;this.connect()},delay)}
+}
+function setConnection(online,text){const el=$('connection');el.className=`connection ${online?'online':text==='Conectando…'?'connecting':'offline'}`;el.title=`MQTT: ${text}`;$('connectionText').textContent=text}
+const mqtt=new TinyMqtt(MQTT_URL);mqtt.connect();window.addEventListener('online',()=>mqtt.connect());
+window.AZIMUT_SEND_COMMAND=(topic,value)=>mqtt.publish(topic,value);
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<script defer src="stack-azimut.js"></script>
+</body>
+</html>

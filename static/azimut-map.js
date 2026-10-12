@@ -132,10 +132,10 @@
   function buildMap(rotor) {
     const box = document.createElement('section');
     box.className = 'rotor-map';
-    box.innerHTML = `<header class="map-heading"><h2 class="antenna-name" style="color:${rotor.color}">${rotor.name}</h2>` +
-      `<output class="bearing-readout" id="${rotor.id}-bearing" aria-label="Dirección actual de ${rotor.name}">---°</output></header>` +
-      `<svg class="az-map" id="${rotor.id}-map" viewBox="0 0 ${SIZE} ${SIZE}" role="img" aria-label="Mapa azimutal real de ${rotor.name}, centrado en IN73. Rueda para ampliar y doble clic para restablecer."></svg>`;
-    document.getElementById('az-maps').appendChild(box);
+    const heading = rotor.embedded ? '' : `<header class="map-heading"><h2 class="antenna-name" style="color:${rotor.color}">${rotor.name}</h2>` +
+      `<output class="bearing-readout" id="${rotor.id}-bearing" aria-label="Dirección actual de ${rotor.name}">---°</output></header>`;
+    box.innerHTML = heading + `<svg class="az-map" id="${rotor.id}-map" viewBox="0 0 ${SIZE} ${SIZE}" role="img" aria-label="Mapa azimutal real de ${rotor.name}, centrado en IN73. Rueda para ampliar y doble clic para restablecer."></svg>`;
+    document.getElementById(rotor.containerId || 'az-maps').appendChild(box);
 
     const svg = d3.select(`#${rotor.id}-map`);
     const ids = addDefs(svg, rotor.id, rotor.color);
@@ -212,7 +212,8 @@
       if (event.defaultPrevented) return;
       const [x, y] = currentTransform.invert(d3.pointer(event));
       const degrees = bearingFromPoint(x, y);
-      if (typeof send_command === 'function') send_command(`${rotor.id}/set/deg`, Math.round(degrees));
+      if (typeof window.AZIMUT_SEND_COMMAND === 'function') window.AZIMUT_SEND_COMMAND(`${rotor.id}/set/deg`, Math.round(degrees));
+      else if (typeof send_command === 'function') send_command(`${rotor.id}/set/deg`, Math.round(degrees));
     });
     svg.on('dblclick.reset', event => {
       event.preventDefault();
@@ -262,7 +263,7 @@
     .catch(error => console.warn('No se pudo cargar la cartografía:', error));
 
   rotors.forEach(rotor => {
-    const source = document.getElementById(rotor.id);
+    const source = document.getElementById(rotor.sourceId || rotor.id);
     if (!source) return;
     const sync = () => updateRay(rotor.id, Number.parseFloat(source.textContent));
     new MutationObserver(sync).observe(source, { childList: true, characterData: true, subtree: true });
