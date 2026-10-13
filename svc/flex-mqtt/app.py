@@ -132,22 +132,21 @@ def parse_key_values(text):
 
 
 def normalize_tx_state(value):
-    """Convert known FlexRadio transmit states to a boolean."""
-    text = str(value or "").strip().lower()
-    if text in ("1", "true", "tx", "transmit", "transmitting", "on", "xmit"):
+    """Convert stable FlexRadio interlock states to TX/RX."""
+    text = str(value or "").strip().upper()
+    if text == "TRANSMITTING":
         return True
     if text in (
-        "0",
-        "false",
-        "rx",
-        "receive",
-        "receiving",
-        "off",
-        "unkeyed",
-        "ready",
-        "none",
+        "RECEIVE",
+        "READY",
+        "NOT_READY",
+        "TX_FAULT",
+        "TIMEOUT",
+        "STUCK_INPUT",
     ):
         return False
+    # PTT_REQUESTED / UNKEY_REQUESTED are transitions, not final TX/RX states.
+    # Unknown states must not overwrite the last confirmed state either.
     return None
 
 
@@ -169,32 +168,17 @@ def publish_transmit_state(transmitting):
 
 
 def update_transmit_state(line):
-    """Extract and publish the current FlexRadio TX/RX state."""
+    """Derive actual TX/RX only from FlexRadio interlock status messages."""
 
-    match = re.match(r"^[SR][^|]*\|(?:transmit|interlock|radio)\s+(.+)$", line)
+    match = re.match(r"^S[0-9A-Fa-f]+\|interlock\s+(.+)$", line)
     if not match:
-        match = re.match(r"^[SR][^|]*\|(.+)$", line)
-        if not match:
-            return
+        return
 
+    # Slice tx=1 selects the transmit slice; rfpower is a power setting.
+    # Neither means that the radio is currently transmitting.
     values = parse_key_values(match.group(1))
-    for key in (
-        "tx",
-        "mox",
-        "ptt",
-        "transmit",
-        "transmitting",
-        "rfpower",
-        "rf_power",
-        "tx_on",
-        "xmit",
-        "state",
-    ):
-        if key not in values:
-            continue
-        transmitting = normalize_tx_state(values[key])
-        if transmitting is None:
-            continue
+    transmitting = normalize_tx_state(values.get("state"))
+    if transmitting is not None:
         publish_transmit_state(transmitting)
 
 

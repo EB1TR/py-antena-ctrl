@@ -45,7 +45,12 @@ configuración. Las configuraciones de los servicios auxiliares están en
 `cfg/mosquitto/mosquitto.conf` y `cfg/nginx/default.conf`.
 
 Cada servicio publica el estado real de transmisión como `stnN/tx`: `1` cuando
-el estado global de FlexRadio es TX y `0` cuando vuelve a RX.
+el estado `interlock` de FlexRadio es `TRANSMITTING` y `0` cuando es `READY`,
+`RECEIVE`, `NOT_READY`, `TX_FAULT`, `TIMEOUT` o `STUCK_INPUT`.
+Los estados transitorios `PTT_REQUESTED` y `UNKEY_REQUESTED` conservan el último
+estado confirmado. Solo se procesa el campo `state` de los mensajes de estado
+`interlock`: el `tx=1` de un slice selecciona el slice de transmisión y no
+modifica TX/RX, ni lo hacen los campos de configuración como `rfpower`.
 
 ### TukuDeck
 
