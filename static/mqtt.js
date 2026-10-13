@@ -60,8 +60,8 @@ const avgswrr1 = createAverageCalculator(8);
 const avgswrr2 = createAverageCalculator(8);
 
 function setConnectionVisual(connected) {
-    const container = document.getElementById("contenor");
-    if (container) container.classList.toggle("FinFout", !connected);
+    // The root exists even when this script runs before the interface is parsed.
+    document.documentElement.classList.toggle("mqtt-disconnected", !connected);
 }
 
 function connectMqtt() {
@@ -149,6 +149,14 @@ function send_command(comm, dato){
 }
 
 function onMessageArrived(message) {
+    const motionTopic = /^(tw[123])\/nec$/.exec(message.destinationName);
+    if (motionTopic) {
+        const position = document.getElementById(motionTopic[1]);
+        const motion = message.payloadString.trim().toUpperCase();
+        if (position && position.getAttribute('data-motion') !== motion) {
+            position.setAttribute('data-motion', motion);
+        }
+    }
     if (message.destinationName == "stn1/qrg") {
         $('#stn1-r1-qrg').text((message.payloadString/100).toFixed(1)+" kHz")
     } else if (message.destinationName == "stn1/pwr") {

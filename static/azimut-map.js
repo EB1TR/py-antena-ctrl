@@ -5,6 +5,8 @@
   const EARTH_RADIUS_KM = 6371.0088;
   const DIRECTION_ARC_LENGTH = Math.PI * SCALE - 1;
   const LABEL_RADIUS = 341;
+  const DIRECTION_DEADBAND_DEG = 1;
+  const DIRECTION_TRANSITION_MS = 200;
   const center = window.AZIMUT_CENTER || [-5, 43.5];
   const rotors = window.AZIMUT_ROTORS || [];
   const mapStates = new Map();
@@ -83,13 +85,38 @@
       });
   }
 
-  function updateRay(id, degrees) {
+  function angularDifference(target, origin) {
+    return ((target - origin + 540) % 360) - 180;
+  }
+
+  function updateRay(id, degrees, moving) {
     if (!Number.isFinite(degrees)) return;
     const normalized = ((degrees % 360) + 360) % 360;
     const rounded = Math.round(normalized) % 360;
     const readout = document.getElementById(`${id}-bearing`);
     if (readout) readout.textContent = `${String(rounded).padStart(3, '0')}° · ${compassPoint(normalized)}`;
-    d3.select(`#${id}-map .bearing-cone`).style('display', null).attr('d', directionArcPath(normalized));
+    const state = mapStates.get(id);
+    const cone = state.cone;
+    if (state.directionTarget === null) {
+      state.directionTarget = normalized;
+      state.directionDegrees = normalized;
+      cone.style('display', null).attr('d', directionArcPath(normalized));
+      return;
+    }
+
+    // Anchor the deadband to the last accepted heading, not the previous sample.
+    const difference = angularDifference(normalized, state.directionTarget);
+    if (difference === 0 || (!moving && Math.abs(difference) <= DIRECTION_DEADBAND_DEG)) return;
+    state.directionTarget = normalized;
+    cone.interrupt('bearing');
+    const start = state.directionDegrees;
+    const delta = angularDifference(normalized, start);
+    cone.transition('bearing').duration(DIRECTION_TRANSITION_MS).ease(d3.easeCubicOut)
+      .attrTween('d', () => progress => {
+        // Interpolate the angle along the shortest route, preserving the sector shape.
+        state.directionDegrees = ((start + delta * progress) % 360 + 360) % 360;
+        return directionArcPath(state.directionDegrees);
+      });
   }
 
   function addDefs(svg, rotorId, rotorColor) {
@@ -165,7 +192,7 @@
       }
     });
 
-    zoomLayer.append('path').attr('class', 'bearing-cone').attr('fill', `url(#${ids.direction})`)
+    const cone = zoomLayer.append('path').attr('class', 'bearing-cone').attr('fill', `url(#${ids.direction})`)
       .attr('d', directionArcPath(0)).style('display', 'none');
     zoomLayer.append('circle').attr('class', 'station-halo').attr('cx', MID).attr('cy', MID).attr('r', 11);
     zoomLayer.append('circle').attr('class', 'station-core').attr('cx', MID).attr('cy', MID).attr('r', 4.5)
@@ -179,7 +206,7 @@
 
     let currentTransform = d3.zoomIdentity;
     const labelLayer = svg.insert('g', '.pointer-bearing').attr('class', 'map-labels');
-    const state = { labelLayer, currentTransform };
+    const state = { labelLayer, currentTransform, cone, directionTarget: null, directionDegrees: null };
     mapStates.set(rotor.id, state);
     const zoom = d3.zoom().scaleExtent([1, 20]).translateExtent([[0, 0], [SIZE, SIZE]])
       .on('zoom', event => {
@@ -265,8 +292,16 @@
   rotors.forEach(rotor => {
     const source = document.getElementById(rotor.sourceId || rotor.id);
     if (!source) return;
-    const sync = () => updateRay(rotor.id, Number.parseFloat(source.textContent));
-    new MutationObserver(sync).observe(source, { childList: true, characterData: true, subtree: true });
+    const sync = () => {
+      const motion = source.getAttribute('data-motion');
+      // Until motion telemetry arrives, do not suppress possible real movement.
+      const moving = motion === null || motion === 'CW' || motion === 'CCW';
+      updateRay(rotor.id, Number.parseFloat(source.textContent), moving);
+    };
+    new MutationObserver(sync).observe(source, {
+      childList: true, characterData: true, subtree: true,
+      attributes: true, attributeFilter: ['data-motion']
+    });
     sync();
   });
 })();

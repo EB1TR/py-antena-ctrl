@@ -62,7 +62,7 @@ body {
   fill: #eefaff; font: 700 13px/1 system-ui, sans-serif; text-anchor: middle; dominant-baseline: middle;
 }
 .mqtt-values { display: none; }
-#contenor.FinFout .rotor-map { border-color: rgba(255, 78, 78, .52); box-shadow: 0 0 28px rgba(255, 48, 48, .12); }
+html.mqtt-disconnected #contenor .rotor-map { box-shadow: 0 0 28px rgba(255, 48, 48, .12); }
 @media (max-width: 760px) { .az-maps { grid-template-columns: 1fr; } }
 @media (max-width: 1100px) and (min-width: 761px) {
   .bearing-readout { right: 7px; min-width: 72px; padding: 6px; font-size: 11px; }

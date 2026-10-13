@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" class="mqtt-disconnected">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -43,6 +43,7 @@ html[data-theme="graphite"] .dialog-actions .confirm{background:var(--cyan);bord
 @keyframes pulse{50%{opacity:.35}}@media(max-width:1050px){.rotors{grid-template-columns:1fr}.position{font-size:64px}}@media(max-width:760px){.stations{grid-template-columns:1fr}.controls{grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(2,1fr);grid-auto-flow:row}.controls .btn:first-child{grid-row:1 / 3}.card-head{align-items:flex-start;gap:8px}.telemetry{font-size:11px}.shell{padding:7px}.rotor-main{grid-template-columns:46px minmax(100px,1fr) 46px;grid-template-areas:"minus position plus" "one position two"}.owner{min-height:26px;font-size:11px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
+<link rel="stylesheet" href="mqtt-connection.css">
 </head>
 <body>
 <main class="shell">
@@ -164,7 +165,7 @@ class TinyMqtt{
   publish(topic,value){if(!this.connected){toast('MQTT desconectado');return false}const body=new Uint8Array([...this.bytesString(topic),...new TextEncoder().encode(String(value))]);this.ws.send(this.packet(0x30,body));return true}
   lost(){if(this.connected||!this.timer)setConnection(false,'Desconectado');this.connected=false;clearInterval(this.ping);const delay=Math.min(30000,1000*2**this.retry++)+Math.random()*500;clearTimeout(this.timer);this.timer=setTimeout(()=>{this.timer=0;this.connect()},delay)}
 }
-function setConnection(online,text){const el=$('connection');el.className=`connection ${online?'online':text==='Conectando…'?'connecting':'offline'}`;el.title=`MQTT: ${text}`;$('connectionText').textContent=text}
+function setConnection(online,text){document.documentElement.classList.toggle('mqtt-disconnected',!online);const el=$('connection');el.className=`connection ${online?'online':text==='Conectando…'?'connecting':'offline'}`;el.title=`MQTT: ${text}`;$('connectionText').textContent=text}
 const mqtt=new TinyMqtt(MQTT_URL);mqtt.connect();window.addEventListener('online',()=>mqtt.connect());
 </script>
 </body>

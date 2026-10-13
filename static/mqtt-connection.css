@@ -1,0 +1,25 @@
+/* Shared MQTT warning: keep the interface readable while disconnected. */
+@keyframes mqtt-disconnected-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .6; }
+}
+
+html.mqtt-disconnected #contenor,
+html.mqtt-disconnected .shell {
+  animation: mqtt-disconnected-pulse 2s ease-in-out infinite;
+}
+
+html.mqtt-disconnected #contenor .tablestn,
+html.mqtt-disconnected #contenor .rotor-map,
+html.mqtt-disconnected .shell .card,
+html.mqtt-disconnected .shell .connection {
+  border-color: #dc5965;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.mqtt-disconnected #contenor,
+  html.mqtt-disconnected .shell {
+    animation: none;
+    opacity: .7;
+  }
+}
