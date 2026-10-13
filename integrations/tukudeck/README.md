@@ -3,6 +3,15 @@
 Plugin de Stream Deck para controlar y visualizar las estaciones, antenas,
 rotores y telemetría de py-antena-ctrl mediante MQTT.
 
+## Versión 1.2.1
+
+- La primera lectura de telemetría tras `--` aparece inmediatamente, incluso
+  con un promedio configurado; las siguientes lecturas respetan el promedio.
+- La frecuencia `0` sigue indicando que no hay slice y muestra `--`, sin
+  afectar a los demás datos recibidos por sus propios topics MQTT.
+- Una banda de radio recibida como `[0, 0]` muestra `N/A`; `--` queda reservado
+  para la ausencia o caducidad de ese dato.
+
 ## Desarrollo
 
 Requiere Node.js 24 o posterior.
@@ -38,6 +47,15 @@ aplica automáticamente a sus teclas de posición, paso y preset.
 Si un rotor deja de publicar su posición durante 10 segundos, su tecla de
 posición muestra `--°` y alterna cada segundo entre rojo y el color configurado
 hasta que vuelve a recibirse una posición válida.
+
+La telemetría de cada estación se muestra a partir de su propio topic MQTT
+(`stn1/...` o `stn2/...`), sin depender de que exista un slice ni del estado
+`available`. Cada dato muestra `--` si no se ha recibido una lectura válida o
+si su topic lleva 5 segundos sin actualizarse; los demás datos no se ocultan.
+El cero es una lectura válida salvo en la frecuencia: `qrg = 0` indica que no
+hay slice y muestra `--` solo en ese dato. Una banda recibida `[0, 0]` muestra
+`N/A`. La primera lectura tras `--` aparece inmediatamente,
+sin esperar a completar el número de muestras del promedio configurado.
 
 ### Meteo - Datos
 

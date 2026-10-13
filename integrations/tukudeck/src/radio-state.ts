@@ -84,12 +84,14 @@ export function processRadioMessage(topic: string, payload: string): void {
 				throw new Error("se esperaba [banda, segmento] con enteros no negativos");
 			}
 			const [band, segment] = value;
-			state.band = band === 0 ? null : band;
-			state.segment = band === 0 ? null : segment;
+			// A received N/A band is distinct from an absent or expired message.
+			state.band = band;
+			state.segment = segment;
 		} else {
 			const number = Number(payload);
 			if (payload.trim() === "" || !Number.isFinite(number)) throw new Error("se esperaba un número finito");
 			const key = numericFields[field as keyof typeof numericFields];
+			// QRG zero means no slice; only the frequency is unavailable.
 			state[key] = field === "qrg" ? (number === 0 ? null : number / 100) : number;
 		}
 	} catch (error) {

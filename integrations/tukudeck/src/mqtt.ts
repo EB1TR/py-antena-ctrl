@@ -110,7 +110,7 @@ export type TelemetryState = Partial<Record<TelemetryMetric, number>>;
 
 function toTelemetryState(state: RadioState): TelemetryState {
 	return {
-		qrg: state.frequencyKhz === null || state.frequencyKhz === 0 ? undefined : state.frequencyKhz * 100,
+		qrg: state.frequencyKhz === null ? undefined : state.frequencyKhz * 100,
 		pwr: state.powerWatts ?? undefined,
 		swr: state.swr ?? undefined,
 		tensiona: state.voltage ?? undefined,

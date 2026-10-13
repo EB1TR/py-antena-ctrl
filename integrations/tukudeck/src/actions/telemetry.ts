@@ -114,7 +114,9 @@ export class Telemetry extends SingletonAction<TelemetrySettings> {
 		let sum = 0;
 		let count = 0;
 		let lastImage: string | undefined;
+		let hasReading = false;
 		const render = (state: TelemetryState): void => {
+			hasReading = state[metric] !== undefined;
 			const image = this.makeImage(station, metric, state, peak, normalColor);
 			if (image !== lastImage) {
 				lastImage = image;
@@ -148,6 +150,8 @@ export class Telemetry extends SingletonAction<TelemetrySettings> {
 			if (changedMetric !== metric) return;
 			const value = state[metric];
 			if (value === undefined) return;
+			// Restore a live value immediately; later samples keep the selected average.
+			if (!hasReading) render(state);
 			sum += value;
 			count++;
 			if (count < average) return;
