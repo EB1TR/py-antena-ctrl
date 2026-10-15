@@ -14,9 +14,9 @@
   }
   window.AZIMUT_CENTER = [-5, 43.5];
   window.AZIMUT_ROTORS = [
-    { id: 'tw3', name: 'C31XR', color: '#ffb000' },
-    { id: 'tw1', name: 'MB7', color: '#a3e635' },
-    { id: 'tw2', name: 'MB4', color: '#ff4f87' }
+    { id: 'tw3', name: 'C31XR', color: '#ffff00' },
+    { id: 'tw1', name: 'MB7', color: '#ff9f43' },
+    { id: 'tw2', name: 'MB4', color: '#ffffff' }
   ].map(rotor => ({ ...rotor, embedded: true, containerId: `${rotor.id}-map-slot`, sourceId: `${rotor.id}-position` }));
   const script = document.createElement('script');
   script.src = 'azimut-map.js';

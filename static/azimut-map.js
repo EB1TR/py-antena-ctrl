@@ -7,9 +7,27 @@
   const LABEL_RADIUS = 341;
   const DIRECTION_DEADBAND_DEG = 1;
   const DIRECTION_TRANSITION_MS = 200;
+  // Configurable visual forward power lobe: 20° at half power.
+  // This is a common visual reference, not a measured antenna/stack pattern.
+  const BEAM_HALF_POWER_WIDTH_DEG = 20;
+  const BEAM_FLAT_HALF_WIDTH_DEG = BEAM_HALF_POWER_WIDTH_DEG / 6;
+  const BEAM_HALF_WIDTH_DEG = BEAM_HALF_POWER_WIDTH_DEG * 3;
+  const BEAM_FADE_RANGE_DEG = BEAM_HALF_WIDTH_DEG - BEAM_FLAT_HALF_WIDTH_DEG;
+  const BEAM_PATTERN_EXPONENT = Math.log(.5) / Math.log(Math.cos(
+    (BEAM_HALF_POWER_WIDTH_DEG / 2 - BEAM_FLAT_HALF_WIDTH_DEG) / BEAM_FADE_RANGE_DEG * Math.PI / 2
+  ));
+  const BEAM_FADE_STEPS = 128;
+  const SELECTED_BEAM_COLOR = '#ff3b3b';
+  const STATION_STORAGE_KEY = 'ed1b.azimut.station';
   const center = window.AZIMUT_CENTER || [-5, 43.5];
   const rotors = window.AZIMUT_ROTORS || [];
   const mapStates = new Map();
+  let selectedStation = null;
+  let selectionConfig;
+  try {
+    const saved = localStorage.getItem(STATION_STORAGE_KEY);
+    if (saved === 'stn1' || saved === 'stn2') selectedStation = saved;
+  } catch (_) { /* The selector still works when browser storage is unavailable. */ }
   let countryLabels = [];
   let cityLabels = [];
   const projection = d3.geoAzimuthalEquidistant()
@@ -34,11 +52,29 @@
     return Math.min(.95, .38 + Math.log2(zoomLevel) * .13);
   }
 
-  function directionArcPath(degrees) {
+  function directionArcPath(leftDegrees, rightDegrees) {
     const origin = [MID, MID];
-    const left = polarPoint(degrees - 6, DIRECTION_ARC_LENGTH);
-    const right = polarPoint(degrees + 6, DIRECTION_ARC_LENGTH);
+    const left = polarPoint(leftDegrees, DIRECTION_ARC_LENGTH);
+    const right = polarPoint(rightDegrees, DIRECTION_ARC_LENGTH);
     return `M${origin[0]},${origin[1]} L${left[0]},${left[1]} A${DIRECTION_ARC_LENGTH},${DIRECTION_ARC_LENGTH} 0 0 1 ${right[0]},${right[1]} Z`;
+  }
+
+  function buildDirectionCone(layer, gradientId) {
+    const cone = layer.append('g').attr('class', 'bearing-cone')
+      .attr('fill', `url(#${gradientId})`).attr('pointer-events', 'none').style('display', 'none');
+    // Scale the whole profile proportionally: flat ±3⅓°, half intensity at ±10°, zero at ±60°.
+    // Build the vector bands once; movement only rotates the group.
+    cone.append('path').attr('d', directionArcPath(-BEAM_FLAT_HALF_WIDTH_DEG, BEAM_FLAT_HALF_WIDTH_DEG));
+    const step = BEAM_FADE_RANGE_DEG / BEAM_FADE_STEPS;
+    for (let i = 0; i < BEAM_FADE_STEPS; i++) {
+      const inner = BEAM_FLAT_HALF_WIDTH_DEG + i * step;
+      const outer = inner + step;
+      const angle = ((inner + outer) * .5 - BEAM_FLAT_HALF_WIDTH_DEG) / BEAM_FADE_RANGE_DEG * Math.PI / 2;
+      const alpha = Math.pow(Math.max(0, Math.cos(angle)), BEAM_PATTERN_EXPONENT);
+      cone.append('path').attr('d', directionArcPath(-outer, -inner)).attr('opacity', alpha);
+      cone.append('path').attr('d', directionArcPath(inner, outer)).attr('opacity', alpha);
+    }
+    return cone;
   }
 
   function labelIsFree(box, occupied) {
@@ -100,7 +136,7 @@
     if (state.directionTarget === null) {
       state.directionTarget = normalized;
       state.directionDegrees = normalized;
-      cone.style('display', null).attr('d', directionArcPath(normalized));
+      cone.style('display', null).attr('transform', `rotate(${normalized},${MID},${MID})`);
       return;
     }
 
@@ -112,11 +148,90 @@
     const start = state.directionDegrees;
     const delta = angularDifference(normalized, start);
     cone.transition('bearing').duration(DIRECTION_TRANSITION_MS).ease(d3.easeCubicOut)
-      .attrTween('d', () => progress => {
+      .attrTween('transform', () => progress => {
         // Interpolate the angle along the shortest route, preserving the sector shape.
         state.directionDegrees = ((start + delta * progress) % 360 + 360) % 360;
-        return directionArcPath(state.directionDegrees);
+        return `rotate(${state.directionDegrees},${MID},${MID})`;
       });
+  }
+
+  function updateSelection(config) {
+    selectionConfig = config;
+    const selected = new Set();
+    const band = selectedStation ? config?.[selectedStation]?.band : undefined;
+    if (band != null && Number.isFinite(Number(band)) && Number(band) !== 0) {
+      const stack = config?.stacks?.[String(band)];
+      const outputs = Math.min(3, Number(stack?.salidas) || 0);
+      for (let output = 1; output <= outputs; output++) {
+        const antenna = stack[String(output)];
+        if (antenna?.estado === true) selected.add(`tw${Number(antenna.tw)}`);
+      }
+    }
+
+    for (const rotor of rotors) {
+      const state = mapStates.get(rotor.id);
+      const inUse = selected.has(rotor.id);
+      if (state.selected === inUse) continue;
+      state.selected = inUse;
+      // Only recolor the sector; preserve its alpha, heading and antenna title.
+      state.directionGradient.selectAll('stop')
+        .attr('stop-color', inUse ? SELECTED_BEAM_COLOR : state.beamColor);
+    }
+  }
+
+  function buildStationSelector() {
+    const picker = document.createElement('details');
+    picker.className = 'az-station-switch';
+    picker.innerHTML = '<summary></summary><div class="az-station-options" role="group" aria-label="Mi estación">' +
+      '<span class="az-station-label">Mi estación</span>' +
+      '<button type="button" data-station="stn1" aria-pressed="false">STN1</button>' +
+      '<button type="button" data-station="stn2" aria-pressed="false">STN2</button></div>';
+    const summary = picker.querySelector('summary');
+    const buttons = picker.querySelectorAll('button');
+    const render = () => {
+      const label = selectedStation ? selectedStation.toUpperCase() : 'STN?';
+      summary.textContent = label;
+      summary.title = selectedStation ? `Mi estación: ${label}. Cambiar estación de los mapas` : 'Elige tu estación para resaltar sus antenas';
+      summary.setAttribute('aria-label', summary.title);
+      picker.classList.toggle('needs-selection', selectedStation === null);
+      buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.station === selectedStation)));
+    };
+    picker.addEventListener('click', event => {
+      // This UI changes the local display only, never a rotor or antenna command.
+      event.stopPropagation();
+      const button = event.target.closest('button[data-station]');
+      if (!button) return;
+      selectedStation = button.dataset.station;
+      try { localStorage.setItem(STATION_STORAGE_KEY, selectedStation); } catch (_) {}
+      render();
+      updateSelection(selectionConfig);
+      picker.open = false;
+      summary.focus();
+    });
+    picker.addEventListener('keydown', event => {
+      if (event.key !== 'Escape' || !picker.open) return;
+      event.preventDefault();
+      event.stopPropagation();
+      picker.open = false;
+      summary.focus();
+    });
+    document.addEventListener('click', event => {
+      if (!picker.contains(event.target)) picker.open = false;
+    });
+    window.addEventListener('storage', event => {
+      if (event.key !== STATION_STORAGE_KEY && event.key !== null) return;
+      selectedStation = event.newValue === 'stn1' || event.newValue === 'stn2' ? event.newValue : null;
+      render();
+      updateSelection(selectionConfig);
+    });
+    render();
+    const connection = document.getElementById('connection');
+    if (connection) {
+      picker.classList.add('az-station-inline');
+      connection.insertBefore(picker, connection.querySelector('.service-clock'));
+    } else {
+      document.body.appendChild(picker);
+    }
   }
 
   function addDefs(svg, rotorId, rotorColor) {
@@ -144,7 +259,7 @@
     const direction = defs.append('radialGradient').attr('id', ids.direction)
       .attr('gradientUnits', 'userSpaceOnUse').attr('cx', MID).attr('cy', MID).attr('r', DIRECTION_ARC_LENGTH);
     [0, .1, .25, .5, .75, 1].forEach(position => {
-      const alpha = .03 + .57 * (1 - Math.log1p(position * 9) / Math.log(10));
+      const alpha = .15 + .45 * (1 - Math.log1p(position * 9) / Math.log(10));
       direction.append('stop').attr('offset', `${position * 100}%`)
         .attr('stop-color', rotorColor).attr('stop-opacity', alpha);
     });
@@ -157,6 +272,7 @@
   }
 
   function buildMap(rotor) {
+    const beamColor = rotor.color;
     const box = document.createElement('section');
     box.className = 'rotor-map';
     const heading = rotor.embedded ? '' : `<header class="map-heading"><h2 class="antenna-name" style="color:${rotor.color}">${rotor.name}</h2>` +
@@ -165,7 +281,7 @@
     document.getElementById(rotor.containerId || 'az-maps').appendChild(box);
 
     const svg = d3.select(`#${rotor.id}-map`);
-    const ids = addDefs(svg, rotor.id, rotor.color);
+    const ids = addDefs(svg, rotor.id, beamColor);
     const zoomLayer = svg.append('g').attr('class', 'zoom-layer');
     zoomLayer.append('path').datum({ type: 'Sphere' }).attr('class', 'sphere')
       .attr('fill', `url(#${ids.ocean})`).attr('d', path);
@@ -192,8 +308,7 @@
       }
     });
 
-    const cone = zoomLayer.append('path').attr('class', 'bearing-cone').attr('fill', `url(#${ids.direction})`)
-      .attr('d', directionArcPath(0)).style('display', 'none');
+    const cone = buildDirectionCone(zoomLayer, ids.direction);
     zoomLayer.append('circle').attr('class', 'station-halo').attr('cx', MID).attr('cy', MID).attr('r', 11);
     zoomLayer.append('circle').attr('class', 'station-core').attr('cx', MID).attr('cy', MID).attr('r', 4.5)
       .attr('filter', `url(#${ids.station})`);
@@ -206,7 +321,8 @@
 
     let currentTransform = d3.zoomIdentity;
     const labelLayer = svg.insert('g', '.pointer-bearing').attr('class', 'map-labels');
-    const state = { labelLayer, currentTransform, cone, directionTarget: null, directionDegrees: null };
+    const directionGradient = svg.select(`#${ids.direction}`);
+    const state = { labelLayer, currentTransform, cone, directionGradient, beamColor, selected: false, directionTarget: null, directionDegrees: null };
     mapStates.set(rotor.id, state);
     const zoom = d3.zoom().scaleExtent([1, 20]).translateExtent([[0, 0], [SIZE, SIZE]])
       .on('zoom', event => {
@@ -250,6 +366,10 @@
 
   document.documentElement.style.setProperty('--map-count', rotors.length);
   rotors.forEach(buildMap);
+  window.AZIMUT_UPDATE_SELECTION = updateSelection;
+  buildStationSelector();
+  // MQTT may have delivered the initial selection before the map script loaded.
+  updateSelection(window.AZIMUT_SELECTION_STATE);
   Promise.all([
     fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
       .then(response => { if (!response.ok) throw new Error(`Cartografía HTTP ${response.status}`); return response.json(); }),

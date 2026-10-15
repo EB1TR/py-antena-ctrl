@@ -349,6 +349,10 @@ function onMessageArrived(message) {
         }
     } else if (message.destinationName == "pytofront") {
         json = JSON.parse(message.payloadString)
+        window.AZIMUT_SELECTION_STATE = json;
+        if (typeof window.AZIMUT_UPDATE_SELECTION === 'function') {
+            window.AZIMUT_UPDATE_SELECTION(json);
+        }
         if (json.stn1 != undefined) {
             json = JSON.parse(message.payloadString)
             bstn1 = "#stn1-b"+json.stn1.band
