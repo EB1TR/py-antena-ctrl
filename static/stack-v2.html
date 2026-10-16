@@ -6,8 +6,8 @@
 <title>ED1B · Control de bandas y stacks</title>
 <style>
 .solar-status{margin-left:auto;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px 14px;font-variant-numeric:tabular-nums}.solar-status time{color:var(--text)}
-.connection{position:relative}.service-clock{position:absolute;left:50%;transform:translateX(-50%);color:var(--text);font-variant-numeric:tabular-nums;font-weight:700}
-@media(max-width:620px){.connection{flex-wrap:wrap;padding-bottom:26px}.service-clock{bottom:4px}}
+.connection{position:relative}.service-clock{position:absolute;left:50%;transform:translateX(-50%);color:var(--text);font-variant-numeric:tabular-nums;font-weight:700;display:flex;gap:14px;white-space:nowrap}
+@media(max-width:1000px){.connection{flex-wrap:wrap;padding-bottom:26px}.service-clock{bottom:4px}}
 :root{color-scheme:dark;--bg:#05090e;--panel:#0b141d;--line:#233342;--text:#dce7ee;--muted:#7990a1;--cyan:#25c6e8;--blue:#2987ff;--green:#3ddc84;--orange:#ff9f43;--red:#ff5364}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.35 system-ui,-apple-system,sans-serif}button{font:inherit}
 .shell{width:min(1500px,100%);margin:auto;padding:12px}.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.topbar h1{margin:0;font-size:clamp(18px,2vw,27px)}
@@ -47,7 +47,7 @@ html[data-theme="graphite"] .dialog-actions .confirm{background:var(--cyan);bord
 </head>
 <body>
 <main class="shell">
-  <div id="connection" class="connection offline"><span class="dot" aria-hidden="true"></span><span role="status">MQTT · <span id="connectionText">Desconectado</span></span><time id="serviceClock" class="service-clock" title="Hora local de España">--:--:--</time><span class="solar-status"><span title="Amanecer en IN73 · hora local de España"><span role="img" aria-label="Amanecer">☀️</span> <time id="sunrise">--:--</time></span><span title="Ocaso en IN73 · hora local de España"><span role="img" aria-label="Ocaso">🌙</span> <time id="sunset">--:--</time></span></span></div>
+  <div id="connection" class="connection offline"><span class="dot" aria-hidden="true"></span><span role="status">MQTT · <span id="connectionText">Desconectado</span></span><span class="service-clock"><span title="Hora local de España (Europe/Madrid)"><span role="img" aria-label="España">🇪🇸</span> <time id="serviceClock">--:--:--</time></span><span title="Tiempo universal coordinado (UTC)"><span role="img" aria-label="UTC">🌍</span> <time id="utcClock">--:--:--</time></span></span><span class="solar-status"><span title="Amanecer en IN73 · hora local de España"><span role="img" aria-label="Amanecer">☀️</span> <time id="sunrise">--:--</time></span><span title="Ocaso en IN73 · hora local de España"><span role="img" aria-label="Ocaso">🌙</span> <time id="sunset">--:--</time></span></span></div>
   <section id="weatherStatus" class="weather-bar" aria-label="Meteorología actual" title="Sin datos meteorológicos recientes">
     <span title="Temperatura exterior"><span role="img" aria-label="Temperatura exterior">🌡️</span> <span id="weatherTemperature" class="weather-value">--</span></span>
     <span title="Humedad exterior"><span role="img" aria-label="Humedad exterior">💧</span> <span id="weatherHumidity" class="weather-value">--</span></span>
@@ -101,7 +101,8 @@ function renderWeather(now=Date.now()){
 }
 setInterval(renderWeather,10000);
 const clockFormat=new Intl.DateTimeFormat('es-ES',{timeZone:'Europe/Madrid',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
-function updateClock(){const now=new Date();$('serviceClock').textContent=clockFormat.format(now);$('serviceClock').dateTime=now.toISOString()}
+const utcClockFormat=new Intl.DateTimeFormat('es-ES',{timeZone:'UTC',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
+function updateClock(){const now=new Date();$('serviceClock').textContent=clockFormat.format(now);$('utcClock').textContent=utcClockFormat.format(now);$('serviceClock').dateTime=$('utcClock').dateTime=now.toISOString()}
 updateClock();setInterval(updateClock,1000);
 // NOAA fractional-year approximation; apparent solar horizon at 90.833°.
 function updateSolarTimes(now=new Date()){
