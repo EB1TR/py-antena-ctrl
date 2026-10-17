@@ -79,6 +79,7 @@ html[data-theme="graphite"] .dialog-actions .confirm{background:var(--cyan);bord
 </style>
 <link rel="stylesheet" href="stn-status.css">
 <link rel="stylesheet" href="mqtt-connection.css">
+<script src="rotor-freshness.js"></script>
 </head>
 <body>
 <main class="shell">
@@ -166,6 +167,12 @@ function rotorMarkup(r){
 }
 $('stations').innerHTML=stationMarkup('stn1','STN1')+stationMarkup('stn2','STN2');
 $('rotors').innerHTML=ROTORS.map(rotorMarkup).join('');
+ROTORS.forEach(({id})=>ROTOR_FRESHNESS.watch(id,fresh=>{
+  const card=$(`${id}-card`),position=$(`${id}-position`);
+  card.classList.toggle('rotor-no-data',!fresh);
+  position.setAttribute('data-stale',String(!fresh));
+  if(!fresh){state.rotors[id]={};position.textContent='Sin datos';position.classList.remove('over');position.removeAttribute('data-motion');$(`${id}-mode`).textContent='---';$(`${id}-mode`).classList.remove('active');$(`${id}-set`).textContent='---';$(`${id}-nec`).textContent='—'}
+}));
 
 function toast(text){const el=$('toast');el.textContent=text;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2200)}
 let directionRotor=null;
@@ -183,7 +190,7 @@ function rolling(size,mode='avg'){const values=[];return value=>{values.push(val
 const filters={stn1:{pwr:rolling(8),peak:rolling(20,'max'),swr:rolling(8)},stn2:{pwr:rolling(8),peak:rolling(20,'max'),swr:rolling(8)}};
 function setMetric(id,text,status=''){const el=$(id);if(!el)return;el.textContent=text;el.className=`metric ${status}`}
 function telemetry(stn,key,payload){const n=Number(payload),f=filters[stn];switch(key){case'qrg':setMetric(`${stn}-qrg`,`${(n/100).toFixed(1)} kHz`);break;case'pwr':{const avg=f.pwr(n),peak=f.peak(n);setMetric(`${stn}-pwr`,`${avg.toFixed(1)} Wa`,avg>80?'good':'');setMetric(`${stn}-pwrp`,`${peak.toFixed(1)} Wp`,peak>95?'good':'');break}case'swr':{const v=f.swr(n);setMetric(`${stn}-swr`,`${v.toFixed(1)}:1`,v>2?'bad':v>1.5?'warn':'');break}case'tensiona':setMetric(`${stn}-va`,`${n.toFixed(1)} V`,n<12.8?'bad':'good');break;case'temp':setMetric(`${stn}-temp`,`${n.toFixed(1)}°C`,n>40?'bad':'');break;case'fun':setMetric(`${stn}-fun`,`${payload} rpm`);break}}
-function rotorMessage(id,key,payload){const r=state.rotors[id];if(key==='deg'){let v=parseInt(payload,10);const over=v>360;if(over)v-=360;r.deg=v;const el=$(`${id}-position`);el.textContent=`${v}°`;el.classList.toggle('over',over)}else if(key==='mode'){r.mode=payload.toUpperCase();const el=$(`${id}-mode`);el.textContent=r.mode;el.classList.toggle('active',r.mode==='REM')}else if(key==='setdeg'){r.set=Number(payload);$(`${id}-set`).textContent=`${payload}°`}else if(key==='nec'){const motion=payload.trim().toUpperCase();const position=$(`${id}-position`);if(position.getAttribute('data-motion')!==motion)position.setAttribute('data-motion',motion);$(`${id}-nec`).textContent=motion==='CCW'?'↪':motion==='CW'?'↩':'✓'}}
+function rotorMessage(id,key,payload){if(key!=='deg'&&$(`${id}-position`).getAttribute('data-stale')==='true')return;const r=state.rotors[id];if(key==='deg'){if(!ROTOR_FRESHNESS.position(id,payload))return;let v=parseInt(payload,10);const over=v>360;if(over)v-=360;r.deg=v;const el=$(`${id}-position`);el.textContent=`${v}°`;el.classList.toggle('over',over)}else if(key==='mode'){r.mode=payload.toUpperCase();const el=$(`${id}-mode`);el.textContent=r.mode;el.classList.toggle('active',r.mode==='REM')}else if(key==='setdeg'){r.set=Number(payload);$(`${id}-set`).textContent=`${payload}°`}else if(key==='nec'){const motion=payload.trim().toUpperCase();const position=$(`${id}-position`);if(position.getAttribute('data-motion')!==motion)position.setAttribute('data-motion',motion);$(`${id}-nec`).textContent=motion==='CCW'?'↪':motion==='CW'?'↩':'✓'}}
 function entry(band,index){return band?.[index]||band?.[String(index)]||{}}
 function usesRotor(stn,tw){const cfg=state.config,s=cfg?.[stn],band=cfg?.stacks?.[s?.band];if(!band)return false;return[1,2,3].some(i=>{const e=entry(band,i);return e.tw===tw&&e.estado===true})}
 function renderConfig(cfg){state.config=cfg;window.AZIMUT_SELECTION_STATE=cfg;if(typeof window.AZIMUT_UPDATE_SELECTION==='function')window.AZIMUT_UPDATE_SELECTION(cfg);for(const stn of['stn1','stn2']){const s=cfg[stn];if(!s)continue;state.stations[stn]=s;BANDS.forEach(b=>$(`${stn}-b${b}`).classList.toggle('active',Number(s.band)===b));$(`${stn}-auto`).classList.toggle('active',s.auto===true);$(`${stn}-rig`).classList.toggle('active',Number(s.rig)===1);const band=cfg.stacks?.[s.band],outputs=Number(band?.salidas||0);for(let i=1;i<=3;i++){const e=entry(band,i),button=$(`${stn}-stack${i}`);button.textContent=e.nombre||String(i);button.classList.toggle('hidden',i>outputs);button.classList.toggle('active',i<=outputs&&e.estado===true)}$(`${stn}-swap`).classList.toggle('hidden',outputs<2)}for(const rotor of ROTORS){const one=usesRotor('stn1',rotor.number),two=usesRotor('stn2',rotor.number);const e1=$(`${rotor.id}-stn1`),e2=$(`${rotor.id}-stn2`);e1.classList.toggle('show',one);e2.classList.toggle('show',two);e1.classList.toggle('conflict',one&&two);e2.classList.toggle('conflict',one&&two)}}
@@ -201,7 +208,7 @@ class TinyMqtt{
   publish(topic,value){if(!this.connected){toast('MQTT desconectado');return false}const body=new Uint8Array([...this.bytesString(topic),...new TextEncoder().encode(String(value))]);this.ws.send(this.packet(0x30,body));return true}
   lost(){if(this.connected||!this.timer)setConnection(false,'Desconectado');this.connected=false;clearInterval(this.ping);const delay=Math.min(30000,1000*2**this.retry++)+Math.random()*500;clearTimeout(this.timer);this.timer=setTimeout(()=>{this.timer=0;this.connect()},delay)}
 }
-function setConnection(online,text){document.documentElement.classList.toggle('mqtt-disconnected',!online);const el=$('connection');el.className=`connection ${online?'online':text==='Conectando…'?'connecting':'offline'}`;el.title=`MQTT: ${text}`;$('connectionText').textContent=text}
+function setConnection(online,text){if(!online)ROTOR_FRESHNESS.disconnect();document.documentElement.classList.toggle('mqtt-disconnected',!online);const el=$('connection');el.className=`connection ${online?'online':text==='Conectando…'?'connecting':'offline'}`;el.title=`MQTT: ${text}`;$('connectionText').textContent=text}
 const mqtt=new TinyMqtt(MQTT_URL);mqtt.connect();window.addEventListener('online',()=>mqtt.connect());
 window.AZIMUT_SEND_COMMAND=(topic,value)=>mqtt.publish(topic,value);
 </script>

@@ -23,3 +23,17 @@ html.mqtt-disconnected .shell .connection {
     opacity: .7;
   }
 }
+
+/* A missing rotor only pulses its own panel while MQTT remains connected. */
+.rotor-no-data {
+  border-color: #dc5965 !important;
+}
+html:not(.mqtt-disconnected) .rotor-no-data {
+  animation: mqtt-disconnected-pulse 2s ease-in-out infinite;
+}
+.rotor-no-data .position {
+  font-size: clamp(24px, 4vw, 44px);
+}
+@media (prefers-reduced-motion: reduce) {
+  html:not(.mqtt-disconnected) .rotor-no-data { animation: none; opacity: .7; }
+}

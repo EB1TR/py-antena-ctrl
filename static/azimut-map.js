@@ -139,6 +139,7 @@
     if (readout) readout.textContent = `${String(rounded).padStart(3, '0')}° · ${compassPoint(normalized)}`;
     const state = mapStates.get(id);
     const cone = state.cone;
+    if (state.stale) return;
     if (state.directionTarget === null) {
       state.directionTarget = normalized;
       state.directionDegrees = normalized;
@@ -341,6 +342,17 @@
     const directionGradient = svg.select(`#${ids.direction}`);
     const state = { labelLayer, currentTransform, cone, directionGradient, beamColor, beamWidth: DEFAULT_BEAM_WIDTH_DEG, selected: false, directionTarget: null, directionDegrees: null };
     mapStates.set(rotor.id, state);
+    window.ROTOR_FRESHNESS?.watch(rotor.id, fresh => {
+      state.stale = !fresh;
+      if (!rotor.embedded) box.classList.toggle('rotor-no-data', !fresh);
+      if (!fresh) {
+        cone.interrupt('bearing').style('display', 'none');
+        state.directionTarget = null;
+        state.directionDegrees = null;
+        const readout = document.getElementById(`${rotor.id}-bearing`);
+        if (readout) readout.textContent = 'Sin datos';
+      }
+    });
     const zoom = d3.zoom().scaleExtent([1, 20]).translateExtent([[0, 0], [SIZE, SIZE]])
       .on('zoom', event => {
         currentTransform = event.transform;

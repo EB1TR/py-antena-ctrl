@@ -78,3 +78,12 @@ Stream Deck y se comunica directamente con el broker MQTT del stack.
 
 ### Reboot
 sudo shutdown -r now<br>
+
+### Pérdida de datos de rotores
+
+En las vistas nuevas de control y mapas, 5 segundos sin una posición válida
+(`twN/deg`) ponen ese rotor en «Sin datos»: su panel parpadea y se oculta su haz.
+Los rotores deben publicar la posición periódicamente incluso estando parados.
+La siguiente posición válida recupera el indicador; el objetivo, modo y movimiento
+se vuelven a mostrar cuando llegan sus respectivos mensajes. La desconexión MQTT
+invalida inmediatamente las posiciones y mantiene el parpadeo de toda la interfaz.

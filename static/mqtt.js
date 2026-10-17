@@ -60,6 +60,7 @@ const avgswrr1 = createAverageCalculator(8);
 const avgswrr2 = createAverageCalculator(8);
 
 function setConnectionVisual(connected) {
+    if (!connected) window.ROTOR_FRESHNESS?.disconnect();
     // The root exists even when this script runs before the interface is parsed.
     document.documentElement.classList.toggle("mqtt-disconnected", !connected);
 }
@@ -149,6 +150,8 @@ function send_command(comm, dato){
 }
 
 function onMessageArrived(message) {
+    const positionTopic = /^(tw[123])\/deg$/.exec(message.destinationName);
+    if (positionTopic && window.ROTOR_FRESHNESS && !window.ROTOR_FRESHNESS.position(positionTopic[1], message.payloadString)) return;
     const motionTopic = /^(tw[123])\/nec$/.exec(message.destinationName);
     if (motionTopic) {
         const position = document.getElementById(motionTopic[1]);
