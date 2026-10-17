@@ -7,19 +7,22 @@
             "estado": false,
             "nombre": "",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         },
         "2": {
             "estado": false,
             "nombre": "",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         },
         "3": {
             "estado": false,
             "nombre": "",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         }
     },
     "160": {
@@ -30,19 +33,22 @@
             "estado": true,
             "nombre": "DIP",
             "rele": "dtry/relay14475/in/r1",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         },
         "2": {
             "estado": false,
             "nombre": "160-2",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         },
         "3": {
             "estado": false,
             "nombre": "160-3",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         }
     },
     "80": {
@@ -53,19 +59,22 @@
             "estado": true,
             "nombre": "△",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         },
         "2": {
             "estado": false,
             "nombre": "80-2",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         },
         "3": {
             "estado": false,
             "nombre": "80-3",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         }
     },
     "60": {
@@ -76,19 +85,22 @@
             "estado": true,
             "nombre": "DIP",
             "rele": "dtry/relay14475/in/r2",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         },
         "2": {
             "estado": false,
             "nombre": "60-2",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         },
         "3": {
             "estado": false,
             "nombre": "60-3",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         }
     },
     "40": {
@@ -99,19 +111,22 @@
             "estado": true,
             "nombre": "USA",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS13",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         },
         "2": {
             "estado": true,
             "nombre": "ROT",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS14",
-            "tw": 3
+            "tw": 3,
+            "haz": null
         },
         "3": {
             "estado": false,
             "nombre": "40-3",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS15",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         }
     },
     "30": {
@@ -122,19 +137,22 @@
             "estado": true,
             "nombre": "DIP",
             "rele": "dtry/relay14475/in/r3",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         },
         "2": {
             "estado": false,
             "nombre": "30-2",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         },
         "3": {
             "estado": false,
             "nombre": "30-3",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         }
     },
     "20": {
@@ -145,19 +163,22 @@
             "estado": true,
             "nombre": "2el",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS1",
-            "tw": 1
+            "tw": 1,
+            "haz": 45
         },
         "2": {
             "estado": true,
             "nombre": "3el",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS2",
-            "tw": 3
+            "tw": 3,
+            "haz": 35
         },
         "3": {
             "estado": false,
             "nombre": "20-3",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         }
     },
     "17": {
@@ -168,19 +189,22 @@
             "estado": true,
             "nombre": "MB4",
             "rele": "dtry/relay14475/in/r4",
-            "tw": 2
+            "tw": 2,
+            "haz": 45
         },
         "2": {
             "estado": false,
             "nombre": "17-2",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         },
         "3": {
             "estado": false,
             "nombre": "17-3",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         }
     },
     "15": {
@@ -191,19 +215,22 @@
             "estado": true,
             "nombre": "2el",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS5",
-            "tw": 1
+            "tw": 1,
+            "haz": 45
         },
         "2": {
             "estado": true,
             "nombre": "4el",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS6",
-            "tw": 3
+            "tw": 3,
+            "haz": 27
         },
         "3": {
             "estado": false,
             "nombre": "15-3",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         }
     },
     "12": {
@@ -214,19 +241,22 @@
             "estado": true,
             "nombre": "MB4",
             "rele": "dtry/relay14475/in/r4",
-            "tw": 2
+            "tw": 2,
+            "haz": 45
         },
         "2": {
             "estado": false,
             "nombre": "12-2",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         },
         "3": {
             "estado": false,
             "nombre": "12-3",
             "rele": "rele_dummy",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         }
     },
     "10": {
@@ -237,19 +267,22 @@
             "estado": true,
             "nombre": "3el",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS9",
-            "tw": 1
+            "tw": 1,
+            "haz": 35
         },
         "2": {
             "estado": true,
             "nombre": "7el",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS10",
-            "tw": 3
+            "tw": 3,
+            "haz": 22
         },
         "3": {
             "estado": false,
             "nombre": "VER",
             "rele": "SmartDEN_MQTT16R/E8EADA0059F7/Set/RS11",
-            "tw": 0
+            "tw": 0,
+            "haz": null
         }
     }
 }

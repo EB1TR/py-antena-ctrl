@@ -7,15 +7,8 @@
   const LABEL_RADIUS = 341;
   const DIRECTION_DEADBAND_DEG = 1;
   const DIRECTION_TRANSITION_MS = 200;
-  // Configurable visual forward power lobe: 20° at half power.
-  // This is a common visual reference, not a measured antenna/stack pattern.
-  const BEAM_HALF_POWER_WIDTH_DEG = 20;
-  const BEAM_FLAT_HALF_WIDTH_DEG = BEAM_HALF_POWER_WIDTH_DEG / 6;
-  const BEAM_HALF_WIDTH_DEG = BEAM_HALF_POWER_WIDTH_DEG * 3;
-  const BEAM_FADE_RANGE_DEG = BEAM_HALF_WIDTH_DEG - BEAM_FLAT_HALF_WIDTH_DEG;
-  const BEAM_PATTERN_EXPONENT = Math.log(.5) / Math.log(Math.cos(
-    (BEAM_HALF_POWER_WIDTH_DEG / 2 - BEAM_FLAT_HALF_WIDTH_DEG) / BEAM_FADE_RANGE_DEG * Math.PI / 2
-  ));
+  // Fallback reference until a measured half-power beamwidth is configured.
+  const DEFAULT_BEAM_WIDTH_DEG = 45;
   const BEAM_FADE_STEPS = 128;
   const SELECTED_BEAM_COLOR = '#ff3b3b';
   const STATION_STORAGE_KEY = 'ed1b.azimut.station';
@@ -56,25 +49,38 @@
     const origin = [MID, MID];
     const left = polarPoint(leftDegrees, DIRECTION_ARC_LENGTH);
     const right = polarPoint(rightDegrees, DIRECTION_ARC_LENGTH);
-    return `M${origin[0]},${origin[1]} L${left[0]},${left[1]} A${DIRECTION_ARC_LENGTH},${DIRECTION_ARC_LENGTH} 0 0 1 ${right[0]},${right[1]} Z`;
+    return `M${origin[0]},${origin[1]} L${left[0]},${left[1]} A${DIRECTION_ARC_LENGTH},${DIRECTION_ARC_LENGTH} 0 ${rightDegrees - leftDegrees > 180 ? 1 : 0} 1 ${right[0]},${right[1]} Z`;
   }
 
   function buildDirectionCone(layer, gradientId) {
     const cone = layer.append('g').attr('class', 'bearing-cone')
       .attr('fill', `url(#${gradientId})`).attr('pointer-events', 'none').style('display', 'none');
-    // Scale the whole profile proportionally: flat ±3⅓°, half intensity at ±10°, zero at ±60°.
-    // Build the vector bands once; movement only rotates the group.
-    cone.append('path').attr('d', directionArcPath(-BEAM_FLAT_HALF_WIDTH_DEG, BEAM_FLAT_HALF_WIDTH_DEG));
-    const step = BEAM_FADE_RANGE_DEG / BEAM_FADE_STEPS;
+    renderDirectionCone(cone, DEFAULT_BEAM_WIDTH_DEG);
+    return cone;
+  }
+
+  function renderDirectionCone(cone, width) {
+    cone.selectAll('*').remove();
+    if (width === 360) {
+      cone.append('circle').attr('cx', MID).attr('cy', MID).attr('r', DIRECTION_ARC_LENGTH);
+      return;
+    }
+    const flatHalfWidth = width / 6;
+    const halfWidth = Math.min(180, width * 3);
+    const fadeRange = halfWidth - flatHalfWidth;
+    const exponent = Math.log(.5) / Math.log(Math.cos(
+      (width / 2 - flatHalfWidth) / fadeRange * Math.PI / 2
+    ));
+    cone.append('path').attr('d', directionArcPath(-flatHalfWidth, flatHalfWidth));
+    const step = fadeRange / BEAM_FADE_STEPS;
     for (let i = 0; i < BEAM_FADE_STEPS; i++) {
-      const inner = BEAM_FLAT_HALF_WIDTH_DEG + i * step;
+      const inner = flatHalfWidth + i * step;
       const outer = inner + step;
-      const angle = ((inner + outer) * .5 - BEAM_FLAT_HALF_WIDTH_DEG) / BEAM_FADE_RANGE_DEG * Math.PI / 2;
-      const alpha = Math.pow(Math.max(0, Math.cos(angle)), BEAM_PATTERN_EXPONENT);
+      const angle = ((inner + outer) * .5 - flatHalfWidth) / fadeRange * Math.PI / 2;
+      const alpha = Math.pow(Math.max(0, Math.cos(angle)), exponent);
       cone.append('path').attr('d', directionArcPath(-outer, -inner)).attr('opacity', alpha);
       cone.append('path').attr('d', directionArcPath(inner, outer)).attr('opacity', alpha);
     }
-    return cone;
   }
 
   function labelIsFree(box, occupied) {
@@ -158,19 +164,30 @@
   function updateSelection(config) {
     selectionConfig = config;
     const selected = new Set();
+    const beamWidths = new Map();
     const band = selectedStation ? config?.[selectedStation]?.band : undefined;
     if (band != null && Number.isFinite(Number(band)) && Number(band) !== 0) {
       const stack = config?.stacks?.[String(band)];
       const outputs = Math.min(3, Number(stack?.salidas) || 0);
       for (let output = 1; output <= outputs; output++) {
         const antenna = stack[String(output)];
-        if (antenna?.estado === true) selected.add(`tw${Number(antenna.tw)}`);
+        const rotorId = `tw${Number(antenna?.tw)}`;
+        if (antenna?.estado === true) selected.add(rotorId);
+        const width = antenna?.haz;
+        if (typeof width === 'number' && Number.isFinite(width) && width > 0 && width <= 360) {
+          beamWidths.set(rotorId, width);
+        }
       }
     }
 
     for (const rotor of rotors) {
       const state = mapStates.get(rotor.id);
       const inUse = selected.has(rotor.id);
+      const width = beamWidths.get(rotor.id) ?? DEFAULT_BEAM_WIDTH_DEG;
+      if (state.beamWidth !== width) {
+        renderDirectionCone(state.cone, width);
+        state.beamWidth = width;
+      }
       if (state.selected === inUse) continue;
       state.selected = inUse;
       // Only recolor the sector; preserve its alpha, heading and antenna title.
@@ -322,7 +339,7 @@
     let currentTransform = d3.zoomIdentity;
     const labelLayer = svg.insert('g', '.pointer-bearing').attr('class', 'map-labels');
     const directionGradient = svg.select(`#${ids.direction}`);
-    const state = { labelLayer, currentTransform, cone, directionGradient, beamColor, selected: false, directionTarget: null, directionDegrees: null };
+    const state = { labelLayer, currentTransform, cone, directionGradient, beamColor, beamWidth: DEFAULT_BEAM_WIDTH_DEG, selected: false, directionTarget: null, directionDegrees: null };
     mapStates.set(rotor.id, state);
     const zoom = d3.zoom().scaleExtent([1, 20]).translateExtent([[0, 0], [SIZE, SIZE]])
       .on('zoom', event => {

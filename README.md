@@ -52,6 +52,24 @@ estado confirmado. Solo se procesa el campo `state` de los mensajes de estado
 `interlock`: el `tx=1` de un slice selecciona el slice de transmisión y no
 modifica TX/RX, ni lo hacen los campos de configuración como `rfpower`.
 
+### Haz de las antenas en los mapas
+
+Cada salida de cada banda en `cfg/stacks.json` admite `"haz"`: anchura total
+del lóbulo principal a media potencia (−3 dB), en grados. Por ejemplo,
+`"haz": 60` representa media potencia a ±30° respecto al rumbo del rotor.
+Se admiten números mayores que 0 y hasta 360; 360 dibuja cobertura circular.
+`null`, un campo ausente o un valor no válido utilizan el valor por defecto
+de 45°, sin atribuir una medida real a la antena.
+
+Los mapas utilizan la banda de la estación elegida en el selector STN1/STN2
+y la salida cuyo `tw` corresponde al rotor, también cuando esa salida no está
+activada. El haz se actualiza al cambiar la banda o la configuración, conservando
+el rumbo y el color de selección. Sin estación o sin antena para esa banda se
+utiliza el valor por defecto de 45°. Las antenas fijas (`tw: 0`) no tienen mapa de rotor.
+El dibujo es una aproximación del lóbulo principal, no un diagrama de radiación
+medido. Tras editar el archivo, reinicia el servicio `control` para publicar
+la configuración actualizada.
+
 ### TukuDeck
 
 El código fuente del plugin de Stream Deck forma parte de este repositorio en
