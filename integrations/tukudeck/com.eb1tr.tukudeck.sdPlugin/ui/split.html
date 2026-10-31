@@ -17,7 +17,18 @@
 	<sdpi-item label="Desplazamiento (kHz)">
         <sdpi-textfield setting="offsetKhz" default="1" placeholder="1"></sdpi-textfield>
     </sdpi-item>
-    <p>Valores positivos: UP; negativos: DOWN. SPLIT abre B en el mismo waterfall que A. La segunda pulsación devuelve TX al receptor.</p>
+    <sdpi-item label="Silenciar B">
+        <sdpi-radio setting="muteB" default="no" columns="2">
+            <option value="no">No</option>
+            <option value="yes">Sí</option>
+        </sdpi-radio>
+    </sdpi-item>
+    <sdpi-item label="Volumen A (0–100)"><sdpi-textfield setting="volumeA" placeholder="Conservar actual"></sdpi-textfield></sdpi-item>
+    <sdpi-item label="Volumen B (0–100)"><sdpi-textfield setting="volumeB" placeholder="Conservar actual"></sdpi-textfield></sdpi-item>
+    <sdpi-item label="Balance A (0 L · 50 C · 100 R)"><sdpi-textfield setting="balanceA" placeholder="Conservar actual"></sdpi-textfield></sdpi-item>
+    <sdpi-item label="Balance B (0 L · 50 C · 100 R)"><sdpi-textfield setting="balanceB" placeholder="Conservar actual"></sdpi-textfield></sdpi-item>
+    <p>Audio aplicado solo al activar SPLIT. Campo vacío: conservar valor actual. El mute B es independiente del volumen. Al desactivar SPLIT ambos balances vuelven al centro, RX y TX pasan a A y B se cierra.</p>
+    <p>Valores positivos: UP; negativos: DOWN. SPLIT abre B en el mismo waterfall que A. La segunda pulsación vuelve a A y cierra B.</p>
     <sdpi-item label="Mostrar título">
 		<sdpi-radio setting="showTitle" default="show" columns="2">
 			<option value="show">Sí</option><option value="hide">No</option>

@@ -1,3 +1,9 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
 
   mqtt:
@@ -11,6 +17,7 @@ services:
     ports:
       - "1883:1883"
       - "9001:9001"
+    logging: *default-logging
     restart: unless-stopped
 
   nginx:
@@ -26,6 +33,7 @@ services:
       - "./cfg/nginx/default.conf:/etc/nginx/templates/default.conf.template:ro"
     depends_on:
       - mqtt
+    logging: *default-logging
     restart: unless-stopped
 
   flex-stn1:
@@ -42,6 +50,7 @@ services:
       - "./cfg/flex-stn1.json:/app/config.json:ro"
     depends_on:
       - mqtt
+    logging: *default-logging
     restart: unless-stopped
 
   flex-stn2:
@@ -58,6 +67,7 @@ services:
       - "./cfg/flex-stn2.json:/app/config.json:ro"
     depends_on:
       - mqtt
+    logging: *default-logging
     restart: unless-stopped
 
   control:
@@ -72,6 +82,7 @@ services:
       - "./cfg:/app/cfg:ro"
     depends_on:
       - mqtt
+    logging: *default-logging
     restart: unless-stopped
 
 networks:

@@ -3,6 +3,27 @@
 Plugin de Stream Deck para controlar y visualizar las estaciones, antenas,
 rotores y telemetría de py-antena-ctrl mediante MQTT.
 
+## Versión actual: 1.8.0
+
+RX A/B funcionan como pulsaciones breves en Maestro: abren o cierran receptores, ambos pueden estar verdes incluso muteados. Con dos panadapters del mismo cliente recorren primero → segundo → cerrado (se recrea el slice conservando frecuencia, modo, filtros, audio y asignaciones). Los panadapters siguen el orden de recepción del cliente. A se debe abrir antes que B cuando no existe ningún slice. RX A puede abrir el primero usando el centro del panadapter y la persistencia de modo del FLEX. TX A/B asignan TX sin emitir. TX B con B cerrado crea un split de 1 kHz en CW/RTTY/DIGL/DIGU o 5 kHz en otros modos, conservando el foco en A. Se rechazan operaciones ambiguas entre clientes y cambios durante TX. Las secuencias se ejecutan con confirmación paso a paso.
+
+La tecla SPLIT especial conserva su lógica y todas sus opciones de audio, desplazamiento y cierre de B. Requiere actualizar los puentes FLEX. Esta versión implementa las pulsaciones breves RX/TX; no añade RIT/XIT por pulsación larga.
+
+## Versión 1.5.1
+
+- El botón SPLIT permite configurar **Silenciar B: Sí / No** (por defecto No).
+- Al activar SPLIT se aplica la preferencia al slice B creado o reutilizado,
+  sin modificar el mute de A. Desactivar SPLIT solo devuelve TX al receptor;
+  no cambia de nuevo el audio de B.
+- Requiere actualizar también los puentes FLEX de STN1/STN2.
+
+## Versión 1.5.0
+
+- El mensaje `stnN/band` contiene solo un entero, por ejemplo `20`, sin segmento.
+- El estado de radio elimina el campo segmento. Se mantiene lectura del formato
+  anterior durante la actualización de los puentes, tomando únicamente la banda.
+- `0` representa N/A y un dato que caduca muestra `--`.
+
 ## Versión 1.4.1
 
 - TUNE, MOX y ATU usan el mismo selector STN1/STN2 que el resto de teclas.
@@ -95,7 +116,7 @@ La telemetría de cada estación se muestra a partir de su propio topic MQTT
 `available`. Cada dato muestra `--` si no se ha recibido una lectura válida o
 si su topic lleva 5 segundos sin actualizarse; los demás datos no se ocultan.
 El cero es una lectura válida salvo en la frecuencia: `qrg = 0` indica que no
-hay slice y muestra `--` solo en ese dato. Una banda recibida `[0, 0]` muestra
+hay slice y muestra `--` solo en ese dato. Una banda recibida `0` muestra
 `N/A`. La primera lectura tras `--` aparece inmediatamente,
 sin esperar a completar el número de muestras del promedio configurado.
 
@@ -120,3 +141,43 @@ Pruebas automatizadas de la meteorología y el guardado de los selectores:
 ```bash
 node --test tests/weather.test.mjs
 ```
+
+### 1.6.0
+
+- ATU: blanco en bypass, verde activado y rojo durante la sintonización, según el estado del FLEX.
+- MUTE A/B: alterna el silencio de cada slice.
+- RX A/B: selecciona el slice activo, sin cambiar su mute.
+- TX A/B: selecciona el slice de transmisión, sin activar MOX.
+- A=B: copia la frecuencia de A hacia B, sin cambiar modo ni audio.
+- SPLIT: opción para silenciar B al activar; al desactivar conserva el audio.
+- Todos los botones permiten seleccionar STN1/STN2 con el selector habitual.
+
+Requiere actualizar los puentes flex-stn1 y flex-stn2. Los botones reflejan telemetría real y muestran SIN DATOS cuando falta el slice. No se crean slices con los nuevos botones; SPLIT conserva su función de creación de B.
+
+### 1.6.1
+
+ATU: pulsación breve inicia una sintonización, incluso estando ON. Mantener 700 ms o más y soltar desde ON pone el ATU en bypass. Una pulsación larga desde bypass no realiza ninguna acción. La orden se envía al soltar. No requiere cambios adicionales en el puente FLEX.
+
+### 1.6.2
+
+TX A: rojo cuando está seleccionado para transmitir y blanco cuando no está seleccionado.
+
+### 1.6.3
+
+TX B: rojo cuando está seleccionado para transmitir y blanco cuando no está seleccionado, igual que TX A.
+
+### 1.6.4
+
+MUTE A/B: rojo muteado, blanco sin mute. Pulsar en rojo desmutea; pulsar en blanco mutea.
+
+### 1.7.0
+
+SPLIT permite configurar volumen A/B (0–100) y balance A/B (0 izquierda, 50 centro, 100 derecha). Vacío conserva el valor actual. Se aplican al activar, antes de asignar TX B, con confirmación de cada orden. Mute B sigue siendo independiente; desactivar SPLIT no restaura el audio. Requiere actualizar los puentes FLEX.
+
+### 1.7.1
+
+Desactivar SPLIT centra ambos balances (50), selecciona RX A y TX A y cierra B. Se confirma cada paso antes del siguiente; no cierra B si falla la selección de A. No modifica los volúmenes. Requiere actualizar los puentes FLEX.
+
+### 1.7.2
+
+MUTE/RX/TX A/B distinguen ausencia de slice (blanco fijo, NO EXISTE) de falta de datos (parpadeo). MUTE: verde sin mute, rojo muteado. RX: verde seleccionado. TX: rojo seleccionado. RX/TX existentes sin seleccionar se muestran en gris. Requiere puentes actualizados con estado `absent`.

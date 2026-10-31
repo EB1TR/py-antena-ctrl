@@ -1,7 +1,7 @@
 import type { Station } from "./station";
 
-export type TransmitControl = "mox" | "tune" | "atu" | "split";
-export type ControlState = { active: boolean | null; pending: boolean; error?: string };
+export type TransmitControl = "mox" | "tune" | "atu" | "split" | "mutea" | "muteb" | "rxa" | "rxb" | "txa" | "txb" | "a_eq_b";
+export type ControlState = { active: boolean | null; pending: boolean; exists?: boolean; tuning?: boolean; error?: string };
 const states = new Map<string, ControlState>();
 const timers = new Map<string, ReturnType<typeof setTimeout>>();
 const heartbeats = new Map<Station, ReturnType<typeof setTimeout>>();
@@ -10,7 +10,7 @@ const key = (station: Station, control: TransmitControl) => `${station}/${contro
 const notify = () => { for (const listener of listeners) listener(); };
 export function getControlState(station: Station, control: TransmitControl): ControlState {
     const state = { ...(states.get(key(station, control)) ?? { active: null, pending: false }) };
-    if (!heartbeats.has(station)) state.active = null;
+    if (!heartbeats.has(station)) { state.active = null; state.exists = undefined; }
     return state;
 }
 export function onControlState(listener: () => void): () => void {
@@ -29,7 +29,8 @@ export function resetTransmitControls(): void {
 }
 export function beginControl(station: Station, control: TransmitControl): boolean {
     const id = key(station, control), state = getControlState(station, control);
-    if (state.pending || (state.active === null && (control !== "atu" || getControlState(station, "mox").active !== false))) return false;
+    const canCreate = state.exists === false && ["rxa", "rxb", "txb"].includes(control) && getControlState(station, "mox").active === false;
+    if (state.pending || (!canCreate && state.active === null && (control !== "atu" || getControlState(station, "mox").active !== false))) return false;
     states.set(id, { ...state, pending: true, error: undefined });
     timers.set(id, setTimeout(() => {
         states.set(id, { ...getControlState(station, control), pending: false, error: "Sin respuesta" });
@@ -47,12 +48,12 @@ export function processTransmitControl(topic: string, payload: string): void {
             const active = status.includes("BYPASS") ? false : status === "TUNE_IN_PROGRESS" ? true : enabled === "1" ? true : enabled === "0" ? false : null;
             if (active !== null) {
                 const station = atu[1] as Station;
-                states.set(key(station, "atu"), { ...getControlState(station, "atu"), active }); notify();
+                states.set(key(station, "atu"), { ...getControlState(station, "atu"), active, tuning: status === "TUNE_IN_PROGRESS" }); notify();
             }
         } catch { /* Ignore malformed ATU telemetry. */ }
         return;
     }
-    const match = /^(stn[12])\/(tx|tune|mox|atu|split)(\/result)?$/.exec(topic);
+    const match = /^(stn[12])\/(tx|tune|mox|atu|split|mutea|muteb|rxa|rxb|txa|txb|a_eq_b)(\/result)?$/.exec(topic);
     if (!match) return;
     const station = match[1] as Station;
     const control = match[2] === "tx" ? "mox" : match[2] as TransmitControl;
@@ -66,21 +67,25 @@ export function processTransmitControl(topic: string, payload: string): void {
             const old = getControlState(station, control);
             const accepted = result.status === "accepted" && (control === "atu" ? ["start", "bypass"].includes(result.value) : ["0", "1"].includes(result.value));
             // MOX is displayed from actual interlock TX, never from an acknowledgment.
-            states.set(id, { active: accepted && control !== "mox" && control !== "split" ? (control === "atu" ? result.value === "start" : result.value === "1") : old.active,
-                pending: false, error: accepted ? undefined : result.status });
+            states.set(id, { ...old, active: accepted && (control === "atu" || control === "tune") ? (control === "atu" ? result.value === "start" : result.value === "1") : old.active,
+                tuning: control === "atu" && accepted && result.value === "bypass" ? false : old.tuning, pending: false, error: accepted ? undefined : result.status });
             notify();
         } catch { /* Ignore malformed replies. */ }
         return;
     }
-    if (control === "split" && payload === "unknown") {
-        states.set(id, { ...getControlState(station, control), active: null }); notify(); return;
+    if (payload === "absent" && /^(mute|rx|tx)[ab]$/.test(control)) {
+        clearPending(id);
+        states.set(id, { active: null, exists: false, pending: false }); notify(); return;
+    }
+    if (payload === "unknown") {
+        states.set(id, { ...getControlState(station, control), active: null, exists: undefined }); notify(); return;
     }
     if (payload !== "0" && payload !== "1") return;
     if (match[2] === "tx") {
         const previous = heartbeats.get(station);
         if (previous !== undefined) clearTimeout(previous);
         heartbeats.set(station, setTimeout(() => {
-            for (const action of ["mox", "tune", "atu", "split"] as const) {
+            for (const action of ["mox", "tune", "atu", "split", "mutea", "muteb", "rxa", "rxb", "txa", "txb", "a_eq_b"] as const) {
                 const target = key(station, action); clearPending(target);
                 states.set(target, { active: null, pending: false });
             }
@@ -88,6 +93,6 @@ export function processTransmitControl(topic: string, payload: string): void {
         }, 5000));
         if (payload === "0") states.set(key(station, "tune"), { ...getControlState(station, "tune"), active: false });
     }
-    states.set(id, { ...getControlState(station, control), active: payload === "1" });
+    states.set(id, { ...getControlState(station, control), active: payload === "1", exists: true });
     notify();
 }

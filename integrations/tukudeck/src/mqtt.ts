@@ -53,7 +53,6 @@ export type StationState = {
 	band?: number | string;
 	rig?: number | boolean;
 	rele?: string;
-	segmento?: number | string;
 };
 
 export type PyToFrontState = {

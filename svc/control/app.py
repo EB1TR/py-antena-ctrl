@@ -1,289 +1,113 @@
-""" Six Pack, Stack & RX Control """
-
-__author__ = 'EB1TR'
+"""MQTT adapter for the feedback-driven antenna controller."""
 
 import json
+import logging
+import os
+import queue
+import sys
+import threading
+import time
 
 import paho.mqtt.client as mqtt
 
 import settings
-
-CONFIG = settings.load_config()
-MQTT_HOST = CONFIG.mqtt_host
-MQTT_PORT = CONFIG.mqtt_port
-MQTT_KEEP = CONFIG.mqtt_keepalive
-STACKS = CONFIG.stacks
-SIXPACK = CONFIG.sixpack
-STN1 = CONFIG.stn1
-STN2 = CONFIG.stn2
-print("Configuración de control cargada desde JSON")
-
-def rig_on_off(topic, value):
-    mqtt_client.publish(topic, value)
-
-def nr_ant(stack_band):
-    global STACKS
-    ant_1 = stack_band['1']['estado']
-    ant_2 = stack_band['2']['estado']
-    ant_3 = stack_band['3']['estado']
-    ant_stack = [ant_1, ant_2, ant_3]
-    ant_qty = len([e for e in ant_stack if e is True])
-    return ant_qty
-
-# Aplicar los estados a los relés
-def config_stack(band):
-    global STACKS
-    global SIXPACK
-
-    # Determinamos el número de antenas en para una determinada banda
-    ant_qty = nr_ant(STACKS[str(band)])
-
-    # Si se solicita una banda multiplexada ponemos el resto de bandas multiplexadas a OFF
-    if SIXPACK[str("1")][str(band)]['multiplex'] or SIXPACK[str("2")][str(band)]['multiplex']:
-        for e in SIXPACK[str("1")]:
-            if SIXPACK[str("1")][e]['multiplex']:
-                topic = STACKS[e]['1']['rele']
-                mqtt_client.publish(topic, str(0))
-                topic = STACKS[e]['2']['rele']
-                mqtt_client.publish(topic, str(0))
-                topic = STACKS[e]['3']['rele']
-                mqtt_client.publish(topic, str(0))
-
-    # Si hay mas de una antena para una banda activa el balun del Stack Match
-    if ant_qty == 1:
-        STACKS[str(band)]['balun'] = False
-    else:
-        STACKS[str(band)]['balun'] = True
-
-    # Si la antena n de una determinada banda esta en uso activamos el relé
-    if not STACKS[str(band)]['1']['estado']:
-        topic = STACKS[str(band)]['1']['rele']
-        mqtt_client.publish(topic, str(0))
-    else:
-        topic = STACKS[str(band)]['1']['rele']
-        mqtt_client.publish(topic, str(1))
-
-    if not STACKS[str(band)]['2']['estado']:
-        topic = STACKS[str(band)]['2']['rele']
-        mqtt_client.publish(topic, str(0))
-    else:
-        topic = STACKS[str(band)]['2']['rele']
-        mqtt_client.publish(topic, str(1))
-
-    if not STACKS[str(band)]['3']['estado']:
-        topic = STACKS[str(band)]['3']['rele']
-        mqtt_client.publish(topic, str(0))
-    else:
-        topic = STACKS[str(band)]['3']['rele']
-        mqtt_client.publish(topic, str(1))
-
-    # Si balun de una determinada banda esta en uso activamos el relé
-    if not STACKS[str(band)]['balun']:
-        topic = STACKS[str(band)]['rele']
-        mqtt_client.publish(topic, str(0))
-    else:
-        topic = STACKS[str(band)]['rele']
-        mqtt_client.publish(topic, str(1))
+from controller import Controller
 
 
-def assign_sixpack(STNX, stn, band_in):
-    global SIXPACK
-    # Ponemos todos los relés del SixPack a 0
-    for e in SIXPACK[str(stn)]:
-        topic = SIXPACK[str(stn)][e]['rele']
-        mqtt_client.publish(topic, str(0))
-    # Activamos los relés que correspondan del SixPack
-    if band_in != 0:
-        topic = SIXPACK[str(stn)][str(band_in)]['rele']
-        mqtt_client.publish(topic, str(1))
-        config_stack(band_in)
+LOG = logging.getLogger('control')
 
 
-def clear_ant():
-    assign_stn(1, 0)
-    assign_stn(2, 0)
+def main():
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+    config = settings.load_config()
+    observe_only = os.environ.get('CONTROL_OBSERVE_ONLY', '0') == '1'
+    events = queue.Queue(maxsize=2048)
+    overflow = threading.Event()
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, clean_session=True)
+    last_warning = {}
+
+    def publish(topic, payload):
+        if observe_only:
+            if topic in ('pytofront', 'control/health'):
+                topic = 'control/shadow/state' if topic == 'pytofront' else 'control/shadow/health'
+            elif not topic.endswith('/Set/GetStatus'):
+                return  # Never actuate hardware in observation mode.
+        client.publish(topic, payload, retain=False)
+
+    controller = Controller(config, publish, actuation_enabled=not observe_only)
+
+    def enqueue(event):
+        try:
+            events.put_nowait(event)
+        except queue.Full:
+            if not overflow.is_set():
+                LOG.error('Cola MQTT llena: se invalida el estado y se reconecta para releer los relés')
+            overflow.set()
+
+    def on_connect(client, userdata, flags, code, properties):
+        if code != 0:
+            LOG.error('MQTT rechazó la conexión: %s', code)
+            return
+        subscriptions = ['stn1/band', 'stn2/band', 'stn1/tx', 'stn2/tx',
+                         'set/#', 'update', 'control/resync']
+        subscriptions.extend(sorted(controller.feedback))
+        subscriptions.extend(board + '/Get/Status' for board in controller.boards)
+        subscriptions.extend(sorted({relay.split('/in/')[0] + '/out/lwt_availability'
+                                     for relay in controller.relays if '/in/' in relay}))
+        client.subscribe([(topic, 0) for topic in subscriptions])
+        enqueue(('connect',))
+
+    def on_disconnect(client, userdata, flags, code, properties):
+        enqueue(('disconnect',))
+
+    def on_message(client, userdata, message):
+        enqueue(('message', message.topic, message.payload, message.retain))
+
+    client.on_connect, client.on_disconnect, client.on_message = on_connect, on_disconnect, on_message
+    client.connect_async(config.mqtt_host, config.mqtt_port, config.mqtt_keepalive)
+    client.loop_start()
+    LOG.info('Control con feedback iniciado%s', ' en observación (sin accionar relés)' if observe_only else '')
+    previous = None
+    try:
+        while True:
+            if overflow.is_set():
+                controller.disconnect()
+                client.disconnect(); client.loop_stop()
+                while not events.empty():
+                    try: events.get_nowait()
+                    except queue.Empty: break
+                overflow.clear()
+                client.connect_async(config.mqtt_host, config.mqtt_port, config.mqtt_keepalive)
+                client.loop_start()
+                continue
+            try:
+                event = events.get(timeout=.1)
+            except queue.Empty:
+                event = None
+            if event:
+                if event[0] == 'connect':
+                    controller.reconnect(); LOG.info('MQTT conectado; solicitando estado real de los relés')
+                elif event[0] == 'disconnect':
+                    controller.disconnect(); LOG.warning('MQTT desconectado; confirmaciones invalidadas')
+                else:
+                    try:
+                        controller.handle(*event[1:])
+                    except (ValueError, KeyError, TypeError, UnicodeDecodeError) as error:
+                        now = time.monotonic()
+                        if now - last_warning.get(event[1], -100) >= 5:
+                            LOG.warning('Mensaje inválido en %s: %s', event[1], error)
+                            last_warning[event[1]] = now
+            controller.tick()
+            summary = tuple((station, controller.requests[station], controller.confirmed_band(station))
+                            for station in controller.stations)
+            if summary != previous:
+                LOG.info('Bandas (estación, solicitada, confirmada): %s', summary)
+                previous = summary
+    except KeyboardInterrupt:
+        LOG.info('Finalizando control')
+    finally:
+        client.disconnect(); client.loop_stop()
 
 
-def assign_stn(stn, band):
-    global STN1
-    global STN2
-    if stn == 1:
-        STNX = STN1
-        STNY = STN2
-        STNZ = "2"
-    else:
-        STNX = STN2
-        STNY = STN1
-        STNZ = "1"
-    if bool(SIXPACK[str(stn)][str(band)]['multiplex']) and bool(SIXPACK[STNZ][str(STNY['band'])]['multiplex']):
-        both_multiplex = True
-    else:
-        both_multiplex = False
-    if band != STNY['band'] and band != 0 and not both_multiplex:
-        if STNX['band'] != band:
-            assign_sixpack(STNX, stn, band)
-        STNX['band'] = band
-    else:
-        assign_sixpack(STNX, stn, 0)
-        STNX['band'] = 0
-    if stn == 1:
-        STN1 = STNX
-    else:
-        STN2 = STNX
-
-
-def status(topic):
-    data_json = json.dumps(
-        {
-            'stn1': STN1,
-            'stn2': STN2,
-            'stacks': STACKS,
-            'sixpack': SIXPACK
-        }, sort_keys=False
-    )
-    mqtt_client.publish(topic, str(data_json))
-
-
-def change_stack(band, nro):
-    if int(nro) != 0:
-        if STACKS[str(band)][nro]['estado']:
-            if nr_ant(STACKS[str(band)]) > 1:
-                STACKS[str(band)][nro]['estado'] = False
-        else:
-            STACKS[str(band)][nro]['estado'] = True
-    else:
-        if STACKS[str(band)]["salidas"] > 1:
-            ant_a = STACKS[str(band)]["1"]['estado']
-            ant_b = STACKS[str(band)]["2"]['estado']
-            ant_c = STACKS[str(band)]["3"]['estado']
-            stack = [ant_a, ant_b, ant_c]
-            if stack.count(True) == 1:
-                if STACKS[str(band)]["salidas"] == 2 and STACKS[str(band)]["1"]['estado']:
-                    STACKS[str(band)]["1"]['estado'] = False
-                    STACKS[str(band)]["2"]['estado'] = True
-                elif STACKS[str(band)]["salidas"] == 2 and STACKS[str(band)]["2"]['estado']:
-                    STACKS[str(band)]["2"]['estado'] = False
-                    STACKS[str(band)]["1"]['estado'] = True
-                elif STACKS[str(band)]["salidas"] == 3 and STACKS[str(band)]["1"]['estado']:
-                    STACKS[str(band)]["1"]['estado'] = False
-                    STACKS[str(band)]["3"]['estado'] = False
-                    STACKS[str(band)]["2"]['estado'] = True
-                elif STACKS[str(band)]["salidas"] == 3 and STACKS[str(band)]["2"]['estado']:
-                    STACKS[str(band)]["2"]['estado'] = False
-                    STACKS[str(band)]["1"]['estado'] = False
-                    STACKS[str(band)]["3"]['estado'] = True
-                elif STACKS[str(band)]["salidas"] == 3 and STACKS[str(band)]["3"]['estado']:
-                    STACKS[str(band)]["3"]['estado'] = False
-                    STACKS[str(band)]["2"]['estado'] = False
-                    STACKS[str(band)]["1"]['estado'] = True
-            else:
-                STACKS[str(band)]["2"]['estado'] = False
-                STACKS[str(band)]["3"]['estado'] = False
-                STACKS[str(band)]["1"]['estado'] = True
-    config_stack(str(band))
-
-
-def on_connect(client, userdata, flags, rc, more):
-    print("Conectado a MQTT")
-    client.subscribe([
-        ("stn1/band", 0),
-        ("stn2/band", 0),
-        ("set/#", 0),
-        ("update", 0)
-    ])
-
-
-def on_message(client, userdata, msg):
-    global STN1
-    global STN2
-    global STACKS
-    global SIXPACK
-
-    dato = msg.payload.decode('utf-8')
-
-    # Mensajes de banda recibidos desde los servicios FlexRadio a través de MQTT
-    if msg.topic == "stn1/band":
-        if STN1['auto']:
-            dato = json.loads(dato)
-            assign_stn(1, dato[0])
-
-    elif msg.topic == "stn2/band":
-        if STN2['auto']:
-            dato = json.loads(dato)
-            assign_stn(2, dato[0])
-
-    # Mensajes recibidos desde FRONT
-    elif msg.topic == "set/stn1/rig":
-        STN1['rig'] ^= 1
-        rig_on_off(STN1['rele'], STN1['rig'])
-
-    elif msg.topic == "set/stn2/rig":
-        STN2['rig'] ^= 1
-        rig_on_off(STN2['rele'], STN2['rig'])
-
-    elif not STN1['auto'] and msg.topic == "set/stn1/band":
-        dato = int(dato)
-        assign_stn(1, dato)
-
-    elif not STN2['auto'] and msg.topic == "set/stn2/band":
-        dato = int(dato)
-        assign_stn(2, dato)
-
-    elif msg.topic == "set/stn1/antm":
-        STN1['auto'] ^= True
-
-    elif msg.topic == "set/stn2/antm":
-        STN2['auto'] ^= True
-
-    elif msg.topic == "set/stn1/stack" and int(STN1['band']) != 0:
-        if int(dato) <= STACKS[str(STN1['band'])]['salidas']:
-            change_stack(STN1['band'], dato)
-
-    elif msg.topic == "set/stn2/stack" and int(STN2['band']) != 0:
-        if int(dato) <= STACKS[str(STN2['band'])]['salidas']:
-            change_stack(STN2['band'], dato)
-
-    elif msg.topic == "set/stn1/nostack" and int(STN1['band']) != 0:
-        if STACKS[str(STN1['band'])]["salidas"] > 1:
-            change_stack(STN1['band'], 0)
-
-    elif msg.topic == "set/stn2/nostack" and int(STN2['band']) != 0:
-        if STACKS[str(STN2['band'])]["salidas"] > 1:
-            change_stack(STN2['band'], 0)
-
-    elif msg.topic == "set/stack160" and int(STN1['band']) != 160 and int(STN2['band']) != 160:
-        if int(dato) <= STACKS[str(160)]['salidas']:
-            change_stack(160, dato)
-
-    elif msg.topic == "set/stack80" and int(STN1['band']) != 80 and int(STN2['band']) != 80:
-        if int(dato) <= STACKS[str(80)]['salidas']:
-            change_stack(80, dato)
-
-    elif msg.topic == "set/stack40" and int(STN1['band']) != 40 and int(STN2['band']) != 40:
-        if int(dato) <= STACKS[str(40)]['salidas']:
-            change_stack(40, dato)
-
-    elif msg.topic == "set/stack20" and int(STN1['band']) != 20 and int(STN2['band']) != 20:
-        if int(dato) <= STACKS[str(17)]['salidas']:
-            change_stack(20, dato)
-
-    elif msg.topic == "set/stack15" and int(STN1['band']) != 15 and int(STN2['band']) != 15:
-        if int(dato) <= STACKS[str(15)]['salidas']:
-            change_stack(15, dato)
-
-    elif msg.topic == "set/stack10" and int(STN1['band']) != 10 and int(STN2['band']) != 10:
-        if int(dato) <= STACKS[str(10)]['salidas']:
-            change_stack(10, dato)
-    else:
-        pass
-
-    status("pytofront")
-
-
-mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, clean_session=True)
-mqtt_client.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEP)
-status("pytofront")
-# clear_ant()
-mqtt_client.on_connect = on_connect
-mqtt_client.on_message = on_message
-mqtt_client.loop_forever()
+if __name__ == '__main__':
+    main()

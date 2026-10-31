@@ -5,6 +5,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app.py settings.py commands.py split.py ./
+COPY app.py settings.py commands.py split.py band_state.py ./
 
 CMD ["python", "-u", "app.py"]

@@ -1,6 +1,6 @@
 {
 	"Name": "TukuDeck",
-	"Version": "1.4.1.0",
+	"Version": "1.8.0.0",
 	"Author": "EB1TR",
 	"Actions": [
 		{
@@ -217,7 +217,7 @@
 			"Name": "TRX - ATU",
 			"UUID": "com.eb1tr.tukudeck.atu",
 			"Icon": "imgs/actions/counter/icon",
-			"Tooltip": "Inicia el ajuste del ATU; otra pulsación lo pone en bypass.",
+			"Tooltip": "Pulsación breve: sintonizar ATU. Pulsación larga (700 ms) desde ON: bypass.",
 			"Controllers": [
 				"Keypad"
 			],
@@ -232,7 +232,7 @@
 			"Name": "TRX - SPLIT",
 			"UUID": "com.eb1tr.tukudeck.split",
 			"Icon": "imgs/actions/counter/icon",
-			"Tooltip": "Activa SPLIT con desplazamiento configurable; otra pulsación devuelve TX al receptor.",
+			"Tooltip": "Activa SPLIT con desplazamiento configurable; otra pulsación centra los balances, selecciona RX/TX A y cierra B.",
 			"Controllers": [
 				"Keypad"
 			],
@@ -242,6 +242,111 @@
 				}
 			],
 			"PropertyInspectorPath": "ui/split.html"
+		},
+		{
+			"Name": "TRX - MUTE A",
+			"UUID": "com.eb1tr.tukudeck.mutea",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "MUTE A en la estación seleccionada.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"PropertyInspectorPath": "ui/station.html"
+		},
+		{
+			"Name": "TRX - MUTE B",
+			"UUID": "com.eb1tr.tukudeck.muteb",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "MUTE B en la estación seleccionada.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"PropertyInspectorPath": "ui/station.html"
+		},
+		{
+			"Name": "TRX - RX A",
+			"UUID": "com.eb1tr.tukudeck.rxa",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Maestro: abre/cierra el receptor A. Con dos panadapters: primero, segundo, cerrado.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"PropertyInspectorPath": "ui/station.html"
+		},
+		{
+			"Name": "TRX - RX B",
+			"UUID": "com.eb1tr.tukudeck.rxb",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Maestro: abre/cierra el receptor B. Con dos panadapters: primero, segundo, cerrado.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"PropertyInspectorPath": "ui/station.html"
+		},
+		{
+			"Name": "TRX - TX A",
+			"UUID": "com.eb1tr.tukudeck.txa",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "TX A en la estación seleccionada.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"PropertyInspectorPath": "ui/station.html"
+		},
+		{
+			"Name": "TRX - TX B",
+			"UUID": "com.eb1tr.tukudeck.txb",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Selecciona TX B; si B está cerrado y A abierto, crea SPLIT como Maestro. No activa MOX.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"PropertyInspectorPath": "ui/station.html"
+		},
+		{
+			"Name": "TRX - A=B",
+			"UUID": "com.eb1tr.tukudeck.a-eq-b",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "A=B en la estación seleccionada.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"PropertyInspectorPath": "ui/station.html"
 		}
 	],
 	"Category": "TukuDeck",

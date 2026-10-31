@@ -168,3 +168,101 @@ https://github.com/flexradio/smartsdr-api-docs/wiki/TCPIP-slice
 Desde 1.4.1, la creación de B especifica el mismo `pan` del receptor original.
 Solo se reutilizan slices del mismo cliente y panadapter, conservando el
 waterfall de recepción.
+
+### Rotación de logs de Docker
+
+Todos los servicios de `docker-compose.yaml` usan `json-file` con un tamaño
+máximo de 10 MB por archivo y 3 archivos por contenedor (aproximadamente 30 MB
+por servicio y 150 MB en total para los cinco servicios actuales).
+Se conserva la consulta habitual con `docker compose logs`.
+
+Para aplicar los límites a contenedores ya existentes hay que recrearlos:
+
+```sh
+docker compose up -d --no-build --force-recreate
+```
+
+La recreación interrumpe brevemente las conexiones y reemplaza los logs del
+contenedor anterior; conserva una copia si necesitas investigar una incidencia.
+
+### Control basado en feedback de relés
+
+`svc/control/controller.py` separa las bandas solicitadas del estado confirmado
+por las placas. No considera ejecutada una orden por el hecho de publicarla.
+Denkovi se confirma con `SmartDEN_MQTT16R/<MAC>/Get/Rn` (`On`/`Off`);
+Dingtian con `dtry/relay14475/out/rn` (`ON`/`OFF`). La alimentación de las radios
+se lee de su feedback y solo se modifica cuando el usuario lo pide.
+
+- Lee el estado al conectar y consulta las Denkovi cada 5 segundos, además de
+  consultar tras enviar cambios. En Relays Settings debe estar habilitado MQTT
+  en cada salida utilizada. Configura publicación por cambio y periódica a 5 s.
+- Solo acciona relés cuyo estado real difiere del solicitado. Los que deben
+  permanecer como están no se abren ni se vuelven a activar. Al cambiar de ruta,
+  confirma el apagado de la anterior antes de cerrar la nueva. Un cambio de
+  stack conserva la ruta y las antenas sin cambios y requiere RX confirmado
+  en las estaciones conectadas; solo modifica ramas y balun que lo necesitan.
+- Conserva exclusión de banda entre estaciones y del multiplexor compartido.
+- No conmuta una estación en TX ni sin una lectura TX/RX reciente y no retenida.
+- Solo corrige diferencias con el estado observado. Reintenta como máximo tres
+  veces y publica el error si no se confirma; no genera ráfagas continuas.
+- `stnN.band` mantiene la banda solicitada durante una conmutación; no pasa
+  por N/A al cambiar un stack. `confirmed_band` conserva por separado la ruta
+  física y `relay_status` indica si está alineada, pendiente o sin confirmar.
+  Los estados de los relés y stacks reflejan el feedback recibido. `control/health` detalla los
+  estados reales, deseados, pendientes, sin feedback y fallos de confirmación.
+- `control/resync` permite releer y reintentar la alineación con lo solicitado.
+  `update` solo solicita estado y nunca confirma ni acciona relés.
+
+Para validarlo junto al servicio actual sin accionar salidas, ejecutar la imagen
+candidata con `CONTROL_OBSERVE_ONLY=1`. En ese modo publica exclusivamente su
+estado en `control/shadow/state` y `control/shadow/health`, además de consultas
+GetStatus. No sustituye a `control` ni publica órdenes de conmutación.
+
+El puente FLEX filtra las desapariciones transitorias de slices durante 2 s y
+publica solo la banda actual, con heartbeat de 2 s: nunca repite primero la banda
+anterior ni genera cientos de mensajes de «sin banda» durante la recreación.
+
+### Banda MQTT sin segmento y logs de servicios
+
+Los puentes publican un único entero en `stn1/band` y `stn2/band`: por ejemplo
+`20`, `40` o `0` si no hay banda. El segmento no se publica ni se almacena.
+El controlador y TukuDeck 1.5.0 leen la banda escalar; durante el despliegue
+admiten mensajes antiguos tomando solo su primer elemento. La web consume la
+banda numérica de `pytofront` y elimina la antigua indicación de segmento.
+
+Los servicios escriben en stdout/stderr para seguirlos directamente:
+
+```sh
+docker compose logs -f control
+docker compose logs -f flex-stn2
+docker compose logs -f --tail=100 control flex-stn1 flex-stn2
+```
+
+Control registra solicitudes de relés, cambios de feedback, confirmaciones,
+fallos y bandas solicitadas/confirmadas. FLEX registra conexiones, cambios de
+banda, TX/RX y resultados de MOX/TUNE/ATU/SPLIT. Los heartbeats y el feedback
+sin cambios no llenan el log con mensajes repetidos.
+
+SPLIT admite opcionalmente `mute_b` (booleano) en su orden MQTT, por ejemplo
+`{"enabled":1,"offset_hz":1000,"mute_b":true}`. Al activar aplica
+`audio_mute=1` o `0` exclusivamente a B, antes de asignarle TX. Si no se incluye
+`mute_b`, los clientes anteriores conservan su comportamiento de audio.
+Al desactivar SPLIT se mantiene el estado de audio de B.
+
+Comandos de slices (payload 0/1): `set/stnN/mutea`, `muteb`; selectores (payload 1): `rxa`, `rxb`, `txa`, `txb`, `a_eq_b`. El último copia únicamente la frecuencia A hacia B. Estado real en `stnN/<acción>` (0/1/unknown), resultado en `stnN/<acción>/result`. Se resuelve el identificador real por letra y cliente; las selecciones no activan transmisión y se rechazan durante TX, con slices ambiguos o ausentes y si el comando es retained.
+
+### Despliegue completo 1.8.0 en Tuku
+
+Incluye control con feedback, banda escalar, rotación de logs, web y TukuDeck 1.8.0.
+
+```sh
+cd /home/fabian/composes/py-antena-ctrl
+git pull --ff-only
+docker compose up -d --build --force-recreate
+docker compose ps
+docker compose logs -f --tail=100 control flex-stn1 flex-stn2
+```
+
+El plugin Stream Deck se instala por separado con el paquete 1.8.0. Consulta
+[integrations/tukudeck/README.md](integrations/tukudeck/README.md) para el comportamiento
+actual de RX/TX Maestro y de la tecla SPLIT especial.

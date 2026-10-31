@@ -6,7 +6,6 @@ export type RadioState = {
 	transmitting: boolean | null;
 	frequencyKhz: number | null;
 	band: number | null;
-	segment: number | null;
 	powerWatts: number | null;
 	swr: number | null;
 	voltage: number | null;
@@ -16,7 +15,7 @@ export type RadioState = {
 export type RadioField = "available" | "tx" | "qrg" | "band" | "pwr" | "swr" | "tensiona" | "temp" | "fun";
 const emptyState = (): RadioState => ({
 	available: null, transmitting: null, frequencyKhz: null, band: null,
-	segment: null, powerWatts: null, swr: null, voltage: null,
+	powerWatts: null, swr: null, voltage: null,
 	temperatureCelsius: null, fanRpm: null
 });
 const states: Record<Station, RadioState> = { stn1: emptyState(), stn2: emptyState() };
@@ -41,7 +40,6 @@ function clearTimedField(station: Station, field: TimedRadioField): void {
 	const state = states[station];
 	if (field === "band") {
 		state.band = null;
-		state.segment = null;
 	} else {
 		state[numericFields[field]] = null;
 	}
@@ -79,14 +77,12 @@ export function processRadioMessage(topic: string, payload: string): void {
 			else state.available = payload === "1";
 		} else if (field === "band") {
 			const value: unknown = JSON.parse(payload);
-			if (!Array.isArray(value) || value.length !== 2 ||
-				!value.every(item => typeof item === "number" && Number.isFinite(item) && Number.isInteger(item) && item >= 0)) {
-				throw new Error("se esperaba [banda, segmento] con enteros no negativos");
+			// Accept older bridge payloads during an upgrade; no segment is stored.
+			const band = Array.isArray(value) && value.length === 2 ? value[0] : value;
+			if (typeof band !== "number" || !Number.isInteger(band) || band < 0) {
+				throw new Error("se esperaba una banda entera no negativa");
 			}
-			const [band, segment] = value;
-			// A received N/A band is distinct from an absent or expired message.
 			state.band = band;
-			state.segment = segment;
 		} else {
 			const number = Number(payload);
 			if (payload.trim() === "" || !Number.isFinite(number)) throw new Error("se esperaba un número finito");

@@ -3,7 +3,7 @@ import streamDeck from "@elgato/streamdeck";
 import { AntennaAction } from "./actions/antenna-action";
 import { Swap } from "./actions/swap";
 import { Rig } from "./actions/rig";
-import { Mox, Tune, Atu, Split } from "./actions/transmit";
+import { Mox, Tune, Atu, Split, Mutea, Muteb, Rxa, Rxb, Txa, Txb, AEqB } from "./actions/transmit";
 
 import { BandAction } from "./actions/band-action";
 
@@ -65,3 +65,11 @@ async function startPlugin(): Promise<void> {
 void startPlugin().catch((error: unknown) => {
 	streamDeck.logger.error(`Error al iniciar el plugin: ${String(error)}`);
 });
+
+streamDeck.actions.registerAction(new Mutea());
+streamDeck.actions.registerAction(new Muteb());
+streamDeck.actions.registerAction(new Rxa());
+streamDeck.actions.registerAction(new Rxb());
+streamDeck.actions.registerAction(new Txa());
+streamDeck.actions.registerAction(new Txb());
+streamDeck.actions.registerAction(new AEqB());

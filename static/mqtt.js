@@ -566,15 +566,7 @@ function onMessageArrived(message) {
                 $("#stn2-nostack").hide()
             }
 
-            // Se elimina la indicación de segmento de la STN1 si no se está en una banda que los utilice
-            if (json.stn1.segmento != 0 && json.stacks[json.stn1.band][1]['estado']) {
-                $("#stn1-segmento").removeClass("spanitemnd").text(json.stn1.segmento)
-            }
 
-            // Se elimina la indicación de segmento de la STN2 si no se está en una banda que los utilice
-            if (json.stn2.segmento != 0 && json.stacks[json.stn2.band][1]['estado']) {
-                $("#stn2-segmento").removeClass("spanitemnd").text(json.stn2.segmento)
-            }
 
         }
     }

@@ -1,6 +1,7 @@
 """FlexRadio TCP/VITA-49 to MQTT bridge."""
 
 import os
+import logging
 import re
 import socket
 import struct
@@ -12,7 +13,11 @@ import paho.mqtt.client as mqtt
 
 import settings
 from commands import CommandBridge
+from band_state import BandPublisher
 
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s %(levelname)s %(name)s %(message)s')
+LOG = logging.getLogger('flex')
 
 CONFIG = settings.load_config()
 UDP_IP = "0.0.0.0"
@@ -27,9 +32,6 @@ TELNET_TIMEOUT = 10
 UDP_TIMEOUT_SECONDS = 20
 TX_QUERY_INTERVAL_SECONDS = 2
 TX_HEARTBEAT_INTERVAL_SECONDS = 2
-ACTIVE_SLICE = 0
-LAST_QRG = 0
-LAST_BAND = "[0, 0]"
 LAST_TRANSMITTING = None
 LAST_TX_PUBLISH_TIME = 0.0
 
@@ -56,6 +58,8 @@ SUBSCRIBE_MESSAGES = [
     "C13|interlock\n",
     "C14|radio\n",
     "C15|sub atu all\n",
+    "C16|sub pan all\n",
+    "C17|sub client all\n",
 ]
 
 
@@ -102,20 +106,20 @@ def on_connect(client, userdata, flags, reason_code, properties=None):
     global LAST_TX_PUBLISH_TIME
 
     if reason_code == 0:
-        client.subscribe([(f"set/{STN}/mox", 0), (f"set/{STN}/tune", 0), (f"set/{STN}/atu", 0), (f"set/{STN}/split", 0)])
-        print(f"Conectado al broker {MQTT_BROKER} por el puerto {MQTT_PORT}")
+        client.subscribe([(f"set/{STN}/{name}", 0) for name in ("mox", "tune", "atu", "split", "mutea", "muteb", "rxa", "rxb", "txa", "txb", "a_eq_b")])
+        LOG.info('%s conectado a MQTT %s:%s', STN, MQTT_BROKER, MQTT_PORT)
         if LAST_TRANSMITTING is not None:
             LAST_TX_PUBLISH_TIME = time.monotonic()
             client.publish(
                 f"{STN}/tx", "1" if LAST_TRANSMITTING else "0", retain=True
             )
     else:
-        print(f"Fallo al conectar, código: {reason_code}")
+        LOG.error('%s error de conexión MQTT: %s', STN, reason_code)
 
 
 def on_disconnect(client, userdata, disconnect_flags, reason_code, properties):
     """Log MQTT disconnections; Paho handles the reconnect loop."""
-    print(f"Desconectado (código: {reason_code}), intentando reconectar...")
+    LOG.warning('%s MQTT desconectado (%s); reconectando', STN, reason_code)
 
 
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, clean_session=True)
@@ -171,7 +175,7 @@ def publish_transmit_state(transmitting):
     LAST_TX_PUBLISH_TIME = now
     mqtt_client.publish(f"{STN}/tx", "1" if transmitting else "0", retain=True)
     if changed:
-        print(f"FlexRadio {STN}: {'TX' if transmitting else 'RX'}")
+        LOG.info('%s estado real: %s', STN, 'TX' if transmitting else 'RX')
 
 
 def update_transmit_state(line):
@@ -191,12 +195,13 @@ def update_transmit_state(line):
 
 def telnet_listener():
     """Subscribe to FlexRadio slices and publish their frequency."""
-    global LAST_QRG, LAST_BAND, ACTIVE_SLICE, LAST_TRANSMITTING
+    global LAST_TRANSMITTING
 
     while True:
         try:
             with FlexConnection(TELNET_HOST, TELNET_PORT, TELNET_TIMEOUT) as tn:
                 LAST_TRANSMITTING = None
+                band_publisher = BandPublisher(STN, mqtt_client.publish, obtain_band)
                 for msg in SUBSCRIBE_MESSAGES:
                     tn.write(msg.encode("ascii"))
                     time.sleep(0.5)
@@ -207,6 +212,9 @@ def telnet_listener():
                 while True:
                     command_bridge.expire()
                     now = time.monotonic()
+                    # Audio changes are not echoed to their originating API client.
+                    if command_bridge.take_audio_refresh():
+                        tn.write(b"C998|sub slice all\n")
                     if now >= next_slice_query:
                         tn.write(b"C999|slice list\n")
                         next_slice_query = now + 2
@@ -219,6 +227,7 @@ def telnet_listener():
                     data = tn.read_until(b"\n", timeout=1)
 
                     if not data:
+                        band_publisher.update(None)
                         continue
 
                     line = data.decode("utf-8", errors="ignore").strip()
@@ -229,33 +238,15 @@ def telnet_listener():
                     if LAST_TRANSMITTING is not None:
                         publish_transmit_state(LAST_TRANSMITTING)
 
-                    receive_slice = command_bridge.split.receiver()
-                    ACTIVE_SLICE = 9 if receive_slice is None else receive_slice
-
-                    if ACTIVE_SLICE == 9:
-                        mqtt_client.publish(f"{STN}/band", "[0, 0]")
-                        mqtt_client.publish(f"{STN}/qrg", "0")
-                    else:
-                        mqtt_client.publish(f"{STN}/band", LAST_BAND)
-                        mqtt_client.publish(f"{STN}/qrg", LAST_QRG)
-
                     receive_frequency = command_bridge.split.frequency()
-                    if receive_frequency is not None:
-                        frequency = float(receive_frequency)
-                        LAST_QRG = frequency * 100000
-                        mqtt_client.publish(f"{STN}/qrg", LAST_QRG)
-
-                        band = obtain_band(frequency)
-                        LAST_BAND = str([band, 0])
-                        mqtt_client.publish(f"{STN}/band", LAST_BAND)
+                    band_publisher.update(receive_frequency)
 
         except Exception as exc:
             LAST_TRANSMITTING = None
             command_bridge.detach()
-            print(f"[TELNET] Error or disconnected: {exc}")
-            print("[TELNET] Reconnect in 5 seconds...")
+            LOG.warning('%s TCP desconectado: %s; reintento en 5 s', STN, exc)
             time.sleep(5)
-            mqtt_client.publish(f"{STN}/band", "[0, 0]")
+            mqtt_client.publish(f"{STN}/band", "0")
             mqtt_client.publish(f"{STN}/qrg", "0")
         finally:
             command_bridge.detach()
@@ -286,7 +277,7 @@ def udp_activity_monitor():
         inactive = time.time() - last_udp_time
 
         if inactive > UDP_TIMEOUT_SECONDS:
-            print(f"[UDP] No data in {UDP_TIMEOUT_SECONDS} seconds. Restarting connection...")
+            LOG.warning('%s sin datos UDP durante %s s; reiniciando conexión', STN, UDP_TIMEOUT_SECONDS)
             os.execv(sys.executable, ["python"] + sys.argv)
 
 
@@ -319,7 +310,7 @@ def process_vita49(data):
                     mqtt_client.publish(f"{STN}/temp", value / 64)
 
     except struct.error as exc:
-        print(f"[UDP] [ERROR]: {exc}")
+        LOG.warning('%s paquete UDP inválido: %s', STN, exc)
 
 
 def obtain_band(frequency):
@@ -356,4 +347,4 @@ if __name__ == "__main__":
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        print("[MAIN] Closing program...")
+        LOG.info('%s finalizando servicio', STN)
