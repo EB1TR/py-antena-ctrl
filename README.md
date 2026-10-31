@@ -139,3 +139,7 @@ Referencia: https://github.com/flexradio/smartsdr-api-docs/wiki/TCPIP-atu
 Validación real en STN1: MOX y TUNE aceptados en ambos sentidos, con TX/RX
 confirmado por interlock. ATU informó `TUNE_IN_PROGRESS`, `TUNE_SUCCESSFUL` y finalmente
 `TUNE_MANUAL_BYPASS`. Este último prevalece sobre `atu_enabled=1`.
+
+La versión 1.3.1 renueva el heartbeat TX/RX ante respuestas TCP de la sesión
+FLEX activa, aunque interlock no cambie. Tras reconectar espera un estado
+interlock nuevo, para no conservar el TX de una sesión anterior.

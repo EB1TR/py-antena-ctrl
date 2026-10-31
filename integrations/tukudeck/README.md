@@ -3,6 +3,13 @@
 Plugin de Stream Deck para controlar y visualizar las estaciones, antenas,
 rotores y telemetría de py-antena-ctrl mediante MQTT.
 
+## Versión 1.3.1
+
+- El puente renueva TX/RX mientras recibe respuestas TCP del FLEX, aunque no
+  cambie interlock. Los botones mantienen el estado en reposo sin caducar.
+- Al reconectar con la radio se espera un estado interlock nuevo antes de
+  renovar el heartbeat; no se reutiliza el TX de la sesión anterior.
+
 ## Versión 1.3.0
 
 - **TRX - MOX**: una pulsación activa TX; la siguiente lo desactiva.

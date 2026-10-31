@@ -191,11 +191,12 @@ def update_transmit_state(line):
 
 def telnet_listener():
     """Subscribe to FlexRadio slices and publish their frequency."""
-    global LAST_QRG, LAST_BAND, ACTIVE_SLICE
+    global LAST_QRG, LAST_BAND, ACTIVE_SLICE, LAST_TRANSMITTING
 
     while True:
         try:
             with FlexConnection(TELNET_HOST, TELNET_PORT, TELNET_TIMEOUT) as tn:
+                LAST_TRANSMITTING = None
                 for msg in SUBSCRIBE_MESSAGES:
                     tn.write(msg.encode("ascii"))
                     time.sleep(0.5)
@@ -224,6 +225,9 @@ def telnet_listener():
                     command_bridge.status(line)
                     command_bridge.response(line)
                     update_transmit_state(line)
+                    # Confirm TCP liveness even when interlock has not changed.
+                    if LAST_TRANSMITTING is not None:
+                        publish_transmit_state(LAST_TRANSMITTING)
 
                     if line.startswith("R999|0|"):
                         if line == "R999|0|" and ACTIVE_SLICE != 9:
@@ -257,6 +261,7 @@ def telnet_listener():
                         mqtt_client.publish(f"{STN}/band", LAST_BAND)
 
         except Exception as exc:
+            LAST_TRANSMITTING = None
             command_bridge.detach()
             print(f"[TELNET] Error or disconnected: {exc}")
             print("[TELNET] Reconnect in 5 seconds...")

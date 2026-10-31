@@ -1,4 +1,6 @@
 """Exercise MQTT callbacks and actual TCP bytes without keying a real radio."""
+import ast
+import re
 import importlib.util
 import json
 from pathlib import Path
@@ -91,6 +93,37 @@ class CommandsTest(unittest.TestCase):
         self.bridge.response('R999|0|0 1')
         self.publish.assert_not_called()
         self.assertEqual(len(self.bridge.pending), 1)
+
+
+class HeartbeatTest(unittest.TestCase):
+    def test_idle_tcp_responses_refresh_confirmed_tx_not_previous_session(self):
+        now = [0]
+        class Stop(BaseException):
+            pass
+        class Connection:
+            def __enter__(self): return self
+            def __exit__(self, *args): return False
+            def write(self, data): pass
+            def read_until(self, *args, **kwargs):
+                now[0] += 1
+                if now[0] == 1: return b'R12|0|\n'
+                if now[0] == 2: return b'S123|interlock state=READY\n'
+                if now[0] == 4: raise Stop()
+                return b'R12|0|\n'
+        publish = Mock()
+        tree = ast.parse((Path(__file__).resolve().parents[1] / 'svc/flex-mqtt/app.py').read_text())
+        names = {'telnet_listener', 'publish_transmit_state', 'update_transmit_state', 'parse_key_values', 'normalize_tx_state'}
+        code = ast.Module(body=[node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in names], type_ignores=[])
+        scope = dict(re=re, time=SimpleNamespace(monotonic=lambda: now[0], sleep=lambda _: None),
+                     FlexConnection=lambda *args: Connection(), command_bridge=Mock(), mqtt_client=SimpleNamespace(publish=publish),
+                     TELNET_HOST='fake', TELNET_PORT=4992, TELNET_TIMEOUT=1, SUBSCRIBE_MESSAGES=[], TX_QUERY_MESSAGES=[],
+                     TX_QUERY_INTERVAL_SECONDS=2, TX_HEARTBEAT_INTERVAL_SECONDS=1, STN='stn1',
+                     LAST_TRANSMITTING=True, LAST_TX_PUBLISH_TIME=0, LAST_QRG=0, LAST_BAND='[0, 0]', ACTIVE_SLICE=0)
+        exec(compile(code, 'app-test', 'exec'), scope)
+        with self.assertRaises(Stop): scope['telnet_listener']()
+        tx = [call for call in publish.call_args_list if call.args[0] == 'stn1/tx']
+        self.assertEqual(len(tx), 2)
+        self.assertTrue(all(call.args[1] == '0' for call in tx))
 
 
 if __name__ == '__main__':
