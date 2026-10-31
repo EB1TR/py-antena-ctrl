@@ -87,3 +87,55 @@ Los rotores deben publicar la posición periódicamente incluso estando parados.
 La siguiente posición válida recupera el indicador; el objetivo, modo y movimiento
 se vuelven a mostrar cuando llegan sus respectivos mensajes. La desconexión MQTT
 invalida inmediatamente las posiciones y mantiene el parpadeo de toda la interfaz.
+
+### Órdenes MQTT de MOX y TUNE (FLEX)
+
+El puente escucha `set/stn1/mox`, `set/stn1/tune` y los equivalentes de STN2.
+Payload: `1` activa y `0` desactiva. Publicar sin retención. MOX utiliza
+`xmit 1/0`; TUNE utiliza `transmit tune on/off` de la API TCP de FLEX:
+https://github.com/flexradio/smartsdr-api-docs/wiki/TCPIP-xmit
+https://github.com/flexradio/smartsdr-api-docs/wiki/TCPIP-transmit
+
+Cada orden devuelve un JSON no retenido en `stnN/mox/result` o
+`stnN/tune/result`, con `value` y `status`. `accepted` indica respuesta TCP
+correcta del FLEX, no confirma emisión: el estado real sigue en `stnN/tx`
+a partir de interlock. Los errores incluyen `error` (con `code` y `message`),
+`timeout` (5 segundos), `disconnected`, `unavailable`, `send_error`,
+`invalid_payload` y `retained_rejected`. No se encolan órdenes para reproducirlas
+al reconectar. No se cambia la potencia configurada de MOX ni de TUNE.
+
+Desde la carpeta del proyecto del servidor, reconstruir los puentes:
+
+```sh
+docker compose up -d --build flex-stn1 flex-stn2
+```
+
+Para probar STN1, observar primero los resultados y TX en una terminal:
+
+```sh
+docker compose exec mqtt mosquitto_sub -h localhost -v -t 'stn1/+/result' -t stn1/tx
+```
+
+Desde otra terminal, activar y desactivar cada función por separado, comprobando
+SmartSDR y el estado real de transmisión entre órdenes:
+
+```sh
+docker compose exec mqtt mosquitto_pub -h localhost -t set/stn1/mox -m 1
+docker compose exec mqtt mosquitto_pub -h localhost -t set/stn1/mox -m 0
+docker compose exec mqtt mosquitto_pub -h localhost -t set/stn1/tune -m 1
+docker compose exec mqtt mosquitto_pub -h localhost -t set/stn1/tune -m 0
+```
+
+Pruebas locales sin emitir RF: `python -m unittest discover -s tests -v`.
+Los botones MOX, TUNE y ATU están disponibles en TukuDeck desde la versión 1.3.0.
+
+ATU utiliza `set/stnN/atu` con payload `start` (ajuste automático) o `bypass`.
+La confirmación llega a `stnN/atu/result`. Su estado real se publica en
+`stnN/atu/state` (JSON de FLEX, con `status` y `atu_enabled`); `stnN/tune`
+publica el estado TUNE informado por la radio. Los estados ATU y TUNE se retienen
+para nuevos suscriptores; las órdenes y sus resultados no se retienen.
+Referencia: https://github.com/flexradio/smartsdr-api-docs/wiki/TCPIP-atu
+
+Validación real en STN1: MOX y TUNE aceptados en ambos sentidos, con TX/RX
+confirmado por interlock. ATU informó `TUNE_IN_PROGRESS`, `TUNE_SUCCESSFUL` y finalmente
+`TUNE_MANUAL_BYPASS`. Este último prevalece sobre `atu_enabled=1`.

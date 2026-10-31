@@ -11,6 +11,7 @@ import time
 import paho.mqtt.client as mqtt
 
 import settings
+from commands import CommandBridge
 
 
 CONFIG = settings.load_config()
@@ -54,6 +55,7 @@ SUBSCRIBE_MESSAGES = [
     "C12|transmit\n",
     "C13|interlock\n",
     "C14|radio\n",
+    "C15|sub atu all\n",
 ]
 
 
@@ -63,6 +65,7 @@ class FlexConnection:
     def __init__(self, host, port, timeout):
         self.socket = socket.create_connection((host, port), timeout=timeout)
         self.buffer = b""
+        self.write_lock = threading.Lock()
 
     def __enter__(self):
         return self
@@ -71,7 +74,8 @@ class FlexConnection:
         self.socket.close()
 
     def write(self, data):
-        self.socket.sendall(data)
+        with self.write_lock:
+            self.socket.sendall(data)
 
     def read_until(self, separator, timeout):
         deadline = time.monotonic() + timeout
@@ -98,6 +102,7 @@ def on_connect(client, userdata, flags, reason_code, properties=None):
     global LAST_TX_PUBLISH_TIME
 
     if reason_code == 0:
+        client.subscribe([(f"set/{STN}/mox", 0), (f"set/{STN}/tune", 0), (f"set/{STN}/atu", 0)])
         print(f"Conectado al broker {MQTT_BROKER} por el puerto {MQTT_PORT}")
         if LAST_TRANSMITTING is not None:
             LAST_TX_PUBLISH_TIME = time.monotonic()
@@ -114,6 +119,8 @@ def on_disconnect(client, userdata, disconnect_flags, reason_code, properties):
 
 
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, clean_session=True)
+command_bridge = CommandBridge(STN, mqtt_client.publish)
+mqtt_client.on_message = command_bridge.on_message
 mqtt_client.on_connect = on_connect
 mqtt_client.on_disconnect = on_disconnect
 mqtt_client.connect_async(MQTT_BROKER, MQTT_PORT, 60)
@@ -193,9 +200,11 @@ def telnet_listener():
                     tn.write(msg.encode("ascii"))
                     time.sleep(0.5)
 
+                command_bridge.attach(tn)
                 next_slice_query = 0
                 next_tx_query = time.monotonic() + TX_QUERY_INTERVAL_SECONDS
                 while True:
+                    command_bridge.expire()
                     now = time.monotonic()
                     if now >= next_slice_query:
                         tn.write(b"C999|slice list\n")
@@ -212,6 +221,8 @@ def telnet_listener():
                         continue
 
                     line = data.decode("utf-8", errors="ignore").strip()
+                    command_bridge.status(line)
+                    command_bridge.response(line)
                     update_transmit_state(line)
 
                     if line.startswith("R999|0|"):
@@ -246,11 +257,14 @@ def telnet_listener():
                         mqtt_client.publish(f"{STN}/band", LAST_BAND)
 
         except Exception as exc:
+            command_bridge.detach()
             print(f"[TELNET] Error or disconnected: {exc}")
             print("[TELNET] Reconnect in 5 seconds...")
             time.sleep(5)
             mqtt_client.publish(f"{STN}/band", "[0, 0]")
             mqtt_client.publish(f"{STN}/qrg", "0")
+        finally:
+            command_bridge.detach()
 
 
 def udp_listener():

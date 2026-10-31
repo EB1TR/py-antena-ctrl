@@ -3,6 +3,24 @@
 Plugin de Stream Deck para controlar y visualizar las estaciones, antenas,
 rotores y telemetría de py-antena-ctrl mediante MQTT.
 
+## Versión 1.3.0
+
+- **TRX - MOX**: una pulsación activa TX; la siguiente lo desactiva.
+- **TRX - TUNE**: una pulsación activa la portadora; la siguiente la apaga.
+- **TRX - ATU**: una pulsación inicia el ajuste automático; la siguiente pone
+  el acoplador en bypass. El ciclo termina solo; el ATU puede quedar activo.
+- Cada botón permite elegir STN1 o STN2. Se bloquean pulsaciones repetidas
+  mientras se espera confirmación, se muestran los errores de FLEX y «Sin datos»
+  cuando falta el heartbeat de radio durante 5 segundos.
+- MOX muestra TX real de interlock. TUNE sigue su estado informado y las órdenes
+  confirmadas; ATU sigue `status` y `atu_enabled` del equipo.
+- Requiere la nueva versión del puente `flex-mqtt` en la estación elegida.
+  STN1 se ha validado con el FLEX real; STN2 requiere actualizar su contenedor.
+
+```sh
+node --test tests/transmit.test.mjs tests/weather.test.mjs
+```
+
 ## Versión 1.2.1
 
 - La primera lectura de telemetría tras `--` aparece inmediatamente, incluso

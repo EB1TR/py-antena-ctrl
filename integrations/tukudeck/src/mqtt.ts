@@ -7,6 +7,8 @@ import type { RadioState } from "./radio-state";
 import type { Station } from "./station";
 import { processWeatherMessage, WEATHER_TOPIC } from "./weather-state";
 
+import { processTransmitControl, resetTransmitControls } from "./transmit-control";
+
 const MQTT_URL = "mqtt://192.168.88.10:1883";
 
 const TOPICS = [
@@ -82,6 +84,7 @@ function notifyConnection(): void {
 }
 
 function setMqttConnected(connected: boolean): void {
+	if (!connected) resetTransmitControls();
 	if (connectionState.connected === connected) return;
 	if (packetTimeout !== undefined) clearTimeout(packetTimeout);
 	packetTimeout = undefined;
@@ -559,6 +562,7 @@ export function connectMqtt():
 				payload.toString();
 
 			processRadioMessage(topic, value);
+			processTransmitControl(topic, value);
 			if (topic === WEATHER_TOPIC) {
 				processWeatherMessage(value);
 				return;

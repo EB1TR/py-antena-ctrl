@@ -1,6 +1,6 @@
 {
 	"Name": "TukuDeck",
-	"Version": "1.2.1.0",
+	"Version": "1.3.0.0",
 	"Author": "EB1TR",
 	"Actions": [
 		{
@@ -182,6 +182,51 @@
 					"Image": "imgs/actions/counter/key"
 				}
 			]
+		},
+		{
+			"Name": "TRX - MOX",
+			"UUID": "com.eb1tr.tukudeck.mox",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Activa y desactiva MOX en la estación seleccionada.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"PropertyInspectorPath": "ui/station.html"
+		},
+		{
+			"Name": "TRX - TUNE",
+			"UUID": "com.eb1tr.tukudeck.tune",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Activa y desactiva TUNE en la estación seleccionada.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"PropertyInspectorPath": "ui/station.html"
+		},
+		{
+			"Name": "TRX - ATU",
+			"UUID": "com.eb1tr.tukudeck.atu",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Inicia el ajuste del ATU; otra pulsación lo pone en bypass.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key"
+				}
+			],
+			"PropertyInspectorPath": "ui/station.html"
 		}
 	],
 	"Category": "TukuDeck",

@@ -3,6 +3,7 @@ import streamDeck from "@elgato/streamdeck";
 import { AntennaAction } from "./actions/antenna-action";
 import { Swap } from "./actions/swap";
 import { Rig } from "./actions/rig";
+import { Mox, Tune, Atu } from "./actions/transmit";
 
 import { BandAction } from "./actions/band-action";
 
@@ -34,6 +35,9 @@ initializeRotorColors();
 streamDeck.actions.registerAction(new AntennaAction(1));
 streamDeck.actions.registerAction(new Swap());
 streamDeck.actions.registerAction(new Rig());
+streamDeck.actions.registerAction(new Mox());
+streamDeck.actions.registerAction(new Tune());
+streamDeck.actions.registerAction(new Atu());
 
 streamDeck.actions.registerAction(new BandAction(0, "N/A"));
 
