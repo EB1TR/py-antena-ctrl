@@ -3,7 +3,7 @@ import streamDeck from "@elgato/streamdeck";
 import { AntennaAction } from "./actions/antenna-action";
 import { Swap } from "./actions/swap";
 import { Rig } from "./actions/rig";
-import { Mox, Tune, Atu } from "./actions/transmit";
+import { Mox, Tune, Atu, Split } from "./actions/transmit";
 
 import { BandAction } from "./actions/band-action";
 
@@ -38,6 +38,7 @@ streamDeck.actions.registerAction(new Rig());
 streamDeck.actions.registerAction(new Mox());
 streamDeck.actions.registerAction(new Tune());
 streamDeck.actions.registerAction(new Atu());
+streamDeck.actions.registerAction(new Split());
 
 streamDeck.actions.registerAction(new BandAction(0, "N/A"));
 

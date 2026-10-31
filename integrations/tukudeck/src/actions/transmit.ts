@@ -4,12 +4,14 @@ import { sendCommand } from "../mqtt";
 import { getStation, type StationSettings } from "../station";
 import { beginControl, getControlState, onControlState, type TransmitControl } from "../transmit-control";
 
-class TransmitAction extends SingletonAction<StationSettings> {
+type ControlSettings = StationSettings & { offsetKhz?: string | number };
+
+class TransmitAction extends SingletonAction<ControlSettings> {
     private readonly cleanups = new Map<string, () => void>();
     constructor(private readonly control: TransmitControl) { super(); }
-    override async onWillAppear(ev: WillAppearEvent<StationSettings>): Promise<void> { this.subscribe(ev); }
-    override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<StationSettings>): Promise<void> { this.subscribe(ev); }
-    private subscribe(ev: WillAppearEvent<StationSettings> | DidReceiveSettingsEvent<StationSettings>): void {
+    override async onWillAppear(ev: WillAppearEvent<ControlSettings>): Promise<void> { this.subscribe(ev); }
+    override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<ControlSettings>): Promise<void> { this.subscribe(ev); }
+    private subscribe(ev: WillAppearEvent<ControlSettings> | DidReceiveSettingsEvent<ControlSettings>): void {
         this.cleanups.get(ev.action.id)?.();
         const station = getStation(ev.payload.settings);
         const render = () => {
@@ -22,13 +24,15 @@ class TransmitAction extends SingletonAction<StationSettings> {
         this.cleanups.set(ev.action.id, onControlState(render));
         render();
     }
-    override onWillDisappear(ev: WillDisappearEvent<StationSettings>): void {
+    override onWillDisappear(ev: WillDisappearEvent<ControlSettings>): void {
         this.cleanups.get(ev.action.id)?.(); this.cleanups.delete(ev.action.id);
     }
-    override async onKeyDown(ev: KeyDownEvent<StationSettings>): Promise<void> {
+    override async onKeyDown(ev: KeyDownEvent<ControlSettings>): Promise<void> {
         const station = getStation(ev.payload.settings), state = getControlState(station, this.control);
+        const offsetHz = Math.round(Number(ev.payload.settings.offsetKhz ?? 1) * 1000);
+        if (this.control === "split" && (!Number.isFinite(offsetHz) || Math.abs(offsetHz) < 1 || Math.abs(offsetHz) > 100000)) { await ev.action.showAlert(); return; }
         if (!beginControl(station, this.control)) { if (!state.pending) await ev.action.showAlert(); return; }
-        sendCommand(`set/${station}/${this.control}`, this.control === "atu" ? (state.active ? "bypass" : "start") : (state.active ? 0 : 1));
+        sendCommand(`set/${station}/${this.control}`, this.control === "split" ? JSON.stringify({ enabled: state.active ? 0 : 1, offset_hz: offsetHz }) : this.control === "atu" ? (state.active ? "bypass" : "start") : (state.active ? 0 : 1));
     }
 }
 @action({ UUID: "com.eb1tr.tukudeck.mox" })
@@ -38,3 +42,6 @@ export class Tune extends TransmitAction { constructor() { super("tune"); } }
 
 @action({ UUID: "com.eb1tr.tukudeck.atu" })
 export class Atu extends TransmitAction { constructor() { super("atu"); } }
+
+@action({ UUID: "com.eb1tr.tukudeck.split" })
+export class Split extends TransmitAction { constructor() { super("split"); } }

@@ -1,6 +1,6 @@
 import type { Station } from "./station";
 
-export type TransmitControl = "mox" | "tune" | "atu";
+export type TransmitControl = "mox" | "tune" | "atu" | "split";
 export type ControlState = { active: boolean | null; pending: boolean; error?: string };
 const states = new Map<string, ControlState>();
 const timers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -34,7 +34,7 @@ export function beginControl(station: Station, control: TransmitControl): boolea
     timers.set(id, setTimeout(() => {
         states.set(id, { ...getControlState(station, control), pending: false, error: "Sin respuesta" });
         timers.delete(id); notify();
-    }, 7000));
+    }, control === "split" ? 20000 : 7000));
     notify(); return true;
 }
 export function processTransmitControl(topic: string, payload: string): void {
@@ -52,7 +52,7 @@ export function processTransmitControl(topic: string, payload: string): void {
         } catch { /* Ignore malformed ATU telemetry. */ }
         return;
     }
-    const match = /^(stn[12])\/(tx|tune|mox|atu)(\/result)?$/.exec(topic);
+    const match = /^(stn[12])\/(tx|tune|mox|atu|split)(\/result)?$/.exec(topic);
     if (!match) return;
     const station = match[1] as Station;
     const control = match[2] === "tx" ? "mox" : match[2] as TransmitControl;
@@ -66,18 +66,21 @@ export function processTransmitControl(topic: string, payload: string): void {
             const old = getControlState(station, control);
             const accepted = result.status === "accepted" && (control === "atu" ? ["start", "bypass"].includes(result.value) : ["0", "1"].includes(result.value));
             // MOX is displayed from actual interlock TX, never from an acknowledgment.
-            states.set(id, { active: accepted && control !== "mox" ? (control === "atu" ? result.value === "start" : result.value === "1") : old.active,
+            states.set(id, { active: accepted && control !== "mox" && control !== "split" ? (control === "atu" ? result.value === "start" : result.value === "1") : old.active,
                 pending: false, error: accepted ? undefined : result.status });
             notify();
         } catch { /* Ignore malformed replies. */ }
         return;
+    }
+    if (control === "split" && payload === "unknown") {
+        states.set(id, { ...getControlState(station, control), active: null }); notify(); return;
     }
     if (payload !== "0" && payload !== "1") return;
     if (match[2] === "tx") {
         const previous = heartbeats.get(station);
         if (previous !== undefined) clearTimeout(previous);
         heartbeats.set(station, setTimeout(() => {
-            for (const action of ["mox", "tune", "atu"] as const) {
+            for (const action of ["mox", "tune", "atu", "split"] as const) {
                 const target = key(station, action); clearPending(target);
                 states.set(target, { active: null, pending: false });
             }

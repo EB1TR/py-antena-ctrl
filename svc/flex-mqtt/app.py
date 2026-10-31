@@ -41,7 +41,7 @@ TX_QUERY_MESSAGES = (
 
 SUBSCRIBE_MESSAGES = [
     f"C0|client init PYAPP{STN}\n",
-    "C1|sub slice 0\n",
+    "C1|sub slice all\n",
     "C2|sub meter 4\n",
     "C3|sub meter 7\n",
     "C4|sub meter 8\n",
@@ -102,7 +102,7 @@ def on_connect(client, userdata, flags, reason_code, properties=None):
     global LAST_TX_PUBLISH_TIME
 
     if reason_code == 0:
-        client.subscribe([(f"set/{STN}/mox", 0), (f"set/{STN}/tune", 0), (f"set/{STN}/atu", 0)])
+        client.subscribe([(f"set/{STN}/mox", 0), (f"set/{STN}/tune", 0), (f"set/{STN}/atu", 0), (f"set/{STN}/split", 0)])
         print(f"Conectado al broker {MQTT_BROKER} por el puerto {MQTT_PORT}")
         if LAST_TRANSMITTING is not None:
             LAST_TX_PUBLISH_TIME = time.monotonic()
@@ -229,19 +229,8 @@ def telnet_listener():
                     if LAST_TRANSMITTING is not None:
                         publish_transmit_state(LAST_TRANSMITTING)
 
-                    if line.startswith("R999|0|"):
-                        if line == "R999|0|" and ACTIVE_SLICE != 9:
-                            tn.write(b"C1000|unsub slice all\n")
-                            ACTIVE_SLICE = 9
-                        elif line == "R999|0|0" and ACTIVE_SLICE != 0:
-                            tn.write(b"C1001|sub slice 0\n")
-                            ACTIVE_SLICE = 0
-                        elif line == "R999|0|1" and ACTIVE_SLICE != 1:
-                            tn.write(b"C1002|sub slice 1\n")
-                            ACTIVE_SLICE = 1
-                        elif line == "R999|0|0 1" and ACTIVE_SLICE != 0:
-                            tn.write(b"C1003|sub slice 0\n")
-                            ACTIVE_SLICE = 0
+                    receive_slice = command_bridge.split.receiver()
+                    ACTIVE_SLICE = 9 if receive_slice is None else receive_slice
 
                     if ACTIVE_SLICE == 9:
                         mqtt_client.publish(f"{STN}/band", "[0, 0]")
@@ -250,9 +239,9 @@ def telnet_listener():
                         mqtt_client.publish(f"{STN}/band", LAST_BAND)
                         mqtt_client.publish(f"{STN}/qrg", LAST_QRG)
 
-                    match_qrg = re.search(r"RF_frequency=([0-9.]+)", line)
-                    if match_qrg:
-                        frequency = float(match_qrg.group(1))
+                    receive_frequency = command_bridge.split.frequency()
+                    if receive_frequency is not None:
+                        frequency = float(receive_frequency)
                         LAST_QRG = frequency * 100000
                         mqtt_client.publish(f"{STN}/qrg", LAST_QRG)
 

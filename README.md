@@ -143,3 +143,24 @@ confirmado por interlock. ATU informó `TUNE_IN_PROGRESS`, `TUNE_SUCCESSFUL` y f
 La versión 1.3.1 renueva el heartbeat TX/RX ante respuestas TCP de la sesión
 FLEX activa, aunque interlock no cambie. Tras reconectar espera un estado
 interlock nuevo, para no conservar el TX de una sesión anterior.
+
+### SPLIT configurable (versión 1.4.0)
+
+El puente recibe `set/stnN/split` sin retención. Admite `0`/`1` con un
+desplazamiento predeterminado de +1 kHz, o JSON como
+`{"enabled":1,"offset_hz":2500}`. El desplazamiento admite enteros positivos o
+negativos entre 1 y 100000 Hz de valor absoluto. El estado real se publica en
+`stnN/split` (`0`, `1` o `unknown`); las respuestas van a `stnN/split/result`.
+
+Al activar, se clona el receptor activo si no existe otro slice de su cliente,
+y se sitúa el nuevo receptor en la frecuencia recibida más el desplazamiento.
+Si ya existe un segundo slice del mismo cliente, se sintoniza ese slice.
+La recepción permanece en el receptor original y TX se asigna al segundo.
+Al desactivar, TX vuelve al receptor activo y se conserva el segundo slice.
+Si hay varios clientes activos o varios candidatos no se elige uno arbitrariamente.
+No se cambia SPLIT durante transmisión. Las órdenes no activan MOX ni TUNE.
+
+El seguimiento de frecuencia y banda usa el receptor activo, no las frecuencias
+recibidas de B. Se suscriben todos los slices para reflejar también cambios desde
+SmartSDR. La operación utiliza la API documentada de FLEX:
+https://github.com/flexradio/smartsdr-api-docs/wiki/TCPIP-slice

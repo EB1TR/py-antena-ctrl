@@ -3,6 +3,16 @@
 Plugin de Stream Deck para controlar y visualizar las estaciones, antenas,
 rotores y telemetría de py-antena-ctrl mediante MQTT.
 
+## Versión 1.4.0
+
+- **TRX - SPLIT**: pulsar activa el split y otra pulsación devuelve TX al receptor.
+- Selector STN1/STN2 y desplazamiento configurable en kHz, con signo y por
+  defecto +1 kHz. Crea B si no existe; si ya existe, lo sintoniza al desplazamiento.
+  Al desactivar conserva B.
+- Los paneles MOX, TUNE y ATU muestran el selector de estación con controles
+  locales, sin depender de la descarga de componentes de Internet.
+- Requiere reconstruir los servicios `flex-stn1` y `flex-stn2` del servidor.
+
 ## Versión 1.3.1
 
 - El puente renueva TX/RX mientras recibe respuestas TCP del FLEX, aunque no
