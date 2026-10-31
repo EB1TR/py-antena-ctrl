@@ -164,3 +164,7 @@ El seguimiento de frecuencia y banda usa el receptor activo, no las frecuencias
 recibidas de B. Se suscriben todos los slices para reflejar también cambios desde
 SmartSDR. La operación utiliza la API documentada de FLEX:
 https://github.com/flexradio/smartsdr-api-docs/wiki/TCPIP-slice
+
+Desde 1.4.1, la creación de B especifica el mismo `pan` del receptor original.
+Solo se reutilizan slices del mismo cliente y panadapter, conservando el
+waterfall de recepción.

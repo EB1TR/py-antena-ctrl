@@ -63,8 +63,6 @@ class SplitState:
             raise ValueError('ambiguous_or_missing_receive_slice')
         if not enabled:
             return [f'slice s {receiver} tx=1']
-        if self.value() == 1:
-            return [f'slice s {self.transmitter()} tx=1']
         fields = self.slices[receiver]
         try:
             frequency = Decimal(fields['RF_frequency']) + Decimal(offset_hz) / 1000000
@@ -73,10 +71,15 @@ class SplitState:
         except (KeyError, InvalidOperation):
             raise ValueError('missing_receive_frequency') from None
         owner = fields.get('client_handle')
+        pan = fields.get('pan', '')
+        if not re.fullmatch(r'0x[0-9a-fA-F]+', pan):
+            raise ValueError('missing_receive_panadapter')
+        if self.value() == 1 and self.slices[self.transmitter()].get('pan') == pan:
+            return [f'slice s {self.transmitter()} tx=1']
         candidates = [index for index, entry in self.slices.items()
-                      if index != receiver and entry.get('client_handle') == owner]
+                      if index != receiver and entry.get('client_handle') == owner and entry.get('pan') == pan]
         if len(candidates) > 1:
             raise ValueError('ambiguous_split_slice')
         target = str(candidates[0]) if candidates else '{created}'
-        first = f'slice tune {target} {frequency:.6f}' if candidates else f'slice create clone_slice={receiver} freq={frequency:.6f}'
+        first = f'slice tune {target} {frequency:.6f}' if candidates else f'slice create clone_slice={receiver} pan={pan} freq={frequency:.6f}'
         return [first, f'slice s {receiver} active=1', f'slice s {target} tx=1']

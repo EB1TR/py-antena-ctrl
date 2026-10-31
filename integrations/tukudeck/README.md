@@ -3,6 +3,13 @@
 Plugin de Stream Deck para controlar y visualizar las estaciones, antenas,
 rotores y telemetría de py-antena-ctrl mediante MQTT.
 
+## Versión 1.4.1
+
+- TUNE, MOX y ATU usan el mismo selector STN1/STN2 que el resto de teclas.
+- SPLIT crea B explícitamente en el panadapter/waterfall del receptor original.
+  Solo reutiliza un segundo slice si pertenece al mismo cliente y waterfall.
+- El desplazamiento de SPLIT continúa siendo configurable por tecla.
+
 ## Versión 1.4.0
 
 - **TRX - SPLIT**: pulsar activa el split y otra pulsación devuelve TX al receptor.

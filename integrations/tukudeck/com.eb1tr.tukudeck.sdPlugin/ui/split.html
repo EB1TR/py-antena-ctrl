@@ -1,11 +1,38 @@
-<!doctype html>
-<html lang="es"><head><meta charset="utf-8"><title>TukuDeck · SPLIT</title>
-<style>body{margin:16px;background:#2d2d2d;color:#eee;font:13px system-ui}label{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:14px 0}select,input{background:#424242;color:#fff;border:1px solid #666;border-radius:4px;padding:6px;max-width:150px}p{color:#bbb;line-height:1.5}</style>
-<script src="transmit-inspector.js" defer></script></head><body>
-<label>Estación<select id="station"><option value="stn1">STN1</option><option value="stn2">STN2</option></select></label>
-<label>Desplazamiento (kHz)<input id="offsetKhz" type="number" min="-100" max="100" step="0.001" value="1"></label><p>B se crea o sintoniza respecto al receptor activo. Positivo: UP; negativo: DOWN. La segunda pulsación devuelve TX al receptor y conserva B.</p>
-<label>Mostrar título<input id="showTitle" type="checkbox" checked></label>
-<label>Mostrar estado<input id="showValue" type="checkbox" checked></label>
-<label>Mostrar estación<input id="showStation" type="checkbox" checked></label>
-<p id="status">Conectando con Stream Deck…</p>
-</body></html>
+<!DOCTYPE html>
+<html>
+<head lang="es">
+	<title>TukuDeck SPLIT</title>
+	<meta charset="utf-8" />
+	<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+	<link rel="stylesheet" href="inspector.css" />
+</head>
+<body>
+	<sdpi-item label="Estación">
+		<sdpi-radio setting="station" default="stn2" columns="2">
+			<option value="stn1">STN1</option>
+			<option value="stn2">STN2</option>
+		</sdpi-radio>
+	</sdpi-item>
+
+	<sdpi-item label="Desplazamiento (kHz)">
+        <sdpi-textfield setting="offsetKhz" default="1" placeholder="1"></sdpi-textfield>
+    </sdpi-item>
+    <p>Valores positivos: UP; negativos: DOWN. SPLIT abre B en el mismo waterfall que A. La segunda pulsación devuelve TX al receptor.</p>
+    <sdpi-item label="Mostrar título">
+		<sdpi-radio setting="showTitle" default="show" columns="2">
+			<option value="show">Sí</option><option value="hide">No</option>
+		</sdpi-radio>
+	</sdpi-item>
+	<sdpi-item label="Mostrar dato">
+		<sdpi-radio setting="showValue" default="show" columns="2">
+			<option value="show">Sí</option><option value="hide">No</option>
+		</sdpi-radio>
+	</sdpi-item>
+	<sdpi-item label="Mostrar STN">
+		<sdpi-radio setting="showStation" default="show" columns="2">
+			<option value="show">Sí</option><option value="hide">No</option>
+		</sdpi-radio>
+	</sdpi-item>
+	<p>Opciones independientes para esta tecla. Se aplican a los elementos que tenga el botón; STN también controla los indicadores de uso de los rotores.</p>
+</body>
+</html>

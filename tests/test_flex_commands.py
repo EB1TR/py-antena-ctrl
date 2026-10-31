@@ -92,9 +92,9 @@ class CommandsTest(unittest.TestCase):
         self.assertEqual(self.publish.call_args.args, ('stn1/tune', '0'))
 
     def prepare_split(self, second=False):
-        self.bridge.status('S123|slice 4 in_use=1 active=1 tx=1 RF_frequency=14.100000 client_handle=0xA')
+        self.bridge.status('S123|slice 4 in_use=1 active=1 tx=1 RF_frequency=14.100000 client_handle=0xA pan=0x40000000')
         if second:
-            self.bridge.status('S123|slice 7 in_use=1 active=0 tx=0 RF_frequency=14.105000 client_handle=0xA')
+            self.bridge.status('S123|slice 7 in_use=1 active=0 tx=0 RF_frequency=14.105000 client_handle=0xA pan=0x40000000')
 
     def acknowledge(self, payload=''):
         command = self.radio.recv(1024).decode().split('|', 1)[1].strip()
@@ -104,7 +104,7 @@ class CommandsTest(unittest.TestCase):
     def test_split_creates_offset_slice_then_restores_receiver_and_assigns_tx(self):
         self.prepare_split()
         self.send('split', b'{"enabled":1,"offset_hz":5000}')
-        self.assertEqual(self.acknowledge('7'), 'slice create clone_slice=4 freq=14.105000')
+        self.assertEqual(self.acknowledge('7'), 'slice create clone_slice=4 pan=0x40000000 freq=14.105000')
         self.assertEqual(self.acknowledge(), 'slice s 4 active=1')
         self.assertEqual(self.acknowledge(), 'slice s 7 tx=1')
         self.assertEqual(self.result()['status'], 'accepted')
@@ -123,8 +123,22 @@ class CommandsTest(unittest.TestCase):
         self.prepare_split()
         self.bridge.status('S123|slice 1 active=0 tx=1 client_handle=0xB')
         self.send('split', b'1')
-        self.assertEqual(self.acknowledge('8'), 'slice create clone_slice=4 freq=14.101000')
+        self.assertEqual(self.acknowledge('8'), 'slice create clone_slice=4 pan=0x40000000 freq=14.101000')
         self.acknowledge();self.acknowledge()
+
+    def test_split_does_not_reuse_slice_from_different_waterfall(self):
+        self.prepare_split(second=True)
+        self.bridge.status('S123|slice 7 pan=0x40000001')
+        self.send('split', b'1')
+        self.assertEqual(self.acknowledge('8'), 'slice create clone_slice=4 pan=0x40000000 freq=14.101000')
+        self.acknowledge();self.acknowledge()
+
+    def test_split_requires_known_waterfall_before_creation(self):
+        self.prepare_split()
+        self.bridge.status('S123|slice 4 pan=unknown')
+        self.send('split', b'1')
+        self.assertEqual(self.result()['status'], 'missing_receive_panadapter')
+        self.assertFalse(self.bridge.pending)
 
     def test_split_creation_error_never_assigns_tx(self):
         self.prepare_split()

@@ -1,6 +1,6 @@
 {
 	"Name": "TukuDeck",
-	"Version": "1.4.0.0",
+	"Version": "1.4.1.0",
 	"Author": "EB1TR",
 	"Actions": [
 		{
@@ -196,7 +196,7 @@
 					"Image": "imgs/actions/counter/key"
 				}
 			],
-			"PropertyInspectorPath": "ui/transmit.html"
+			"PropertyInspectorPath": "ui/station.html"
 		},
 		{
 			"Name": "TRX - TUNE",
@@ -211,7 +211,7 @@
 					"Image": "imgs/actions/counter/key"
 				}
 			],
-			"PropertyInspectorPath": "ui/transmit.html"
+			"PropertyInspectorPath": "ui/station.html"
 		},
 		{
 			"Name": "TRX - ATU",
@@ -226,7 +226,7 @@
 					"Image": "imgs/actions/counter/key"
 				}
 			],
-			"PropertyInspectorPath": "ui/transmit.html"
+			"PropertyInspectorPath": "ui/station.html"
 		},
 		{
 			"Name": "TRX - SPLIT",
