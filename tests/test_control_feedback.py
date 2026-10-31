@@ -4,6 +4,10 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 import unittest
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "svc/control"))
+from config_layout import compose
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('control_feedback', ROOT / 'svc/control/controller.py')
@@ -15,9 +19,12 @@ class FeedbackTest(unittest.TestCase):
     def setUp(self):
         self.now = 0
         self.messages = []
+        _, stacks, sixpack = compose(
+            json.loads((ROOT / 'cfg/control/installation.example.json').read_text()),
+            json.loads((ROOT / 'cfg/control/initial-state.example.json').read_text()))
         cfg = SimpleNamespace(
-            sixpack=json.loads((ROOT / 'cfg/sixpack.json').read_text()),
-            stacks=json.loads((ROOT / 'cfg/stacks.json').read_text()),
+            sixpack=sixpack,
+            stacks=stacks,
             stn1={'auto': True, 'band': 0, 'rig': 0, 'rele': 'dtry/relay14475/in/r7'},
             stn2={'auto': True, 'band': 0, 'rig': 0, 'rele': 'dtry/relay14475/in/r8'})
         self.engine = module.Controller(cfg, lambda topic, payload: self.messages.append((topic, payload)), lambda: self.now)

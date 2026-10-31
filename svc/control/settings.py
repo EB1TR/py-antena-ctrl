@@ -1,6 +1,9 @@
 """JSON configuration for the antenna control service."""
 
 import json
+import os
+
+from config_layout import compose
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -19,6 +22,7 @@ class Config:
     sixpack: dict
     stn1: dict
     stn2: dict
+    state_path: Path = Path("/app/data/control/state.json")
 
 
 def _load_json(path):
@@ -52,12 +56,21 @@ def load_config(config_dir=CONFIG_DIR):
     control_path = config_dir / "control.json"
     control = _load_json(control_path)
 
+    installation_path = config_dir / 'control/installation.json'
+    initial_path = config_dir / 'control/initial-state.json'
+    if installation_path.exists() or initial_path.exists():
+        stations, stacks, sixpack = compose(_load_json(installation_path), _load_json(initial_path))
+    else:
+        # Existing deployments remain valid until their own files are migrated.
+        stations = {name: _load_json(config_dir / (name + '.json')) for name in ('stn1', 'stn2')}
+        stacks, sixpack = _load_json(config_dir / 'stacks.json'), _load_json(config_dir / 'sixpack.json')
     return Config(
         mqtt_host=_required_string(control, "mqtt_host", control_path),
         mqtt_port=_required_integer(control, "mqtt_port", control_path, 1, 65535),
         mqtt_keepalive=_required_integer(control, "mqtt_keepalive", control_path, 1, 65535),
-        stacks=_load_json(config_dir / "stacks.json"),
-        sixpack=_load_json(config_dir / "sixpack.json"),
-        stn1=_load_json(config_dir / "stn1.json"),
-        stn2=_load_json(config_dir / "stn2.json"),
+        stacks=stacks,
+        sixpack=sixpack,
+        stn1=stations["stn1"],
+        stn2=stations["stn2"],
+        state_path=Path(os.environ.get("CONTROL_STATE_PATH", "/app/data/control/state.json")),
     )

@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "stations": {
+    "stn1": {
+      "auto": true,
+      "band": 0,
+      "rig": 0
+    },
+    "stn2": {
+      "auto": true,
+      "band": 0,
+      "rig": 0
+    }
+  },
+  "stacks": {
+    "0": {
+      "balun": false,
+      "outputs": {
+        "1": false,
+        "2": false,
+        "3": false
+      }
+    },
+    "160": {
+      "balun": true,
+      "outputs": {
+        "1": true,
+        "2": false,
+        "3": false
+      }
+    },
+    "80": {
+      "balun": true,
+      "outputs": {
+        "1": true,
+        "2": false,
+        "3": false
+      }
+    },
+    "60": {
+      "balun": true,
+      "outputs": {
+        "1": true,
+        "2": false,
+        "3": false
+      }
+    },
+    "40": {
+      "balun": false,
+      "outputs": {
+        "1": true,
+        "2": true,
+        "3": false
+      }
+    },
+    "30": {
+      "balun": true,
+      "outputs": {
+        "1": true,
+        "2": false,
+        "3": false
+      }
+    },
+    "20": {
+      "balun": false,
+      "outputs": {
+        "1": true,
+        "2": true,
+        "3": false
+      }
+    },
+    "17": {
+      "balun": true,
+      "outputs": {
+        "1": true,
+        "2": false,
+        "3": false
+      }
+    },
+    "15": {
+      "balun": false,
+      "outputs": {
+        "1": true,
+        "2": true,
+        "3": false
+      }
+    },
+    "12": {
+      "balun": true,
+      "outputs": {
+        "1": true,
+        "2": false,
+        "3": false
+      }
+    },
+    "10": {
+      "balun": false,
+      "outputs": {
+        "1": true,
+        "2": true,
+        "3": false
+      }
+    }
+  }
+}

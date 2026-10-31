@@ -1,0 +1,11 @@
+html.control-stale .tablestn,
+html.control-stale .stations .section,
+html.control-stale .owner {
+  opacity: .4;
+}
+html.control-stale [data-topic^="set/stn"] {
+  pointer-events: none;
+  cursor: wait;
+}
+
+.control-unconfirmed { opacity: .4; border-style: dashed !important; }

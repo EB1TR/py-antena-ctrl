@@ -42,7 +42,7 @@ export class AntennaAction extends SingletonAction<AntennaSettings> {
 			const antenna = this.getAntennaState(number, station, state);
 			void setKeyImage(action, antenna
 				? this.makeAntennaImage(number, antenna.nombre ?? `ANT${number}`, antenna.estado === true, station, antenna.tw)
-				: this.makeUnavailableImage());
+				: this.makeUnavailableImage(), !state?.[station]);
 		};
 		this.subscriptions.set(action.id, onPyToFrontState(render));
 		render(getPyToFrontState());

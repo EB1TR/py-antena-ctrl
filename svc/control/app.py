@@ -12,6 +12,7 @@ import paho.mqtt.client as mqtt
 
 import settings
 from controller import Controller
+from state_store import StateStore
 
 
 LOG = logging.getLogger('control')
@@ -28,13 +29,30 @@ def main():
 
     def publish(topic, payload):
         if observe_only:
-            if topic in ('pytofront', 'control/health'):
-                topic = 'control/shadow/state' if topic == 'pytofront' else 'control/shadow/health'
+            if topic in ('pytofront', 'control/health', 'control/config', 'control/heartbeat', 'control/availability'):
+                topic = 'control/shadow/' + ('state' if topic == 'pytofront' else topic.split('/')[-1])
             elif not topic.endswith('/Set/GetStatus'):
-                return  # Never actuate hardware in observation mode.
-        client.publish(topic, payload, retain=False)
+                return
+        retained = topic == 'pytofront' or topic.endswith(('/config', '/health', '/availability', '/state'))
+        client.publish(topic, payload, retain=retained)
 
     controller = Controller(config, publish, actuation_enabled=not observe_only)
+    store = StateStore(config.state_path)
+    saved_state = store.load()
+    if saved_state is not None:
+        controller.restore_state(saved_state)
+        LOG.info('Estado operativo recuperado de %s; pendiente de confirmar hardware', config.state_path)
+
+    def persist_state():
+        if observe_only or not controller.connected or not controller.baseline_ready:
+            return
+        try:
+            store.save(controller.export_state())
+        except OSError as error:
+            now = time.monotonic()
+            if now - last_warning.get('state_storage', -100) >= 5:
+                LOG.error('No se puede guardar el estado en %s: %s', config.state_path, error)
+                last_warning['state_storage'] = now
 
     def enqueue(event):
         try:
@@ -55,6 +73,7 @@ def main():
         subscriptions.extend(sorted({relay.split('/in/')[0] + '/out/lwt_availability'
                                      for relay in controller.relays if '/in/' in relay}))
         client.subscribe([(topic, 0) for topic in subscriptions])
+        publish('control/availability', 'online')
         enqueue(('connect',))
 
     def on_disconnect(client, userdata, flags, code, properties):
@@ -64,6 +83,7 @@ def main():
         enqueue(('message', message.topic, message.payload, message.retain))
 
     client.on_connect, client.on_disconnect, client.on_message = on_connect, on_disconnect, on_message
+    client.will_set('control/shadow/availability' if observe_only else 'control/availability', 'offline', retain=True)
     client.connect_async(config.mqtt_host, config.mqtt_port, config.mqtt_keepalive)
     client.loop_start()
     LOG.info('Control con feedback iniciado%s', ' en observación (sin accionar relés)' if observe_only else '')
@@ -97,7 +117,11 @@ def main():
                         if now - last_warning.get(event[1], -100) >= 5:
                             LOG.warning('Mensaje inválido en %s: %s', event[1], error)
                             last_warning[event[1]] = now
+            # Checkpoint changed preferences before asking hardware to follow them;
+            # checkpoint the resulting observations/diagnostics after alignment.
+            persist_state()
             controller.tick()
+            persist_state()
             summary = tuple((station, controller.requests[station], controller.confirmed_band(station))
                             for station in controller.stations)
             if summary != previous:
@@ -106,6 +130,7 @@ def main():
     except KeyboardInterrupt:
         LOG.info('Finalizando control')
     finally:
+        publish('control/availability', 'offline')
         client.disconnect(); client.loop_stop()
 
 

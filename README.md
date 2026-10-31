@@ -266,3 +266,92 @@ docker compose logs -f --tail=100 control flex-stn1 flex-stn2
 El plugin Stream Deck se instala por separado con el paquete 1.8.0. Consulta
 [integrations/tukudeck/README.md](integrations/tukudeck/README.md) para el comportamiento
 actual de RX/TX Maestro y de la tecla SPLIT especial.
+
+### Configuración permanente y recuperación del estado de control
+
+El formato MQTT (`pytofront` y `control/health`) se mantiene. Las vistas antiguas,
+`stack-v2`, los mapas azimutales y TukuDeck siguen recibiendo la misma estructura.
+Esta reorganización no implementa todavía el protocolo de comunicación reducido.
+
+```text
+cfg/
+  control.json                  conexión MQTT del servicio
+  control/
+    installation.json           estaciones, antenas, rotores, haces y relés
+    initial-state.json          valores iniciales cuando no hay estado guardado
+data/
+  control/
+    state.json                  último estado operativo y observaciones
+```
+
+`installation.json` contiene la configuración permanente: nombres, salidas por
+banda, rotor y haz de cada antena, cableado de relés, multiplexación y alimentación.
+No contiene el modo automático, banda elegida ni selección de antenas.
+`initial-state.json` define esos valores de arranque; no se reescribe al operar.
+Los ficheros `.example.json` son ejemplos versionados; los ficheros reales y el
+estado operativo son locales y están excluidos de Git.
+
+Para convertir **los ficheros de cada instalación**, sin borrarlos ni sobrescribir
+una configuración nueva existente:
+
+```sh
+python3 svc/control/config_layout.py cfg
+```
+
+La conversión usa `stn1.json`, `stn2.json`, `stacks.json` y `sixpack.json`. Mientras
+no exista el nuevo formato, el cargador admite el anterior. Si existe solo parte
+del nuevo formato o es inválido, falla explícitamente: no ignora el error ni usa
+silenciosamente otra configuración. Los ejemplos permiten preparar una instalación
+nueva; no se copian automáticamente sobre la configuración de Tuku.
+
+Control guarda `data/control/state.json` solo cuando cambia su contenido,
+mediante un temporal en el mismo directorio, `fsync` y reemplazo atómico. Compose
+mantiene `cfg` en solo lectura y da escritura únicamente al directorio de estado.
+El guardado comienza después de recibir el feedback completo de los relés y no
+se ejecuta en modo de observación. `CONTROL_STATE_PATH` permite cambiar la ruta.
+Un estado existente corrupto o incompatible impide el arranque y no se sustituye
+por valores iniciales silenciosamente.
+
+Se recuperan AUTO/MANUAL, bandas solicitadas, selección de salidas en todas las
+bandas y bandas previamente preparadas. Se guardan también alimentación observada,
+relés, bandas y TX recibidos, diagnóstico y órdenes de alimentación pendientes
+para conservar el contexto. Esas observaciones **no se restauran como confirmaciones
+ni se reproducen como órdenes de alimentación**: al arrancar se relee el hardware,
+se esperan datos frescos de radio y se mantienen los bloqueos de TX. En AUTO, la
+banda real nueva del FLEX tiene prioridad sobre la última banda guardada.
+Si los relés ya coinciden, no se conmutan innecesariamente. Las selecciones
+recuperadas no se sustituyen por el feedback inicial durante su reconciliación.
+
+Esto conserva el estado del servicio de antenas; no guarda ni restaura los slices,
+frecuencias o audio internos del FLEX ni la posición de los rotores. Las opciones
+de cada botón de Stream Deck continúan almacenadas por Stream Deck.
+
+### Protocolo de consumidores 2 / TukuDeck 1.9.0
+
+Control separa configuración permanente y estado operativo en MQTT:
+
+- `control/config`: catálogo retenido (estaciones, antenas por banda, nombres,
+  rotores y haces). Solo se publica cuando cambia o al reconectar control.
+- `pytofront`: estado compacto retenido, solo cuando cambia. Contiene referencia
+  al catálogo, identificador de sesión, revisión, estaciones, selecciones por
+  banda y un resumen de sincronización. No incluye cableado ni diagnóstico completo.
+- `control/heartbeat`: señal de vida no retenida cada 2 s y tras cambios, con la
+  sesión y revisión actuales. No repite el catálogo ni el estado.
+- `control/availability`: online/offline retenido, con Last Will MQTT.
+- `control/health`: diagnóstico detallado retenido, solo cuando cambia. No lo
+  reciben las interfaces normales. `update` permite solicitar una republicación.
+
+La web antigua, stack-v2, stack-azimut y TukuDeck comparten el decodificador
+`static/control-state.js`. Reconstruye su modelo de presentación sin duplicar el
+catálogo en cada actualización. Un catálogo/estado retenido no confirma que el
+servicio esté vivo: se espera un heartbeat de la misma sesión y una revisión
+compatible. Tras 5 s sin señal, o al recibir offline/desconectarse, se invalidan
+los controles de antenas. Los datos FLEX y rotores conservan sus circuitos de
+actualización y caducidad independientes. Las selecciones sin feedback se
+transmiten como null, no como un OFF confirmado.
+
+Para actualizar: desplegar control y los archivos web juntos, recargar las vistas
+abiertas e instalar TukuDeck 1.9.0. Las interfaces nuevas aceptan el paquete antiguo
+para poder actualizarlas antes que control. Los consumidores antiguos necesitan
+actualizarse para interpretar el protocolo 2. No requiere cambiar los puentes FLEX.
+El estado completo sigue guardándose en disco; se reduce lo enviado por red.

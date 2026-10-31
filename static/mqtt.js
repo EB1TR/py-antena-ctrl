@@ -12,6 +12,10 @@ const client = new Paho.MQTT.Client(mqttHOST, mqttPORT, clientID);
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
 
+const controlFeed = ControlState.createConsumer(
+    cfg => onMessageArrived({ destinationName: 'pytofront', controlState: cfg, payloadString: '' }),
+    fresh => document.documentElement.classList.toggle('control-stale', !fresh)
+);
 connectMqtt();
 
 window.addEventListener("online", () => {
@@ -113,20 +117,18 @@ function onConnect() {
     }
     console.log("Connectado a MQTT.");
     setConnectionVisual(true);
-    client.subscribe("pytofront");
+    ControlState.TOPICS.forEach(topic => client.subscribe(topic));
     client.subscribe("stn1/#");
     client.subscribe("stn2/#");
     client.subscribe("tw1/#");
     client.subscribe("tw2/#");
     client.subscribe("tw3/#");
     console.log("Suscrito a topics MQTT.");
-    const message = new Paho.MQTT.Message('0');
-    message.destinationName = "update";
-    client.send(message);
-    console.log("Información inicial solicitada.")
+
 }
 
 function onConnectionLost(responseObject) {
+    controlFeed.disconnect();
     connecting = false;
     if (responseObject.errorCode !== 0) {
         console.log("Conexión perdida a MQTT:"+responseObject.errorMessage);
@@ -136,6 +138,7 @@ function onConnectionLost(responseObject) {
 }
 
 function send_command(comm, dato){
+    if (/^set\/(?:stn[12]\/(?:antm|band|stack|nostack|rig)|stack\d+)/.test(comm) && !controlFeed.isFresh()) return false;
     if (!client.isConnected()) {
         console.log(`MQTT desconectado; no se envía ${comm}=${dato}.`);
         setConnectionVisual(false);
@@ -150,6 +153,7 @@ function send_command(comm, dato){
 }
 
 function onMessageArrived(message) {
+    if (!message.controlState && controlFeed.receive(message.destinationName, message.payloadString)) return;
     const positionTopic = /^(tw[123])\/deg$/.exec(message.destinationName);
     if (positionTopic && window.ROTOR_FRESHNESS && !window.ROTOR_FRESHNESS.position(positionTopic[1], message.payloadString)) return;
     const motionTopic = /^(tw[123])\/nec$/.exec(message.destinationName);
@@ -351,13 +355,15 @@ function onMessageArrived(message) {
             $('#tw3nec').text("🆗")
         }
     } else if (message.destinationName == "pytofront") {
-        json = JSON.parse(message.payloadString)
+        json = message.controlState || JSON.parse(message.payloadString)
         window.AZIMUT_SELECTION_STATE = json;
         if (typeof window.AZIMUT_UPDATE_SELECTION === 'function') {
             window.AZIMUT_UPDATE_SELECTION(json);
         }
         if (json.stn1 != undefined) {
-            json = JSON.parse(message.payloadString)
+            for (const station of ['stn1', 'stn2']) for (let i = 1; i <= 3; i++) {
+                $(`#${station}-stack${i}`).toggleClass('control-unconfirmed', json.stacks?.[json[station].band]?.[i]?.confirmed === false);
+            }
             bstn1 = "#stn1-b"+json.stn1.band
             bstn2 = "#stn2-b"+json.stn2.band
 

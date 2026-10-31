@@ -6,6 +6,8 @@ import logging
 import re
 import time
 
+from protocol import ControlPublisher
+
 
 LOG = logging.getLogger('control.relays')
 
@@ -34,6 +36,7 @@ def boolean(payload):
 class Controller:
     def __init__(self, config, publish, clock=time.monotonic, actuation_enabled=True):
         self.publish, self.clock = publish, clock
+        self.output = ControlPublisher(publish, clock)
         self.actuation_enabled = actuation_enabled
         self.stations = {'stn1': deepcopy(config.stn1), 'stn2': deepcopy(config.stn2)}
         for state in self.stations.values(): state.pop('segmento', None)
@@ -69,6 +72,7 @@ class Controller:
         return self.observed[topic]
 
     def reconnect(self):
+        self.output.reset()
         self.connected = True
         self.baseline_ready = False
         self.observed.clear(); self.observed_at.clear(); self.sent.clear(); self.faults.clear()
@@ -227,6 +231,7 @@ class Controller:
         if topic == 'control/resync':
             self.sent.clear(); self.faults.clear(); self.last_poll = -100
         if topic == 'update':
+            self.output.force = True
             self.last_status_time = -100
 
     def stack_targets(self, band):
@@ -334,10 +339,8 @@ class Controller:
             self.publish(board + '/Set/GetStatus', '0')
         snapshot = self.snapshot(route_plan, stack_plan)
         serialized = json.dumps(snapshot, ensure_ascii=False, sort_keys=True)
-        if serialized != self.last_snapshot or now - self.last_status_time >= 2:
-            self.publish('pytofront', serialized)
-            self.publish('control/health', json.dumps(snapshot['relay_sync'], ensure_ascii=False))
-            self.last_snapshot, self.last_status_time = serialized, now
+        self.output.tick(snapshot)
+        self.last_snapshot, self.last_status_time = serialized, now
 
     def confirmed_band(self, station):
         group = self.groups[station]
@@ -384,3 +387,62 @@ class Controller:
                                 'missing_feedback': missing, 'faults': dict(self.faults),
                                 'tx_blocked': [s for s in self.stations if not self.receive_safe(s)]}
         return result
+
+    def export_state(self):
+        """Persist preferences and observations, without treating the latter as proof on restart."""
+        diagnostics = json.loads(self.last_snapshot)['relay_sync'] if self.last_snapshot else {}
+        return {
+            'schema_version': 1,
+            'desired': {
+                'stations': {name: {'auto': state['auto'], 'band': self.requests[name]}
+                             for name, state in self.stations.items()},
+                'stacks': {band: {'outputs': {str(i): stack[str(i)]['estado'] for i in range(1, 4)}}
+                           for band, stack in self.stacks.items()},
+                'prepared_bands': sorted(self.prepared),
+                'power_commands': dict(self.power_targets),
+            },
+            'observed': {
+                'relays': {relay: self.actual(relay) for relay in sorted(self.relays)},
+                'stations': {name: {'rig': state['rig'], 'confirmed_band': self.confirmed_band(name)}
+                             for name, state in self.stations.items()},
+                'radio_bands': dict(self.radio_bands), 'transmitting': dict(self.tx),
+                'boards_online': dict(self.online), 'diagnostics': diagnostics,
+            },
+        }
+
+    def restore_state(self, document):
+        """Restore operating preferences only; always reconfirm hardware and radio inputs."""
+        try:
+            if document.get('schema_version') != 1:
+                raise ValueError('Versión de estado incompatible')
+            desired = document['desired']
+            stations, stacks = desired['stations'], desired['stacks']
+            if set(stations) != set(self.stations) or set(stacks) != set(self.stacks):
+                raise ValueError('El estado no corresponde a las estaciones/bandas configuradas')
+            requests = {}
+            for name, saved in stations.items():
+                if type(saved['auto']) is not bool or type(saved['band']) is not int:
+                    raise ValueError('Modo o banda guardados inválidos')
+                if str(saved['band']) not in self.sixpack[name[-1]]:
+                    raise ValueError('Banda guardada no configurada')
+                requests[name] = saved['band']
+            for band, saved in stacks.items():
+                if set(saved['outputs']) != {'1', '2', '3'} or any(type(value) is not bool for value in saved['outputs'].values()):
+                    raise ValueError('Selección guardada inválida')
+            prepared = desired.get('prepared_bands', [])
+            if not isinstance(prepared, list) or any(type(band) is not int or str(band) not in self.stacks for band in prepared):
+                raise ValueError('Bandas preparadas inválidas')
+        except (ValueError, KeyError, TypeError, AttributeError) as error:
+            raise ValueError(f'No se puede restaurar el estado de control: {error}') from error
+        # Apply only after the entire recoverable state has passed validation.
+        for name, saved in stations.items():
+            self.stations[name]['auto'] = saved['auto']
+        self.requests = requests
+        for band, saved in stacks.items():
+            for index, value in saved['outputs'].items():
+                self.stacks[band][index]['estado'] = value
+            self.stacks[band]['balun'] = sum(saved['outputs'][str(i)] for i in range(1, int(self.stacks[band]['salidas']) + 1)) > 1
+        self.prepared = set(prepared)
+        self.initialized_stacks = {int(band) for band in stacks}
+        # Relays, rig power, TX, faults, retries and queued power commands are historical
+        # observations, not authorization to replay physical commands after a restart.

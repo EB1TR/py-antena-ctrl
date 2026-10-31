@@ -61,7 +61,7 @@ export class Rig extends SingletonAction<StationSettings> {
 		station: Station,
 		state?: PyToFrontState
 	): Promise<void> {
-		await setKeyImage(actionInstance, this.makeImage(Number(state?.[station]?.rig ?? 0) !== 0, station));
+		await setKeyImage(actionInstance, this.makeImage(Number(state?.[station]?.rig ?? 0) !== 0, station), !state?.[station]);
 	}
 
 	private makeImage(active: boolean, station: Station): string {

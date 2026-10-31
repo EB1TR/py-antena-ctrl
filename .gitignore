@@ -123,3 +123,7 @@ cfg/stn2.json
 cfg/stacks.json
 
 .DS_Store
+# Local recoverable state and migrated installation data
+data/control/
+cfg/control/installation.json
+cfg/control/initial-state.json

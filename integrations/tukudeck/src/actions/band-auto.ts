@@ -62,7 +62,7 @@ export class BandAuto extends SingletonAction<StationSettings> {
 		state?: PyToFrontState
 	): Promise<void> {
 		const auto = state?.[station]?.auto;
-		await setKeyImage(actionInstance, this.makeImage(auto === true, station), auto === false);
+		await setKeyImage(actionInstance, this.makeImage(auto === true, station), auto === false || !state?.[station]);
 	}
 
 	private makeImage(active: boolean, station: Station): string {

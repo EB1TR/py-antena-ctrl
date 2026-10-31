@@ -3,7 +3,17 @@
 Plugin de Stream Deck para controlar y visualizar las estaciones, antenas,
 rotores y telemetría de py-antena-ctrl mediante MQTT.
 
-## Versión actual: 1.8.0
+## Versión actual: 1.9.0
+
+Usa el protocolo 2 de control: catálogo retenido, estado compacto por cambios y
+heartbeat de 2 s. Comparte el decodificador con las vistas web. No repinta ni
+registra el estado de antenas en cada heartbeat. Bloquea órdenes de antenas sin
+estado fresco de control, independientemente de que sigan llegando datos FLEX.
+Los botones FLEX (MOX/TUNE/ATU/MUTE/RX/TX/SPLIT) mantienen su comportamiento.
+Requiere actualizar control y recargar las vistas web; admite el formato anterior
+durante la transición. El instalador sustituye a la versión 1.8.0.
+
+## Versión 1.8.0
 
 RX A/B funcionan como pulsaciones breves en Maestro: abren o cierran receptores, ambos pueden estar verdes incluso muteados. Con dos panadapters del mismo cliente recorren primero → segundo → cerrado (se recrea el slice conservando frecuencia, modo, filtros, audio y asignaciones). Los panadapters siguen el orden de recepción del cliente. A se debe abrir antes que B cuando no existe ningún slice. RX A puede abrir el primero usando el centro del panadapter y la persistencia de modo del FLEX. TX A/B asignan TX sin emitir. TX B con B cerrado crea un split de 1 kHz en CW/RTTY/DIGL/DIGU o 5 kHz en otros modos, conservando el foco en A. Se rechazan operaciones ambiguas entre clientes y cambios durante TX. Las secuencias se ejecutan con confirmación paso a paso.
 

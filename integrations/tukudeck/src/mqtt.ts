@@ -1,5 +1,6 @@
 import streamDeck from "@elgato/streamdeck";
 import mqtt, { MqttClient } from "mqtt";
+import { TOPICS as CONTROL_TOPICS, createConsumer } from "../../../static/control-state.js";
 
 import { getRadioState, onRadioState, processRadioMessage } from "./radio-state";
 import type { RadioState } from "./radio-state";
@@ -12,7 +13,7 @@ import { processTransmitControl, resetTransmitControls } from "./transmit-contro
 const MQTT_URL = "mqtt://192.168.88.10:1883";
 
 const TOPICS = [
-	"pytofront",
+	...CONTROL_TOPICS,
 	"stn1/#",
 	"stn2/#",
 	"tw1/#",
@@ -340,6 +341,11 @@ function notifyPyToFront():
 	}
 }
 
+const controlFeed = createConsumer(
+    data => processPyToFront(JSON.stringify(data)),
+    fresh => { if (!fresh) { pyToFrontState = {}; notifyPyToFront(); } }
+);
+
 function processPyToFront(
 	value: string
 ): void {
@@ -415,7 +421,9 @@ export function sendCommand(
 	topic: string,
 	value: string | number
 ): void {
-
+    if (/^set\/(?:stn[12]\/(?:antm|band|stack|nostack|rig)|stack\d+)/.test(topic) && !controlFeed.isFresh()) {
+        streamDeck.logger.warn(`Control sin datos: no se envía ${topic}`); return;
+    }
 	if (
 		!client?.connected
 	) {
@@ -586,17 +594,7 @@ export function connectMqtt():
 				);
 			}
 
-			if (
-				topic ===
-				"pytofront"
-			) {
-
-				processPyToFront(
-					value
-				);
-
-				return;
-			}
+            if (controlFeed.receive(topic, value)) return;
 
 			streamDeck.logger.info(
 				`MQTT ${topic} = ${value}`

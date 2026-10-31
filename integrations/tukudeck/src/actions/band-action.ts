@@ -100,7 +100,7 @@ export class BandAction extends SingletonAction<BandSettings> {
 		state?: PyToFrontState
 	): Promise<void> {
 		const currentBand = Number(state?.[station]?.band ?? -1);
-		await setKeyImage(actionInstance, this.makeImage(currentBand === band, band, station));
+		await setKeyImage(actionInstance, this.makeImage(currentBand === band, band, station), !state?.[station]);
 	}
 
 	private makeImage(active: boolean, band: number, station: Station): string {
