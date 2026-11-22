@@ -409,6 +409,37 @@ class CommandsTest(unittest.TestCase):
         self.bridge.status('R999|0||')
         self.assertIsNone(self.bridge.split.receiver())
 
+    def test_split_stays_on_when_tuning_tx_slice(self):
+        self.prepare_split(second=True)
+        self.bridge.status('S123|slice 4 tx=0')
+        self.bridge.status('S123|slice 7 tx=1')
+        self.publish.reset_mock()
+        self.bridge.status('S123|slice 4 active=0')
+        self.bridge.status('S123|slice 7 active=1 RF_frequency=14.107000')
+        self.assertEqual(str(self.bridge.split.frequency()), '14.107000')
+        split_updates = [call.args[1] for call in self.publish.call_args_list
+                         if call.args[0] == 'stn1/split']
+        self.assertEqual(split_updates, [])
+        self.assertEqual(self.bridge.split.value(), 1)
+        self.bridge.status('S123|slice 7 tx=0')
+        self.bridge.status('S123|slice 4 tx=1')
+        self.assertEqual(self.bridge.split.value(), 0)
+
+    def test_manual_tx_reassignment_updates_split_with_b_open_and_focused(self):
+        self.prepare_split(second=True)
+        self.bridge.status('S123|slice 4 active=0')
+        self.bridge.status('S123|slice 7 active=1')
+        self.publish.reset_mock()
+        self.bridge.status('S123|slice 7 tx=1')
+        self.assertEqual(self.bridge.split.button_states()['txa'], '0')
+        self.bridge.status('S123|slice 4 tx=1')
+        self.bridge.status('S123|slice 7 tx=0')
+        self.assertIn(7, self.bridge.split.slices)
+        self.assertEqual(self.bridge.split.button_states()['txb'], '0')
+        split_updates = [call.args[1] for call in self.publish.call_args_list
+                         if call.args[0] == 'stn1/split']
+        self.assertEqual(split_updates, ['1', '0'])
+
     def test_unrelated_response_does_not_ack_command(self):
         self.send('mox', b'1')
         self.bridge.response('R999|0|0 1')

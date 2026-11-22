@@ -40,7 +40,14 @@ class SplitState:
             if text == 'removed' or fields.get('in_use') == '0':
                 self.slices.pop(index, None)
             else:
-                self.slices.setdefault(index, {}).update(fields)
+                current = self.slices.setdefault(index, {})
+                current.update(fields)
+                owner = current.get('client_handle')
+                if fields.get('tx') == '1' and owner and owner != '0x00000000':
+                    # A TX assignment replaces the previous one for this client.
+                    for other_index, other in self.slices.items():
+                        if other_index != index and other.get('client_handle') == owner and other.get('tx') == '1':
+                            other['tx'] = '0'
         listing = re.match(r'^R999\|0\|([^|]*)', line)
         if listing:
             self.slice_list_known = True
@@ -55,14 +62,26 @@ class SplitState:
         receiver = self.receiver()
         if receiver is None:
             return None
-        owner = self.slices[receiver].get('client_handle')
+        return self.transmitter_for(self.slices[receiver].get('client_handle'))
+
+    def transmitter_for(self, owner):
         targets = [index for index, fields in self.slices.items()
                    if fields.get('client_handle') == owner and fields.get('tx') == '1']
         return targets[0] if len(targets) == 1 else None
 
     def value(self):
-        receiver, transmitter = self.receiver(), self.transmitter()
-        return None if receiver is None or transmitter is None else int(receiver != transmitter)
+        receiver = self.receiver()
+        try:
+            owner = self.owner()
+        except ValueError:
+            return None
+        transmitter = self.transmitter_for(owner)
+        primary = [index for index, fields in self.slices.items()
+                   if fields.get('client_handle') == owner and fields.get('index_letter') == 'A']
+        if len(primary) > 1 or transmitter is None:
+            return None
+        reference = primary[0] if primary else receiver
+        return None if reference is None else int(reference != transmitter)
 
     def frequency(self):
         try:
@@ -104,8 +123,8 @@ class SplitState:
         pan = fields.get('pan', '')
         if not re.fullmatch(r'0x[0-9a-fA-F]+', pan):
             raise ValueError('missing_receive_panadapter')
-        if self.value() == 1 and self.transmitter() != receiver and self.slices[self.transmitter()].get('pan') == pan:
-            target = self.transmitter()
+        target = self.transmitter()
+        if target is not None and target != receiver and self.slices[target].get('pan') == pan:
             if audio and self.slices[target].get('index_letter') != 'B':
                 raise ValueError('ambiguous_or_missing_slice_b')
             mute = [] if mute_b is None else [f'slice s {target} audio_mute={int(mute_b)}']
