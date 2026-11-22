@@ -114,6 +114,8 @@ venv.bak/
 #VSCode
 .vscode
 
+/.codex/
+
 #Parsed Files
 eqslusers.csv
 lowtusers.csv
